@@ -36,7 +36,7 @@ export function Graph(props: GraphProps) {
     context: CanvasRenderingContext2D,
   ) {
     context.save()
-    // context.setTransform(1, 0, 0, 1, 0, 0)
+    context.setTransform(1, 0, 0, 1, 0, 0)
     context.fillStyle = BACKGROUND
     context.fillRect(0, 0, WIDTH, HEIGHT)
     context.restore()
@@ -71,8 +71,7 @@ export function Graph(props: GraphProps) {
     const context = canvas.getContext('2d')!
     contextRef.current = context
 
-    d3
-      .forceSimulation(nodesRef.current)
+    d3.forceSimulation(nodesRef.current)
       .force(
         'link',
         d3

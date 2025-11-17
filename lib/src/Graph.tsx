@@ -93,6 +93,7 @@ export function Graph(props: GraphProps) {
     canvas: canvasRef,
     nodes: nodesRef,
     draw: requestRender,
+    nodeRadius: NODE_RADIUS,
   })
 
   return <canvas ref={canvasRef} width={WIDTH} height={HEIGHT} />

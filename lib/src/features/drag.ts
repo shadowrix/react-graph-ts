@@ -5,13 +5,19 @@ export type UseDragParameters = {
   canvas: React.RefObject<HTMLCanvasElement | null>
   nodes: React.RefObject<NodeType[]>
   draw: () => void
+  nodeRadius: number
 }
 
-export function useDrag({ canvas, nodes, draw }: UseDragParameters) {
+export function useDrag({
+  canvas,
+  nodes,
+  draw,
+  nodeRadius,
+}: UseDragParameters) {
   const draggingNodeRef = React.useRef<NodeType | null>(null)
 
   /**TODO: Rename */
-  function screenToGraphCoords(event: PointerEvent) {
+  function getCursorCoords(event: PointerEvent) {
     const rect = canvas.current!.getBoundingClientRect()
     const x = event.clientX - rect.left
     const y = event.clientY - rect.top
@@ -22,13 +28,13 @@ export function useDrag({ canvas, nodes, draw }: UseDragParameters) {
   React.useEffect(() => {
     function handlePointerDown(event: PointerEvent) {
       console.log('handlePointerDown')
-      const { x, y } = screenToGraphCoords(event)
+      const { x, y } = getCursorCoords(event)
 
       for (let i = nodes.current.length - 1; i >= 0; i--) {
         const node = nodes.current[i]
         const dx = x - node.x!
         const dy = y - node.y!
-        if (dx * dx + dy * dy < 10 * 10) {
+        if (dx * dx + dy * dy < nodeRadius * nodeRadius) {
           draggingNodeRef.current = node
           draggingNodeRef.current.fx = x
           draggingNodeRef.current.fy = y
@@ -42,7 +48,7 @@ export function useDrag({ canvas, nodes, draw }: UseDragParameters) {
     function handlePointerMove(event: PointerEvent) {
       if (!draggingNodeRef.current) return
 
-      const { x, y } = screenToGraphCoords(event)
+      const { x, y } = getCursorCoords(event)
 
       draggingNodeRef.current.fx = x
       draggingNodeRef.current.fy = y
@@ -58,7 +64,7 @@ export function useDrag({ canvas, nodes, draw }: UseDragParameters) {
         draw()
       }
     }
-    console.log(canvas.current)
+
     canvas.current?.addEventListener('pointerdown', handlePointerDown)
     window.addEventListener('pointermove', handlePointerMove)
     window.addEventListener('pointerup', handlePointerUp)

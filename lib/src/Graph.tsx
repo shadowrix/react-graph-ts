@@ -2,6 +2,7 @@ import React from 'react'
 import * as d3 from 'd3'
 import { LinkType, NodeType } from './typings'
 import { drawAllLinks, drawAllNodes } from './features/draw'
+import { useDrag } from './features/drag'
 
 export type GraphProps = {
   nodes: NodeType[]
@@ -87,6 +88,12 @@ export function Graph(props: GraphProps) {
         requestRender()
       })
   }, [requestRender])
+
+  useDrag({
+    canvas: canvasRef,
+    nodes: nodesRef,
+    draw: requestRender,
+  })
 
   return <canvas ref={canvasRef} width={WIDTH} height={HEIGHT} />
 }

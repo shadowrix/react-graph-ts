@@ -16,7 +16,6 @@ export function useDrag({
 }: UseDragParameters) {
   const draggingNodeRef = React.useRef<NodeType | null>(null)
 
-  /**TODO: Rename */
   function getCursorCoords(event: PointerEvent) {
     const rect = canvas.current!.getBoundingClientRect()
     const x = event.clientX - rect.left
@@ -27,7 +26,6 @@ export function useDrag({
 
   React.useEffect(() => {
     function handlePointerDown(event: PointerEvent) {
-      console.log('handlePointerDown')
       const { x, y } = getCursorCoords(event)
 
       for (let i = nodes.current.length - 1; i >= 0; i--) {

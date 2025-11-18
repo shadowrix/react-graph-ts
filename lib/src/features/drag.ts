@@ -1,38 +1,33 @@
 import React from 'react'
+import * as d3 from 'd3'
+
 import { NodeType } from '../typings'
+import { getCursorCoords } from '../helpers'
 
 export type UseDragParameters = {
   canvas: React.RefObject<HTMLCanvasElement | null>
   nodes: React.RefObject<NodeType[]>
   draw: () => void
   nodeRadius: number
-  simulationRef: any
+  simulationRef: React.RefObject<d3.Simulation<NodeType, undefined> | null>
   alphaDecay: number
   isFixed: boolean
 }
 
 export function useDrag({
-  canvas,
-  nodes,
   draw,
+  nodes,
+  canvas,
+  isFixed,
+  alphaDecay,
   nodeRadius,
   simulationRef,
-  alphaDecay,
-  isFixed,
 }: UseDragParameters) {
   const draggingNodeRef = React.useRef<NodeType | null>(null)
 
-  function getCursorCoords(event: PointerEvent) {
-    const rect = canvas.current!.getBoundingClientRect()
-    const x = event.clientX - rect.left
-    const y = event.clientY - rect.top
-
-    return { x, y }
-  }
-
   React.useEffect(() => {
     function handlePointerDown(event: PointerEvent) {
-      const { x, y } = getCursorCoords(event)
+      const { x, y } = getCursorCoords(event, canvas.current!)
 
       for (let i = nodes.current.length - 1; i >= 0; i--) {
         const node = nodes.current[i]
@@ -55,12 +50,12 @@ export function useDrag({
     function handlePointerMove(event: PointerEvent) {
       if (!draggingNodeRef.current) return
 
-      const { x, y } = getCursorCoords(event)
+      const { x, y } = getCursorCoords(event, canvas.current!)
 
       draggingNodeRef.current.fx = x
       draggingNodeRef.current.fy = y
 
-      simulationRef.current.alphaTarget(alphaDecay).restart()
+      simulationRef.current!.alphaTarget(alphaDecay).restart()
 
       draw()
     }
@@ -72,7 +67,7 @@ export function useDrag({
           draggingNodeRef.current.fy = null
         }
         draggingNodeRef.current = null
-        simulationRef.current.alphaTarget(0)
+        simulationRef.current!.alphaTarget(0)
         draw()
       }
     }

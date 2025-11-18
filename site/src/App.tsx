@@ -1,20 +1,46 @@
 import React from 'react'
 import { Graph } from 'react-graph-ts'
+import type { LinkType, NodeType } from 'react-graph-ts'
 
-const nodes = [
-  { id: 'A', group: 'g1' },
-  { id: 'B', group: 'g1' },
-  { id: 'C', group: 'g2' },
-  { id: 'D', group: 'g2' },
-  // ... thousands more
-]
+function createRandomGraph(
+  nodeCount: number,
+  maxLinksPerPair = 1,
+  linkProbability = 0.05,
+): { nodes: NodeType[]; links: LinkType[] } {
+  const nodes: NodeType[] = []
+  const links: LinkType[] = []
 
-const links = [
-  { id: '1', source: 'A', target: 'B', label: 'A→B #1' },
-  { id: '2', source: 'A', target: 'B', label: 'A→B #2' },
-  { id: '3', source: 'B', target: 'C', label: 'B→C' },
-  { id: '4', source: 'C', target: 'A', label: 'C→A' },
-]
+  for (let i = 0; i < nodeCount; i++) {
+    const id = `N${i}`
+    nodes.push({ id })
+  }
+
+  let linkIdCounter = 1
+
+  for (let i = 0; i < nodeCount; i++) {
+    for (let j = i + 1; j < nodeCount; j++) {
+      if (Math.random() < linkProbability) {
+        const source = nodes[i].id
+        const target = nodes[j].id
+
+        const count = Math.ceil(Math.random() * maxLinksPerPair)
+
+        for (let k = 1; k <= count; k++) {
+          links.push({
+            id: `${linkIdCounter++}`,
+            source,
+            target,
+            // label: `${source}→${target} #${k}`,
+          })
+        }
+      }
+    }
+  }
+
+  return { nodes, links }
+}
+
+const { nodes, links } = createRandomGraph(1000)
 
 export default function App() {
   const [isFixed, setIsFixed] = React.useState(false)

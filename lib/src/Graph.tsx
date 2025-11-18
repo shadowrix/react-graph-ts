@@ -18,6 +18,8 @@ const NODE_RADIUS = 10
 const WIDTH = 1200
 const HEIGHT = 800
 
+const ALPHA_DECAY = 0.02
+
 export function Graph(props: GraphProps) {
   const canvasRef = React.useRef<HTMLCanvasElement | null>(null)
   const contextRef = React.useRef<CanvasRenderingContext2D | null>(null)
@@ -26,6 +28,11 @@ export function Graph(props: GraphProps) {
   const linksRef = React.useRef<LinkType[]>([])
 
   const isRequestRendering = React.useRef(false)
+
+  const simulationEngineRef = React.useRef<d3.Simulation<
+    NodeType,
+    undefined
+  > | null>(null)
 
   /** SET NODES AND LINKS */
   React.useEffect(() => {
@@ -46,7 +53,6 @@ export function Graph(props: GraphProps) {
   const draw = React.useCallback(
     function draw() {
       if (!contextRef.current) return
-
       clearCanvas(contextRef.current)
       drawAllLinks(contextRef.current, linksRef.current)
       drawAllNodes(contextRef.current, nodesRef.current, NODE_RADIUS)
@@ -72,7 +78,8 @@ export function Graph(props: GraphProps) {
     const context = canvas.getContext('2d')!
     contextRef.current = context
 
-    d3.forceSimulation(nodesRef.current)
+    simulationEngineRef.current = d3
+      .forceSimulation(nodesRef.current)
       .force(
         'link',
         d3
@@ -84,6 +91,7 @@ export function Graph(props: GraphProps) {
       .force('charge', d3.forceManyBody().strength(-350))
       //TODO: Добавить родительские ширину и высоту
       .force('center', d3.forceCenter(WIDTH / 2, HEIGHT / 2))
+      .alphaDecay(ALPHA_DECAY)
       .on('tick', () => {
         requestRender()
       })
@@ -94,6 +102,8 @@ export function Graph(props: GraphProps) {
     nodes: nodesRef,
     draw: requestRender,
     nodeRadius: NODE_RADIUS,
+    simulationRef: simulationEngineRef,
+    alphaDecay: ALPHA_DECAY,
   })
 
   return <canvas ref={canvasRef} width={WIDTH} height={HEIGHT} />

@@ -6,6 +6,8 @@ export type UseDragParameters = {
   nodes: React.RefObject<NodeType[]>
   draw: () => void
   nodeRadius: number
+  simulationRef: any
+  alphaDecay: number
 }
 
 export function useDrag({
@@ -13,6 +15,8 @@ export function useDrag({
   nodes,
   draw,
   nodeRadius,
+  simulationRef,
+  alphaDecay,
 }: UseDragParameters) {
   const draggingNodeRef = React.useRef<NodeType | null>(null)
 
@@ -30,9 +34,12 @@ export function useDrag({
 
       for (let i = nodes.current.length - 1; i >= 0; i--) {
         const node = nodes.current[i]
-        const dx = x - node.x!
-        const dy = y - node.y!
-        if (dx * dx + dy * dy < nodeRadius * nodeRadius) {
+        const distanceX = x - node.x!
+        const distanceY = y - node.y!
+        if (
+          distanceX * distanceX + distanceY * distanceY <
+          nodeRadius * nodeRadius
+        ) {
           draggingNodeRef.current = node
           draggingNodeRef.current.fx = x
           draggingNodeRef.current.fy = y
@@ -51,6 +58,8 @@ export function useDrag({
       draggingNodeRef.current.fx = x
       draggingNodeRef.current.fy = y
 
+      simulationRef.current.alphaTarget(alphaDecay).restart()
+
       draw()
     }
 
@@ -59,6 +68,7 @@ export function useDrag({
         draggingNodeRef.current.fx = null
         draggingNodeRef.current.fy = null
         draggingNodeRef.current = null
+        simulationRef.current.alphaTarget(0)
         draw()
       }
     }

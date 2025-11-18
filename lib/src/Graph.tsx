@@ -94,7 +94,7 @@ export function Graph(props: GraphProps) {
           .strength(LINK_STRENGTH),
       )
       .force('charge', d3.forceManyBody().strength(-350))
-      //TODO: Добавить родительские ширину и высоту
+      //TODO: Add width and height from parent
       .force('center', d3.forceCenter(WIDTH / 2, HEIGHT / 2))
       .alphaDecay(alphaDecay)
       .on('tick', () => {

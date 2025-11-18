@@ -4,6 +4,13 @@
   "main": "dist/react-graph-ts.umd.js",
   "module": "dist/react-graph-ts.es.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "development": "./src/index.ts",
+      "import": "./dist/react-graph-ts.es.js",
+      "require": "./dist/react-graph-ts.umd.js"
+    }
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",

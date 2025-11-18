@@ -14,6 +14,7 @@ const BACKGROUND = 'grey'
 
 const LINK_DISTANCE = 100
 const LINK_STRENGTH = 0.8
+
 const NODE_RADIUS = 10
 
 const WIDTH = 1200
@@ -107,7 +108,7 @@ export function Graph(props: GraphProps) {
           })
         }
       })
-  }, [requestRender])
+  }, [requestRender, alphaDecay, props.isFixed])
 
   useDrag({
     canvas: canvasRef,

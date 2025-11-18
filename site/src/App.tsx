@@ -1,3 +1,4 @@
+import React from 'react'
 import { Graph } from 'react-graph-ts'
 
 const nodes = [
@@ -16,9 +17,24 @@ const links = [
 ]
 
 export default function App() {
+  const [isFixed, setIsFixed] = React.useState(false)
+
   return (
-    <div style={{ width: '100%', height: '100%' }}>
-      <Graph nodes={nodes} links={links} isFixed />
+    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+      <Graph nodes={nodes} links={links} isFixed={isFixed} />
+      <div
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '150px',
+          height: '100px',
+          padding: '20px',
+          background: '#fff',
+        }}
+      >
+        <button onClick={() => setIsFixed((prev) => !prev)}>Is fixed?</button>
+      </div>
     </div>
   )
 }

@@ -86,5 +86,5 @@ export function useDrag({
       window.removeEventListener('pointermove', handlePointerMove)
       window.removeEventListener('pointerup', handlePointerUp)
     }
-  }, [canvas, nodes, draw])
+  }, [canvas, nodes, draw, isFixed])
 }

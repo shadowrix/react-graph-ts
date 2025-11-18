@@ -8,6 +8,7 @@ export type UseDragParameters = {
   nodeRadius: number
   simulationRef: any
   alphaDecay: number
+  isFixed: boolean
 }
 
 export function useDrag({
@@ -17,6 +18,7 @@ export function useDrag({
   nodeRadius,
   simulationRef,
   alphaDecay,
+  isFixed,
 }: UseDragParameters) {
   const draggingNodeRef = React.useRef<NodeType | null>(null)
 
@@ -65,8 +67,10 @@ export function useDrag({
 
     function handlePointerUp() {
       if (draggingNodeRef.current) {
-        draggingNodeRef.current.fx = null
-        draggingNodeRef.current.fy = null
+        if (!isFixed) {
+          draggingNodeRef.current.fx = null
+          draggingNodeRef.current.fy = null
+        }
         draggingNodeRef.current = null
         simulationRef.current.alphaTarget(0)
         draw()

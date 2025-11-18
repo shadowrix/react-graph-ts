@@ -1,5 +1,5 @@
-import React from 'react'
 import { Graph } from 'react-graph-ts'
+
 const nodes = [
   { id: 'A', group: 'g1' },
   { id: 'B', group: 'g1' },
@@ -18,7 +18,7 @@ const links = [
 export default function App() {
   return (
     <div style={{ width: '100%', height: '100%' }}>
-      <Graph nodes={nodes} links={links} />
+      <Graph nodes={nodes} links={links} isFixed />
     </div>
   )
 }

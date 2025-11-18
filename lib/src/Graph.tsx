@@ -7,6 +7,7 @@ import { useDrag } from './features/drag'
 export type GraphProps = {
   nodes: NodeType[]
   links: LinkType[]
+  isFixed: boolean
 }
 
 const BACKGROUND = 'grey'
@@ -18,7 +19,8 @@ const NODE_RADIUS = 10
 const WIDTH = 1200
 const HEIGHT = 800
 
-const ALPHA_DECAY = 0.02
+const ALPHA_DECAY = 0.03
+const FIXED_ALPHA_DECAY = 0.2
 
 export function Graph(props: GraphProps) {
   const canvasRef = React.useRef<HTMLCanvasElement | null>(null)
@@ -33,6 +35,8 @@ export function Graph(props: GraphProps) {
     NodeType,
     undefined
   > | null>(null)
+
+  const alphaDecay = props.isFixed ? FIXED_ALPHA_DECAY : ALPHA_DECAY
 
   /** SET NODES AND LINKS */
   React.useEffect(() => {
@@ -91,9 +95,17 @@ export function Graph(props: GraphProps) {
       .force('charge', d3.forceManyBody().strength(-350))
       //TODO: Добавить родительские ширину и высоту
       .force('center', d3.forceCenter(WIDTH / 2, HEIGHT / 2))
-      .alphaDecay(ALPHA_DECAY)
+      .alphaDecay(alphaDecay)
       .on('tick', () => {
         requestRender()
+      })
+      .on('end', () => {
+        if (props.isFixed) {
+          nodesRef.current.forEach((node) => {
+            node.fx = node.x
+            node.fy = node.y
+          })
+        }
       })
   }, [requestRender])
 
@@ -103,7 +115,8 @@ export function Graph(props: GraphProps) {
     draw: requestRender,
     nodeRadius: NODE_RADIUS,
     simulationRef: simulationEngineRef,
-    alphaDecay: ALPHA_DECAY,
+    alphaDecay,
+    isFixed: props.isFixed,
   })
 
   return <canvas ref={canvasRef} width={WIDTH} height={HEIGHT} />

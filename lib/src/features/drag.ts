@@ -1,12 +1,12 @@
 import React from 'react'
-import * as d3 from 'd3'
 
 import { NodeType } from '../typings'
-import { getCursorCoords } from '../helpers'
+import { drag, select, ZoomTransform } from 'd3'
 
 export type UseDragParameters = {
   canvas: React.RefObject<HTMLCanvasElement | null>
   nodes: React.RefObject<NodeType[]>
+  transformRef: React.RefObject<ZoomTransform>
   draw: () => void
   nodeRadius: number
   simulationRef: React.RefObject<d3.Simulation<NodeType, undefined> | null>
@@ -19,67 +19,59 @@ export function useDrag({
   nodes,
   canvas,
   isFixed,
+  transformRef,
   alphaDecay,
   nodeRadius,
   simulationRef,
 }: UseDragParameters) {
-  const draggingNodeRef = React.useRef<NodeType | null>(null)
-
   React.useEffect(() => {
-    function handlePointerDown(event: PointerEvent) {
-      const { x, y } = getCursorCoords(event, canvas.current!)
-
-      for (let i = nodes.current.length - 1; i >= 0; i--) {
-        const node = nodes.current[i]
-        const distanceX = x - node.x!
-        const distanceY = y - node.y!
-        if (
-          distanceX * distanceX + distanceY * distanceY <
-          nodeRadius * nodeRadius
-        ) {
-          draggingNodeRef.current = node
-          draggingNodeRef.current.fx = x
-          draggingNodeRef.current.fy = y
-          event.stopPropagation()
-          draw()
-          return
-        }
-      }
+    function findNode(x: number, y: number) {
+      return nodes.current.find(
+        (n) => Math.hypot(n.x! - x, n.y! - y) < nodeRadius,
+      )
     }
 
-    function handlePointerMove(event: PointerEvent) {
-      if (!draggingNodeRef.current) return
+    function getPointerCoords(clientX: number, clientY: number) {
+      const rect = canvas.current!.getBoundingClientRect()
+      const x = clientX - rect.left
+      const y = clientY - rect.top
 
-      const { x, y } = getCursorCoords(event, canvas.current!)
-
-      draggingNodeRef.current.fx = x
-      draggingNodeRef.current.fy = y
-
-      simulationRef.current!.alphaTarget(alphaDecay).restart()
-
-      draw()
+      return transformRef.current.invert([x, y])
     }
 
-    function handlePointerUp() {
-      if (draggingNodeRef.current) {
+    const dragFn = drag<HTMLCanvasElement, any>()
+      .subject((event) => {
+        const [x, y] = getPointerCoords(
+          event.sourceEvent.clientX,
+          event.sourceEvent.clientY,
+        )
+
+        return findNode(x, y)
+      })
+      .on('start', (event) => {
+        if (!event.active)
+          simulationRef.current?.alphaTarget(alphaDecay).restart()
+
+        event.subject.fx = event.subject.x
+        event.subject.fy = event.subject.y
+      })
+      .on('drag', (event) => {
+        const displacementX = event.dx / transformRef.current.k
+        const displacementY = event.dy / transformRef.current.k
+
+        event.subject.x = event.subject.fx + displacementX
+        event.subject.y = event.subject.fy + displacementY
+        event.subject.fx = event.subject.fx + displacementX
+        event.subject.fy = event.subject.fy + displacementY
+      })
+      .on('end', (event) => {
+        if (!event.active) simulationRef.current?.alphaTarget(0)
         if (!isFixed) {
-          draggingNodeRef.current.fx = null
-          draggingNodeRef.current.fy = null
+          event.subject.fx = null
+          event.subject.fy = null
         }
-        draggingNodeRef.current = null
-        simulationRef.current!.alphaTarget(0)
-        draw()
-      }
-    }
+      })
 
-    canvas.current?.addEventListener('pointerdown', handlePointerDown)
-    window.addEventListener('pointermove', handlePointerMove)
-    window.addEventListener('pointerup', handlePointerUp)
-
-    return () => {
-      canvas.current?.removeEventListener('pointerdown', handlePointerDown)
-      window.removeEventListener('pointermove', handlePointerMove)
-      window.removeEventListener('pointerup', handlePointerUp)
-    }
+    select(canvas.current!).call(dragFn)
   }, [canvas, nodes, draw, isFixed])
 }

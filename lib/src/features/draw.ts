@@ -39,9 +39,12 @@ export function drawNode(
   node: NodeType,
   radius: number,
 ) {
+  const x = node.x!
+  const y = node.y!
+
   context.beginPath()
   context.fillStyle = '#4a90e2'
-  context.arc(node.x!, node.y!, radius, 0, Math.PI * 2)
+  context.arc(x, y, radius, 0, Math.PI * 2)
   context.fill()
   context.strokeStyle = '#1b365d'
   context.lineWidth = 1
@@ -51,7 +54,7 @@ export function drawNode(
   context.font = '12px sans-serif'
   context.fillStyle = '#111'
   context.textBaseline = 'middle'
-  context.fillText(String(node.id), node.x! + radius + 6, node.y!)
+  context.fillText(String(node.id), x + radius + 6, y)
 }
 
 export function drawAllNodes(

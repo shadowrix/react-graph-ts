@@ -1,8 +1,15 @@
 import React from 'react'
-import * as d3 from 'd3'
+import {
+  forceSimulation,
+  forceLink,
+  forceManyBody,
+  forceCenter,
+  zoomIdentity,
+} from 'd3'
 import { LinkType, NodeType } from './typings'
 import { drawAllLinks, drawAllNodes } from './features/draw'
 import { useDrag } from './features/drag'
+import { useZoom } from './features/zoom'
 
 export type GraphProps = {
   nodes: NodeType[]
@@ -12,7 +19,7 @@ export type GraphProps = {
 
 const BACKGROUND = 'grey'
 
-const LINK_DISTANCE = 100
+const LINK_DISTANCE = 200
 const LINK_STRENGTH = 0.8
 
 const NODE_RADIUS = 10
@@ -20,8 +27,8 @@ const NODE_RADIUS = 10
 const WIDTH = 1200
 const HEIGHT = 800
 
-const ALPHA_DECAY = 0.03
-const FIXED_ALPHA_DECAY = 0.2
+const ALPHA_DECAY = 0.05
+const FIXED_ALPHA_DECAY = 0.6
 
 export function Graph(props: GraphProps) {
   const canvasRef = React.useRef<HTMLCanvasElement | null>(null)
@@ -37,6 +44,8 @@ export function Graph(props: GraphProps) {
     undefined
   > | null>(null)
 
+  const transformRef = React.useRef(zoomIdentity)
+
   const alphaDecay = props.isFixed ? FIXED_ALPHA_DECAY : ALPHA_DECAY
 
   /** SET NODES AND LINKS */
@@ -45,22 +54,43 @@ export function Graph(props: GraphProps) {
     linksRef.current = JSON.parse(JSON.stringify(props.links))
   }, [props.nodes, props.links])
 
-  const clearCanvas = React.useCallback(function clearCanvas(
-    context: CanvasRenderingContext2D,
-  ) {
-    context.save()
-    context.setTransform(1, 0, 0, 1, 0, 0)
-    context.fillStyle = BACKGROUND
-    context.fillRect(0, 0, WIDTH, HEIGHT)
-    context.restore()
+  const clearCanvas = React.useCallback(function clearCanvas() {
+  // context: CanvasRenderingContext2D,
+    contextRef.current!.save()
+    contextRef.current!.setTransform(1, 0, 0, 1, 0, 0)
+    contextRef.current!.fillStyle = BACKGROUND
+    contextRef.current!.fillRect(0, 0, WIDTH, HEIGHT)
+    contextRef.current!.restore()
   }, [])
 
   const draw = React.useCallback(
     function draw() {
       if (!contextRef.current) return
-      clearCanvas(contextRef.current)
+      clearCanvas()
+      // console.log(transformRef.current)
+      // const dpr = window.devicePixelRatio || 1
+      contextRef.current?.setTransform(
+        transformRef.current.k,
+        0,
+        0,
+        transformRef.current.k,
+        transformRef.current.x,
+        transformRef.current.y,
+      )
+      // contextRef.current.translate(
+      //   transformRef.current.x,
+      //   transformRef.current.y,
+      // )
+      // contextRef.current.scale(transformRef.current.k, transformRef.current.k)
+      // console.log('final ctx transform =', contextRef.current.getTransform())
+
       drawAllLinks(contextRef.current, linksRef.current)
-      drawAllNodes(contextRef.current, nodesRef.current, NODE_RADIUS)
+      drawAllNodes(
+        contextRef.current,
+        transformRef.current,
+        nodesRef.current,
+        NODE_RADIUS,
+      )
     },
     [clearCanvas],
   )
@@ -82,22 +112,21 @@ export function Graph(props: GraphProps) {
     const canvas = canvasRef.current!
     const context = canvas.getContext('2d')!
     contextRef.current = context
-
-    simulationEngineRef.current = d3
-      .forceSimulation(nodesRef.current)
+    // console.log('f')
+    simulationEngineRef.current = forceSimulation(nodesRef.current)
       .force(
         'link',
-        d3
-          .forceLink(linksRef.current)
+        forceLink(linksRef.current)
           .id((d) => (d as { id: string }).id)
           .distance(LINK_DISTANCE)
           .strength(LINK_STRENGTH),
       )
-      .force('charge', d3.forceManyBody().strength(-350))
+      .force('charge', forceManyBody().strength(-600))
       //TODO: Add width and height from parent
-      .force('center', d3.forceCenter(WIDTH / 2, HEIGHT / 2))
+      .force('center', forceCenter(WIDTH / 2, HEIGHT / 2))
       .alphaDecay(alphaDecay)
       .on('tick', () => {
+        // console.log('draw?')
         requestRender()
       })
       .on('end', () => {
@@ -117,7 +146,15 @@ export function Graph(props: GraphProps) {
     nodeRadius: NODE_RADIUS,
     simulationRef: simulationEngineRef,
     alphaDecay,
+    transformRef,
     isFixed: props.isFixed,
+  })
+
+  useZoom({
+    canvasRef,
+    transformRef,
+    contextRef,
+    draw: requestRender,
   })
 
   return <canvas ref={canvasRef} width={WIDTH} height={HEIGHT} />

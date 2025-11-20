@@ -1,53 +1,73 @@
 import React from 'react'
 import { Graph } from 'react-graph-ts'
 import type { LinkType, NodeType } from 'react-graph-ts'
+import { createD3CanvasGraph } from './createD3CanvasGraph'
 
 function createRandomGraph(
   nodeCount: number,
-  maxLinksPerPair = 1,
-  linkProbability = 0.05,
-): { nodes: NodeType[]; links: LinkType[] } {
+  desiredLinks: number = 6000,
+  maxLinksPerPair: number = 1,
+) {
   const nodes: NodeType[] = []
   const links: LinkType[] = []
 
+  // --- create nodes ---
   for (let i = 0; i < nodeCount; i++) {
-    const id = `N${i}`
-    nodes.push({ id })
+    nodes.push({ id: `N${i}` })
   }
 
-  let linkIdCounter = 1
+  let linkId = 1
 
-  for (let i = 0; i < nodeCount; i++) {
-    for (let j = i + 1; j < nodeCount; j++) {
-      if (Math.random() < linkProbability) {
-        const source = nodes[i].id
-        const target = nodes[j].id
+  // --- generate links until we reach the target count ---
+  while (links.length < desiredLinks) {
+    const i = Math.floor(Math.random() * nodeCount)
+    const j = Math.floor(Math.random() * nodeCount)
 
-        const count = Math.ceil(Math.random() * maxLinksPerPair)
+    if (i === j) continue // skip self-links
 
-        for (let k = 1; k <= count; k++) {
-          links.push({
-            id: `${linkIdCounter++}`,
-            source,
-            target,
-            // label: `${source}→${target} #${k}`,
-          })
-        }
-      }
+    const source = nodes[i].id
+    const target = nodes[j].id
+
+    // number of parallel links between this pair
+    const count = Math.ceil(Math.random() * maxLinksPerPair)
+
+    for (let k = 0; k < count && links.length < desiredLinks; k++) {
+      links.push({
+        id: `${linkId++}`,
+        source,
+        target,
+      })
     }
   }
 
   return { nodes, links }
 }
 
-const { nodes, links } = createRandomGraph(1000)
+const { nodes, links } = createRandomGraph(2000, 2000)
 
 export default function App() {
   const [isFixed, setIsFixed] = React.useState(false)
-
+  const canvas = React.useRef(null)
+  // const nodesRef = React.useRef(nodes)
+  // const linksRef = React.useRef(links)
+  // React.useEffect(() => {
+  //   console.log(linksRef.current.length)
+  //   createD3CanvasGraph(canvas.current, nodesRef, linksRef)
+  // }, [])
   return (
-    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+    <div
+      ref={canvas}
+      style={{
+        position: 'relative',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: '100%',
+        height: '100%',
+      }}
+    >
       <Graph nodes={nodes} links={links} isFixed={isFixed} />
+      {/* <canvas ref={canvas} width={1200} height={800}></canvas> */}
       <div
         style={{
           position: 'absolute',

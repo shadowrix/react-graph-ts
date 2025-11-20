@@ -110,7 +110,7 @@ export function Graph(props: GraphProps) {
           .distance(LINK_DISTANCE)
           .strength(LINK_STRENGTH),
       )
-      .force('charge', forceManyBody().strength(-600))
+      .force('charge', forceManyBody().strength(-200))
       //TODO: Add width and height from parent
       .force('center', forceCenter(WIDTH / 2, HEIGHT / 2))
       .alphaDecay(alphaDecay)

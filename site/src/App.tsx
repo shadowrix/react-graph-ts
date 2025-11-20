@@ -1,7 +1,7 @@
 import React from 'react'
+
 import { Graph } from 'react-graph-ts'
 import type { LinkType, NodeType } from 'react-graph-ts'
-import { createD3CanvasGraph } from './createD3CanvasGraph'
 
 function createRandomGraph(
   nodeCount: number,

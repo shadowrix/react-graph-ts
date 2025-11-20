@@ -1,4 +1,5 @@
 import React from 'react'
+
 import {
   forceSimulation,
   forceLink,
@@ -54,21 +55,20 @@ export function Graph(props: GraphProps) {
     linksRef.current = JSON.parse(JSON.stringify(props.links))
   }, [props.nodes, props.links])
 
-  const clearCanvas = React.useCallback(function clearCanvas() {
-  // context: CanvasRenderingContext2D,
-    contextRef.current!.save()
-    contextRef.current!.setTransform(1, 0, 0, 1, 0, 0)
-    contextRef.current!.fillStyle = BACKGROUND
-    contextRef.current!.fillRect(0, 0, WIDTH, HEIGHT)
-    contextRef.current!.restore()
+  const clearCanvas = React.useCallback(function clearCanvas(
+    context: CanvasRenderingContext2D,
+  ) {
+    context.save()
+    context.setTransform(1, 0, 0, 1, 0, 0)
+    context.fillStyle = BACKGROUND
+    context.fillRect(0, 0, WIDTH, HEIGHT)
+    context.restore()
   }, [])
 
   const draw = React.useCallback(
     function draw() {
       if (!contextRef.current) return
-      clearCanvas()
-      // console.log(transformRef.current)
-      // const dpr = window.devicePixelRatio || 1
+      clearCanvas(contextRef.current)
       contextRef.current?.setTransform(
         transformRef.current.k,
         0,
@@ -77,20 +77,9 @@ export function Graph(props: GraphProps) {
         transformRef.current.x,
         transformRef.current.y,
       )
-      // contextRef.current.translate(
-      //   transformRef.current.x,
-      //   transformRef.current.y,
-      // )
-      // contextRef.current.scale(transformRef.current.k, transformRef.current.k)
-      // console.log('final ctx transform =', contextRef.current.getTransform())
 
       drawAllLinks(contextRef.current, linksRef.current)
-      drawAllNodes(
-        contextRef.current,
-        transformRef.current,
-        nodesRef.current,
-        NODE_RADIUS,
-      )
+      drawAllNodes(contextRef.current, nodesRef.current, NODE_RADIUS)
     },
     [clearCanvas],
   )
@@ -112,7 +101,7 @@ export function Graph(props: GraphProps) {
     const canvas = canvasRef.current!
     const context = canvas.getContext('2d')!
     contextRef.current = context
-    // console.log('f')
+
     simulationEngineRef.current = forceSimulation(nodesRef.current)
       .force(
         'link',
@@ -125,10 +114,7 @@ export function Graph(props: GraphProps) {
       //TODO: Add width and height from parent
       .force('center', forceCenter(WIDTH / 2, HEIGHT / 2))
       .alphaDecay(alphaDecay)
-      .on('tick', () => {
-        // console.log('draw?')
-        requestRender()
-      })
+      .on('tick', requestRender)
       .on('end', () => {
         if (props.isFixed) {
           nodesRef.current.forEach((node) => {
@@ -153,7 +139,6 @@ export function Graph(props: GraphProps) {
   useZoom({
     canvasRef,
     transformRef,
-    contextRef,
     draw: requestRender,
   })
 

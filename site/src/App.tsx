@@ -47,16 +47,9 @@ const { nodes, links } = createRandomGraph(2000, 2000)
 
 export default function App() {
   const [isFixed, setIsFixed] = React.useState(false)
-  const canvas = React.useRef(null)
-  // const nodesRef = React.useRef(nodes)
-  // const linksRef = React.useRef(links)
-  // React.useEffect(() => {
-  //   console.log(linksRef.current.length)
-  //   createD3CanvasGraph(canvas.current, nodesRef, linksRef)
-  // }, [])
+
   return (
     <div
-      ref={canvas}
       style={{
         position: 'relative',
         display: 'flex',
@@ -67,7 +60,6 @@ export default function App() {
       }}
     >
       <Graph nodes={nodes} links={links} isFixed={isFixed} />
-      {/* <canvas ref={canvas} width={1200} height={800}></canvas> */}
       <div
         style={{
           position: 'absolute',

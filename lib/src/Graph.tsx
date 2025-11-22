@@ -6,11 +6,14 @@ import {
   forceManyBody,
   forceCenter,
   zoomIdentity,
+  Quadtree,
+  quadtree,
 } from 'd3'
-import { LinkType, NodeType } from './typings'
+import { HoveredData, LinkType, NodeType } from './typings'
 import { drawAllLinks, drawAllNodes } from './features/draw'
 import { useDrag } from './features/drag'
 import { useZoom } from './features/zoom'
+import { useHandlers } from './features/handlers'
 
 export type GraphProps = {
   nodes: NodeType[]
@@ -20,8 +23,8 @@ export type GraphProps = {
 
 const BACKGROUND = 'grey'
 
-const LINK_DISTANCE = 200
-const LINK_STRENGTH = 0.8
+const LINK_DISTANCE = 100
+const LINK_STRENGTH = 0.4
 
 const NODE_RADIUS = 10
 
@@ -36,9 +39,15 @@ export function Graph(props: GraphProps) {
   const contextRef = React.useRef<CanvasRenderingContext2D | null>(null)
 
   const nodesRef = React.useRef<NodeType[]>([])
+  const nodesCacheRef = React.useRef<Quadtree<NodeType> | null>(null)
   const linksRef = React.useRef<LinkType[]>([])
 
   const isRequestRendering = React.useRef(false)
+
+  const hoveredData = React.useRef<HoveredData>({
+    link: null,
+    node: null,
+  })
 
   const simulationEngineRef = React.useRef<d3.Simulation<
     NodeType,
@@ -65,8 +74,23 @@ export function Graph(props: GraphProps) {
     context.restore()
   }, [])
 
+  function findNode(x: number, y: number) {
+    return nodesRef.current.find(
+      (n) => Math.hypot(n.x! - x, n.y! - y) < NODE_RADIUS,
+    )
+  }
+
+  function getPointerCoords(clientX: number, clientY: number) {
+    const rect = canvasRef.current!.getBoundingClientRect()
+    const x = clientX - rect.left
+    const y = clientY - rect.top
+
+    return transformRef.current.invert([x, y])
+  }
+
   const draw = React.useCallback(
     function draw() {
+      console.log('draw?')
       if (!contextRef.current) return
       clearCanvas(contextRef.current)
       contextRef.current?.setTransform(
@@ -79,7 +103,12 @@ export function Graph(props: GraphProps) {
       )
 
       drawAllLinks(contextRef.current, linksRef.current)
-      drawAllNodes(contextRef.current, nodesRef.current, NODE_RADIUS)
+      drawAllNodes(
+        contextRef.current,
+        hoveredData,
+        nodesRef.current,
+        NODE_RADIUS,
+      )
     },
     [clearCanvas],
   )
@@ -101,6 +130,7 @@ export function Graph(props: GraphProps) {
     const canvas = canvasRef.current!
     const context = canvas.getContext('2d')!
     contextRef.current = context
+    let tickCounter = 0
 
     simulationEngineRef.current = forceSimulation(nodesRef.current)
       .force(
@@ -110,11 +140,17 @@ export function Graph(props: GraphProps) {
           .distance(LINK_DISTANCE)
           .strength(LINK_STRENGTH),
       )
-      .force('charge', forceManyBody().strength(-200))
+      .force('charge', forceManyBody().strength(-100))
       //TODO: Add width and height from parent
       .force('center', forceCenter(WIDTH / 2, HEIGHT / 2))
       .alphaDecay(alphaDecay)
-      .on('tick', requestRender)
+      .on('tick', () => {
+        requestRender()
+        tickCounter++
+        if (tickCounter % 6 === 0) {
+          updateNodesCache()
+        }
+      })
       .on('end', () => {
         if (props.isFixed) {
           nodesRef.current.forEach((node) => {
@@ -122,24 +158,46 @@ export function Graph(props: GraphProps) {
             node.fy = node.y
           })
         }
+        updateNodesCache()
       })
   }, [requestRender, alphaDecay, props.isFixed])
 
+  const updateNodesCache = React.useCallback(function updateNodesCache() {
+    nodesCacheRef.current = quadtree<NodeType>()
+      .x((d) => d.x!)
+      .y((d) => d.y!)
+      .addAll(nodesRef.current)
+  }, [])
+
   useDrag({
-    canvas: canvasRef,
-    nodes: nodesRef,
+    findNode,
+    getPointerCoords,
+    updateNodesCache,
     draw: requestRender,
-    nodeRadius: NODE_RADIUS,
-    simulationRef: simulationEngineRef,
     alphaDecay,
     transformRef,
+    nodes: nodesRef,
+    canvas: canvasRef,
     isFixed: props.isFixed,
+    nodeRadius: NODE_RADIUS,
+    simulationRef: simulationEngineRef,
   })
 
   useZoom({
     canvasRef,
     transformRef,
     draw: requestRender,
+  })
+
+  useHandlers({
+    canvasRef,
+    nodesRef,
+    nodeRadius: NODE_RADIUS,
+    nodesCacheRef,
+    hoveredData,
+    transformRef,
+    draw: requestRender,
+    getPointerCoords,
   })
 
   return <canvas ref={canvasRef} width={WIDTH} height={HEIGHT} />

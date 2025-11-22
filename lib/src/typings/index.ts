@@ -9,3 +9,8 @@ export type LinkType = {
   source: string
   target: string
 }
+
+export type HoveredData = {
+  link: LinkType | null
+  node: NodeType | null
+}

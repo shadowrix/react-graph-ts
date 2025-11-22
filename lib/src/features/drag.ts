@@ -8,6 +8,9 @@ export type UseDragParameters = {
   nodes: React.RefObject<NodeType[]>
   transformRef: React.RefObject<ZoomTransform>
   draw: () => void
+  findNode: (x: number, y: number) => void
+  getPointerCoords: (clientX: number, clientY: number) => [number, number]
+  updateNodesCache: () => void
   nodeRadius: number
   simulationRef: React.RefObject<d3.Simulation<NodeType, undefined> | null>
   alphaDecay: number
@@ -16,6 +19,9 @@ export type UseDragParameters = {
 
 export function useDrag({
   draw,
+  findNode,
+  updateNodesCache,
+  getPointerCoords,
   nodes,
   canvas,
   isFixed,
@@ -25,27 +31,12 @@ export function useDrag({
   simulationRef,
 }: UseDragParameters) {
   React.useEffect(() => {
-    function findNode(x: number, y: number) {
-      return nodes.current.find(
-        (n) => Math.hypot(n.x! - x, n.y! - y) < nodeRadius,
-      )
-    }
-
-    function getPointerCoords(clientX: number, clientY: number) {
-      const rect = canvas.current!.getBoundingClientRect()
-      const x = clientX - rect.left
-      const y = clientY - rect.top
-
-      return transformRef.current.invert([x, y])
-    }
-
     const dragFn = drag<HTMLCanvasElement, any>()
       .subject((event) => {
         const [x, y] = getPointerCoords(
           event.sourceEvent.clientX,
           event.sourceEvent.clientY,
         )
-
         return findNode(x, y)
       })
       .on('start', (event) => {
@@ -70,8 +61,9 @@ export function useDrag({
           event.subject.fx = null
           event.subject.fy = null
         }
+        updateNodesCache()
       })
 
     select(canvas.current!).call(dragFn)
-  }, [canvas, nodes, draw, isFixed])
+  }, [canvas, nodes, draw, updateNodesCache, isFixed])
 }

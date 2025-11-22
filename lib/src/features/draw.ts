@@ -1,4 +1,4 @@
-import { LinkType, NodeType } from '../typings'
+import { HoveredData, LinkType, NodeType } from '../typings'
 
 //TODO: Add all settings for links and mb custom links
 export function drawLink(context: CanvasRenderingContext2D, link: LinkType) {
@@ -36,6 +36,7 @@ export function drawAllLinks(
 //TODO: Add all settings for node and custom nodes
 export function drawNode(
   context: CanvasRenderingContext2D,
+  hoveredData: React.RefObject<HoveredData>,
   node: NodeType,
   radius: number,
 ) {
@@ -45,6 +46,10 @@ export function drawNode(
   context.beginPath()
   context.fillStyle = '#4a90e2'
   context.arc(x, y, radius, 0, Math.PI * 2)
+  if (hoveredData.current.node?.id === node.id) {
+    context.fillStyle = '#cb1daeff'
+    context.arc(x, y, radius * 2, 0, Math.PI * 2)
+  }
   context.fill()
   context.strokeStyle = '#1b365d'
   context.lineWidth = 1
@@ -59,10 +64,11 @@ export function drawNode(
 
 export function drawAllNodes(
   context: CanvasRenderingContext2D,
+  hoveredData: React.RefObject<HoveredData>,
   nodes: NodeType[],
   radius: number,
 ) {
   for (const node of nodes) {
-    drawNode(context, node, radius)
+    drawNode(context, hoveredData, node, radius)
   }
 }

@@ -34,11 +34,7 @@ export function useHandlers({
       if (!hoveredData.current.node && !hoveredNode) return
       if (hoveredData.current.node?.id === hoveredNode?.id) return
 
-      if (hoveredNode) {
-        hoveredData.current.node = hoveredNode
-      } else {
-        hoveredData.current.node = null
-      }
+      hoveredData.current.node = hoveredNode
       draw()
     }
 

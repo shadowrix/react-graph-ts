@@ -7,10 +7,12 @@ export type UseDragParameters = {
   canvas: React.RefObject<HTMLCanvasElement | null>
   nodes: React.RefObject<NodeType[]>
   transformRef: React.RefObject<ZoomTransform>
+  isDraggingRef: React.RefObject<boolean>
   draw: () => void
   findNode: (x: number, y: number) => void
   getPointerCoords: (clientX: number, clientY: number) => [number, number]
   updateNodesCache: () => void
+  buildLinkGrid: () => void
   nodeRadius: number
   simulationRef: React.RefObject<d3.Simulation<NodeType, undefined> | null>
   alphaDecay: number
@@ -21,9 +23,11 @@ export function useDrag({
   draw,
   findNode,
   updateNodesCache,
+  buildLinkGrid,
   getPointerCoords,
   nodes,
   canvas,
+  isDraggingRef,
   isFixed,
   transformRef,
   alphaDecay,
@@ -42,7 +46,7 @@ export function useDrag({
       .on('start', (event) => {
         if (!event.active)
           simulationRef.current?.alphaTarget(alphaDecay).restart()
-
+        isDraggingRef.current = true
         event.subject.fx = event.subject.x
         event.subject.fy = event.subject.y
       })
@@ -61,9 +65,11 @@ export function useDrag({
           event.subject.fx = null
           event.subject.fy = null
         }
+        isDraggingRef.current = false
         updateNodesCache()
+        buildLinkGrid()
       })
 
     select(canvas.current!).call(dragFn)
-  }, [canvas, nodes, draw, updateNodesCache, isFixed])
+  }, [canvas, nodes, draw, updateNodesCache, buildLinkGrid, isFixed])
 }

@@ -41,6 +41,7 @@ export function Graph(props: GraphProps) {
   const nodesRef = React.useRef<NodeType[]>([])
   const nodesCacheRef = React.useRef<Quadtree<NodeType> | null>(null)
   const linksRef = React.useRef<LinkType[]>([])
+  const linksGridRef = React.useRef<Map<string, LinkType[]>>(new Map())
 
   const isRequestRendering = React.useRef(false)
 
@@ -55,6 +56,8 @@ export function Graph(props: GraphProps) {
   > | null>(null)
 
   const transformRef = React.useRef(zoomIdentity)
+  //drag and zoom, mb rename like isProcess
+  const isDraggingRef = React.useRef(false)
 
   const alphaDecay = props.isFixed ? FIXED_ALPHA_DECAY : ALPHA_DECAY
 
@@ -72,6 +75,44 @@ export function Graph(props: GraphProps) {
     context.fillStyle = BACKGROUND
     context.fillRect(0, 0, WIDTH, HEIGHT)
     context.restore()
+  }, [])
+
+  //link cellSize = link length * 0.6
+  const buildLinkGrid = React.useCallback(function buildLinkGrid() {
+    const cellSize = 150
+    const grid = new Map<string, LinkType[]>()
+
+    function key(cx: number, cy: number) {
+      return `${cx},${cy}`
+    }
+
+    for (const link of linksRef.current) {
+      const source = link.source as unknown as NodeType
+      const target = link.target as unknown as NodeType
+
+      if (source.x && source.y && target.x && target.y) {
+        const minX = Math.min(source.x, target.x)
+        const maxX = Math.max(source.x, target.x)
+        const minY = Math.min(source.y, target.y)
+        const maxY = Math.max(source.y, target.y)
+
+        const startX = Math.floor(minX / cellSize)
+        const endX = Math.floor(maxX / cellSize)
+        const startY = Math.floor(minY / cellSize)
+        const endY = Math.floor(maxY / cellSize)
+
+        for (let cx = startX; cx <= endX; cx++) {
+          for (let cy = startY; cy <= endY; cy++) {
+            const k = key(cx, cy)
+            if (!grid.has(k)) grid.set(k, [])
+            grid.get(k)!.push(link)
+          }
+        }
+      }
+    }
+
+    linksGridRef.current = grid
+    // return { grid, cellSize }
   }, [])
 
   function findNode(x: number, y: number) {
@@ -102,7 +143,7 @@ export function Graph(props: GraphProps) {
         transformRef.current.y,
       )
 
-      drawAllLinks(contextRef.current, linksRef.current)
+      drawAllLinks(contextRef.current, hoveredData, linksRef.current)
       drawAllNodes(
         contextRef.current,
         hoveredData,
@@ -149,6 +190,7 @@ export function Graph(props: GraphProps) {
         tickCounter++
         if (tickCounter % 6 === 0) {
           updateNodesCache()
+          buildLinkGrid()
         }
       })
       .on('end', () => {
@@ -159,8 +201,9 @@ export function Graph(props: GraphProps) {
           })
         }
         updateNodesCache()
+        buildLinkGrid()
       })
-  }, [requestRender, alphaDecay, props.isFixed])
+  }, [requestRender, buildLinkGrid, alphaDecay, props.isFixed])
 
   const updateNodesCache = React.useCallback(function updateNodesCache() {
     nodesCacheRef.current = quadtree<NodeType>()
@@ -173,9 +216,11 @@ export function Graph(props: GraphProps) {
     findNode,
     getPointerCoords,
     updateNodesCache,
+    buildLinkGrid,
     draw: requestRender,
     alphaDecay,
     transformRef,
+    isDraggingRef,
     nodes: nodesRef,
     canvas: canvasRef,
     isFixed: props.isFixed,
@@ -186,6 +231,7 @@ export function Graph(props: GraphProps) {
   useZoom({
     canvasRef,
     transformRef,
+    isDraggingRef,
     draw: requestRender,
   })
 
@@ -194,8 +240,10 @@ export function Graph(props: GraphProps) {
     nodeRadius: NODE_RADIUS,
     nodesCacheRef,
     hoveredData,
+    isDraggingRef,
     draw: requestRender,
     getPointerCoords,
+    linksGridRef,
   })
 
   return <canvas ref={canvasRef} width={WIDTH} height={HEIGHT} />

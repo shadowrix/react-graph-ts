@@ -8,6 +8,7 @@ export type LinkType = {
   id: string
   source: string
   target: string
+  drawIndex?: number
 }
 
 export type HoveredData = {

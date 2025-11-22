@@ -1,7 +1,11 @@
 import { HoveredData, LinkType, NodeType } from '../typings'
 
 //TODO: Add all settings for links and mb custom links
-export function drawLink(context: CanvasRenderingContext2D, link: LinkType) {
+export function drawLink(
+  context: CanvasRenderingContext2D,
+  hoveredData: React.RefObject<HoveredData>,
+  link: LinkType,
+) {
   const source = link.source as unknown as NodeType
   const target = link.target as unknown as NodeType
   if (!source?.x || !target?.x || !source?.y || !target?.y) return
@@ -19,6 +23,10 @@ export function drawLink(context: CanvasRenderingContext2D, link: LinkType) {
   context.beginPath()
   context.lineWidth = 2
   context.strokeStyle = '#666'
+  if (hoveredData.current.link?.id === link.id) {
+    context.lineWidth = 4
+    context.strokeStyle = '#1682caff'
+  }
   context.moveTo(source.x, source.y)
   context.quadraticCurveTo(cx, cy, target.x, target.y)
   context.stroke()
@@ -26,10 +34,15 @@ export function drawLink(context: CanvasRenderingContext2D, link: LinkType) {
 
 export function drawAllLinks(
   context: CanvasRenderingContext2D,
+  hoveredData: React.RefObject<HoveredData>,
   links: LinkType[],
 ) {
-  for (const link of links) {
-    drawLink(context, link)
+  for (let index = 0; index < links.length; index++) {
+    const link = links[index]
+
+    drawLink(context, hoveredData, link)
+
+    link.drawIndex = index
   }
 }
 

@@ -191,11 +191,9 @@ export function Graph(props: GraphProps) {
 
   useHandlers({
     canvasRef,
-    nodesRef,
     nodeRadius: NODE_RADIUS,
     nodesCacheRef,
     hoveredData,
-    transformRef,
     draw: requestRender,
     getPointerCoords,
   })

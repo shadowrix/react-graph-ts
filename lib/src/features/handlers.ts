@@ -1,22 +1,20 @@
 import React from 'react'
 
 import { HoveredData, NodeType } from '../typings'
-import { Quadtree, ZoomTransform } from 'd3'
+import { Quadtree } from 'd3'
 
 export type UseHandlersParameters = {
   canvasRef: React.RefObject<HTMLCanvasElement | null>
-  nodesRef: React.RefObject<NodeType[]>
   nodeRadius: number
   nodesCacheRef: React.RefObject<Quadtree<NodeType> | null>
   hoveredData: React.RefObject<HoveredData>
-  transformRef: React.RefObject<ZoomTransform>
   draw: () => void
-  // findNode: (x: number, y: number) => void
   getPointerCoords: (clientX: number, clientY: number) => [number, number]
 }
 
 export function useHandlers({
   canvasRef,
+  nodeRadius,
   hoveredData,
   nodesCacheRef,
   draw,
@@ -31,7 +29,7 @@ export function useHandlers({
     function handleMove(event: PointerEvent) {
       const [x, y] = getPointerCoords(event.clientX, event.clientY)
 
-      const hoveredNode = findHoveredNode(x, y, 10)
+      const hoveredNode = findHoveredNode(x, y, nodeRadius)
 
       if (!hoveredData.current.node && !hoveredNode) return
       if (hoveredData.current.node?.id === hoveredNode?.id) return

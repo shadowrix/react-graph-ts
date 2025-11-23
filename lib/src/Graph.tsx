@@ -131,7 +131,6 @@ export function Graph(props: GraphProps) {
 
   const draw = React.useCallback(
     function draw() {
-      console.log('draw?')
       if (!contextRef.current) return
       clearCanvas(contextRef.current)
       contextRef.current?.setTransform(

@@ -19,7 +19,6 @@ export function useZoom({
     const zoomFn = zoom<HTMLCanvasElement, unknown>()
       .scaleExtent([0.03, 8])
       .on('zoom', (event) => {
-        console.log('safd', event)
         transformRef.current = event.transform
         draw()
       })

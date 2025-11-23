@@ -1,18 +1,13 @@
 import React from 'react'
 
-import {
-  forceSimulation,
-  forceLink,
-  forceManyBody,
-  forceCenter,
-  quadtree,
-} from 'd3'
+import { quadtree } from 'd3'
 import { LinkType, NodeType } from './typings'
 import { drawAllLinks, drawAllNodes } from './features/draw'
 import { useDrag } from './features/drag'
 import { useZoom } from './features/zoom'
 import { useHandlers } from './features/handlers'
 import { useRefManager } from './state'
+import { useInitialize } from './features/initialize'
 
 export type GraphProps = {
   nodes: NodeType[]
@@ -130,57 +125,28 @@ export function Graph(props: GraphProps) {
     [draw],
   )
 
-  /** INITIALIZE */
-  React.useEffect(() => {
-    const canvas = state.current.canvas!
-    const context = canvas.getContext('2d')!
-    state.current.context = context
-    let tickCounter = 0
-
-    state.current.simulationEngine = forceSimulation(state.current.nodes)
-      .force(
-        'link',
-        forceLink(state.current.links)
-          .id((d) => (d as { id: string }).id)
-          .distance(state.current.settings.linkDistance)
-          .strength(state.current.settings.linkStrength),
-      )
-      .force('charge', forceManyBody().strength(-100))
-      //TODO: Add width and height from parent
-      .force(
-        'center',
-        forceCenter(
-          state.current.settings.width / 2,
-          state.current.settings.height / 2,
-        ),
-      )
-      .alphaDecay(alphaDecay)
-      .on('tick', () => {
-        requestRender()
-        tickCounter++
-        if (tickCounter % 6 === 0) {
-          updateNodesCache()
-          buildLinkGrid()
-        }
-      })
-      .on('end', () => {
-        if (props.isFixed) {
-          state.current.nodes.forEach((node) => {
-            node.fx = node.x
-            node.fy = node.y
-          })
-        }
-        updateNodesCache()
-        buildLinkGrid()
-      })
-  }, [requestRender, buildLinkGrid, alphaDecay, props.isFixed])
-
   const updateNodesCache = React.useCallback(function updateNodesCache() {
     state.current.nodesCache = quadtree<NodeType>()
       .x((d) => d.x!)
       .y((d) => d.y!)
       .addAll(state.current.nodes)
   }, [])
+
+  const updateCache = React.useCallback(
+    function updateCache() {
+      updateNodesCache()
+      buildLinkGrid()
+    },
+    [updateNodesCache, buildLinkGrid],
+  )
+
+  useInitialize({
+    state,
+    isFixed: props.isFixed,
+    alphaDecay,
+    draw: requestRender,
+    updateCache,
+  })
 
   useDrag({
     state,

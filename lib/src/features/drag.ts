@@ -6,10 +6,8 @@ import { RefState } from '../state'
 export type UseDragParameters = {
   state: RefState
   draw: () => void
-  findNode: (x: number, y: number) => void
   getPointerCoords: (clientX: number, clientY: number) => [number, number]
-  updateNodesCache: () => void
-  buildLinkGrid: () => void
+  updateCache: () => void
   alphaDecay: number
   isFixed: boolean
 }
@@ -17,14 +15,19 @@ export type UseDragParameters = {
 export function useDrag({
   state,
   draw,
-  findNode,
-  updateNodesCache,
-  buildLinkGrid,
+  updateCache,
   getPointerCoords,
   isFixed,
   alphaDecay,
 }: UseDragParameters) {
   React.useEffect(() => {
+    function findNode(x: number, y: number) {
+      return state.current.nodes.find(
+        (n) =>
+          Math.hypot(n.x! - x, n.y! - y) < state.current.settings.nodeRadius,
+      )
+    }
+
     const dragFn = drag<HTMLCanvasElement, any>()
       .subject((event) => {
         const [x, y] = getPointerCoords(
@@ -56,10 +59,9 @@ export function useDrag({
           event.subject.fy = null
         }
         state.current.isDragging = false
-        updateNodesCache()
-        buildLinkGrid()
+        updateCache()
       })
 
     select(state.current.canvas!).call(dragFn)
-  }, [draw, updateNodesCache, buildLinkGrid, isFixed])
+  }, [draw, isFixed])
 }

@@ -8,6 +8,7 @@ import { useZoom } from './features/zoom'
 import { useHandlers } from './features/handlers'
 import { useRefManager } from './state'
 import { useInitialize } from './features/initialize'
+import { buildLinkGrid } from './helpers'
 
 export type GraphProps = {
   nodes: NodeType[]
@@ -43,49 +44,6 @@ export function Graph(props: GraphProps) {
     context.restore()
   }, [])
 
-  //link cellSize = link length * 0.6
-  const buildLinkGrid = React.useCallback(function buildLinkGrid() {
-    const cellSize = 150
-    const grid = new Map<string, LinkType[]>()
-
-    function key(cx: number, cy: number) {
-      return `${cx},${cy}`
-    }
-
-    for (const link of state.current.links) {
-      const source = link.source as unknown as NodeType
-      const target = link.target as unknown as NodeType
-
-      if (source.x && source.y && target.x && target.y) {
-        const minX = Math.min(source.x, target.x)
-        const maxX = Math.max(source.x, target.x)
-        const minY = Math.min(source.y, target.y)
-        const maxY = Math.max(source.y, target.y)
-
-        const startX = Math.floor(minX / cellSize)
-        const endX = Math.floor(maxX / cellSize)
-        const startY = Math.floor(minY / cellSize)
-        const endY = Math.floor(maxY / cellSize)
-
-        for (let cx = startX; cx <= endX; cx++) {
-          for (let cy = startY; cy <= endY; cy++) {
-            const k = key(cx, cy)
-            if (!grid.has(k)) grid.set(k, [])
-            grid.get(k)!.push(link)
-          }
-        }
-      }
-    }
-
-    state.current.linksGrid = grid
-  }, [])
-
-  function findNode(x: number, y: number) {
-    return state.current.nodes.find(
-      (n) => Math.hypot(n.x! - x, n.y! - y) < state.current.settings.nodeRadius,
-    )
-  }
-
   function getPointerCoords(clientX: number, clientY: number) {
     const rect = state.current.canvas!.getBoundingClientRect()
     const x = clientX - rect.left
@@ -97,6 +55,7 @@ export function Graph(props: GraphProps) {
   const draw = React.useCallback(
     function draw() {
       if (!state.current.context) return
+
       clearCanvas(state.current.context)
       state.current.context?.setTransform(
         state.current.transform.k,
@@ -125,6 +84,12 @@ export function Graph(props: GraphProps) {
     [draw],
   )
 
+  //link cellSize = link length * 0.6
+  const updateLinkGrid = React.useCallback(function updateLinkGrid() {
+    const grid = buildLinkGrid(state.current.links)
+    state.current.linksGrid = grid
+  }, [])
+
   const updateNodesCache = React.useCallback(function updateNodesCache() {
     state.current.nodesCache = quadtree<NodeType>()
       .x((d) => d.x!)
@@ -135,9 +100,9 @@ export function Graph(props: GraphProps) {
   const updateCache = React.useCallback(
     function updateCache() {
       updateNodesCache()
-      buildLinkGrid()
+      updateLinkGrid()
     },
-    [updateNodesCache, buildLinkGrid],
+    [updateNodesCache, updateLinkGrid],
   )
 
   useInitialize({
@@ -152,10 +117,8 @@ export function Graph(props: GraphProps) {
     state,
     alphaDecay,
     isFixed: props.isFixed,
-    findNode,
-    buildLinkGrid,
+    updateCache,
     getPointerCoords,
-    updateNodesCache,
     draw: requestRender,
   })
 

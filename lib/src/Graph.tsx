@@ -1,7 +1,7 @@
 import React, { useEffectEvent } from 'react'
 
-import { quadtree } from 'd3'
-import { ClickType, LinkType, NodeType, OnClickFn } from './typings'
+import { quadtree, unixDay } from 'd3'
+import { DetectNodeColorFn, LinkType, NodeType, OnClickFn } from './typings'
 import { drawAllLinks, drawAllNodes } from './features/draw'
 import { useDrag } from './features/drag'
 import { useZoom } from './features/zoom'
@@ -15,6 +15,7 @@ export type GraphProps = {
   links: LinkType[]
   isFixed: boolean
   onClick?: OnClickFn
+  detectNodeColor?: DetectNodeColorFn
 }
 
 const ALPHA_DECAY = 0.05
@@ -33,6 +34,19 @@ export function Graph(props: GraphProps) {
   const handleClick = useEffectEvent((...params: Parameters<OnClickFn>) => {
     props.onClick?.(...params)
   })
+
+  const handleDetectNodeColor = useEffectEvent(
+    (...params: Parameters<DetectNodeColorFn>) => {
+      if (props.detectNodeColor) {
+        return props.detectNodeColor(...params)
+      }
+      const [_, isHover] = params
+      if (isHover) {
+        return state.current.colors.nodeHover
+      }
+      return state.current.colors.node
+    },
+  )
 
   /** SET NODES AND LINKS */
   React.useEffect(() => {
@@ -78,7 +92,11 @@ export function Graph(props: GraphProps) {
       )
 
       drawAllLinks(state)
-      drawAllNodes(state, state.current.settings.nodeRadius)
+      drawAllNodes(
+        state,
+        state.current.settings.nodeRadius,
+        handleDetectNodeColor,
+      )
     },
     [clearCanvas],
   )

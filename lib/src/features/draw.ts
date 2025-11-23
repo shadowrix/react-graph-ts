@@ -1,5 +1,5 @@
 import { RefState } from '../state'
-import { LinkType, NodeType } from '../typings'
+import { DetectNodeColorFn, LinkType, NodeType } from '../typings'
 
 //TODO: Add all settings for links and mb custom links
 export function drawLink(state: RefState, link: LinkType) {
@@ -51,16 +51,25 @@ export function drawAllLinks(state: RefState) {
 }
 
 //TODO: Add all settings for node and custom nodes
-export function drawNode(state: RefState, node: NodeType, radius: number) {
+export function drawNode(
+  state: RefState,
+  node: NodeType,
+  radius: number,
+  detectNodeColorFn: DetectNodeColorFn,
+) {
   const x = node.x!
   const y = node.y!
   const context = state.current.context!
 
   context.beginPath()
-  context.fillStyle = state.current.colors.node
+  context.fillStyle = detectNodeColorFn
+    ? detectNodeColorFn(node, false)
+    : state.current.colors.node
   context.arc(x, y, radius, 0, Math.PI * 2)
   if (state.current.hoveredData.node?.id === node.id) {
-    context.fillStyle = state.current.colors.nodeHover
+    context.fillStyle = detectNodeColorFn
+      ? detectNodeColorFn(node, true)
+      : state.current.colors.nodeHover
     context.arc(x, y, radius * 2, 0, Math.PI * 2)
   }
   context.fill()
@@ -77,10 +86,14 @@ export function drawNode(state: RefState, node: NodeType, radius: number) {
   context.fillText(String(node.id), x + radius + 6, y)
 }
 
-export function drawAllNodes(state: RefState, radius: number) {
+export function drawAllNodes(
+  state: RefState,
+  radius: number,
+  detectNodeColorFn: DetectNodeColorFn,
+) {
   if (!state.current.context) return
 
   for (const node of state.current.nodes) {
-    drawNode(state, node, radius)
+    drawNode(state, node, radius, detectNodeColorFn)
   }
 }

@@ -43,7 +43,7 @@ function createRandomGraph(
   return { nodes, links }
 }
 
-const { nodes, links } = createRandomGraph(10000, 20000)
+const { nodes, links } = createRandomGraph(2000, 6000)
 
 export default function App() {
   const [isFixed, setIsFixed] = React.useState(false)

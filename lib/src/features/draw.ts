@@ -1,5 +1,5 @@
 import { RefState } from '../state'
-import { HoveredData, LinkType, NodeType } from '../typings'
+import { LinkType, NodeType } from '../typings'
 
 //TODO: Add all settings for links and mb custom links
 export function drawLink(state: RefState, link: LinkType) {
@@ -25,11 +25,11 @@ export function drawLink(state: RefState, link: LinkType) {
   const cy = my + ny
 
   state.current.context.beginPath()
-  state.current.context.lineWidth = 2
-  state.current.context.strokeStyle = '#666'
+  state.current.context.lineWidth = 1
+  state.current.context.strokeStyle = state.current.colors.link
   if (state.current.hoveredData.link?.id === link.id) {
     state.current.context.lineWidth = 4
-    state.current.context.strokeStyle = '#1682caff'
+    state.current.context.strokeStyle = state.current.colors.linkHover
   }
   state.current.context.moveTo(source.x, source.y)
   state.current.context.quadraticCurveTo(cx, cy, target.x, target.y)
@@ -53,20 +53,20 @@ export function drawNode(state: RefState, node: NodeType, radius: number) {
   const context = state.current.context!
 
   context.beginPath()
-  context.fillStyle = '#4a90e2'
+  context.fillStyle = state.current.colors.node
   context.arc(x, y, radius, 0, Math.PI * 2)
   if (state.current.hoveredData.node?.id === node.id) {
-    context.fillStyle = '#cb1daeff'
+    context.fillStyle = state.current.colors.nodeHover
     context.arc(x, y, radius * 2, 0, Math.PI * 2)
   }
   context.fill()
-  context.strokeStyle = '#1b365d'
-  context.lineWidth = 1
-  context.stroke()
+  // context.strokeStyle = state.current.colors.node
+  // context.lineWidth = 1
+  // context.stroke()
 
   // label
   context.font = '12px sans-serif'
-  context.fillStyle = '#111'
+  context.fillStyle = state.current.colors.nodeLabel
   context.textBaseline = 'middle'
   context.fillText(String(node.id), x + radius + 6, y)
 }

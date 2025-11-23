@@ -14,7 +14,7 @@ export type GraphProps = {
   nodes: NodeType[]
   links: LinkType[]
   isFixed: boolean
-  onClick: OnClickFn
+  onClick?: OnClickFn
 }
 
 export function Graph(props: GraphProps) {
@@ -25,7 +25,7 @@ export function Graph(props: GraphProps) {
     : state.current.settings.alphaDecay
 
   const handleClick = useEffectEvent((...params: Parameters<OnClickFn>) => {
-    props.onClick(...params)
+    props.onClick?.(...params)
   })
 
   /** SET NODES AND LINKS */
@@ -39,7 +39,7 @@ export function Graph(props: GraphProps) {
   ) {
     context.save()
     context.setTransform(1, 0, 0, 1, 0, 0)
-    context.fillStyle = state.current.settings.background
+    context.fillStyle = state.current.colors.background
     context.fillRect(
       0,
       0,

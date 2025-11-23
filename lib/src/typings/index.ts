@@ -1,5 +1,5 @@
 import type { SimulationNodeDatum } from 'd3'
-import { INITIAL_SETTINGS } from '../constants'
+import { COLORS, INITIAL_SETTINGS } from '../constants'
 
 export type NodeType = {
   id: string
@@ -18,6 +18,8 @@ export type HoveredData = {
 }
 
 export type Settings = typeof INITIAL_SETTINGS
+
+export type Colors = typeof COLORS
 
 export type ClickType = 'right' | 'left' | 'ctrl-left' | 'ctrl-right'
 

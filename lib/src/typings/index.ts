@@ -1,4 +1,5 @@
 import type { SimulationNodeDatum } from 'd3'
+import { INITIAL_SETTINGS } from '../constants'
 
 export type NodeType = {
   id: string
@@ -15,3 +16,5 @@ export type HoveredData = {
   link: LinkType | null
   node: NodeType | null
 }
+
+export type Settings = typeof INITIAL_SETTINGS

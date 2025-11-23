@@ -1,11 +1,9 @@
 import React from 'react'
 
-import { HoveredData, LinkType, NodeType } from '../typings'
-import { Quadtree } from 'd3'
+import { LinkType, NodeType } from '../typings'
 import { RefState } from '../state'
 
 export type UseHandlersParameters = {
-  nodeRadius: number
   state: RefState
   draw: () => void
   getPointerCoords: (clientX: number, clientY: number) => [number, number]
@@ -13,7 +11,6 @@ export type UseHandlersParameters = {
 
 export function useHandlers({
   state,
-  nodeRadius,
   draw,
   getPointerCoords,
 }: UseHandlersParameters) {
@@ -28,7 +25,11 @@ export function useHandlers({
 
       const [x, y] = getPointerCoords(event.clientX, event.clientY)
 
-      const hoveredNode = findHoveredNode(x, y, nodeRadius)
+      const hoveredNode = findHoveredNode(
+        x,
+        y,
+        state.current.settings.nodeRadius,
+      )
 
       let hoveredLink: LinkType | null = null
 

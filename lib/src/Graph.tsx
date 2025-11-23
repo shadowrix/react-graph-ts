@@ -20,23 +20,12 @@ export type GraphProps = {
   isFixed: boolean
 }
 
-const BACKGROUND = 'grey'
-
-const LINK_DISTANCE = 100
-const LINK_STRENGTH = 0.4
-
-const NODE_RADIUS = 10
-
-const WIDTH = 1200
-const HEIGHT = 800
-
-const ALPHA_DECAY = 0.05
-const FIXED_ALPHA_DECAY = 0.6
-
 export function Graph(props: GraphProps) {
   const { refs: state, register } = useRefManager()
 
-  const alphaDecay = props.isFixed ? FIXED_ALPHA_DECAY : ALPHA_DECAY
+  const alphaDecay = props.isFixed
+    ? state.current.settings.fixedAlphaDecay
+    : state.current.settings.alphaDecay
 
   /** SET NODES AND LINKS */
   React.useEffect(() => {
@@ -49,8 +38,13 @@ export function Graph(props: GraphProps) {
   ) {
     context.save()
     context.setTransform(1, 0, 0, 1, 0, 0)
-    context.fillStyle = BACKGROUND
-    context.fillRect(0, 0, WIDTH, HEIGHT)
+    context.fillStyle = state.current.settings.background
+    context.fillRect(
+      0,
+      0,
+      state.current.settings.width,
+      state.current.settings.height,
+    )
     context.restore()
   }, [])
 
@@ -89,12 +83,11 @@ export function Graph(props: GraphProps) {
     }
 
     state.current.linksGrid = grid
-    // return { grid, cellSize }
   }, [])
 
   function findNode(x: number, y: number) {
     return state.current.nodes.find(
-      (n) => Math.hypot(n.x! - x, n.y! - y) < NODE_RADIUS,
+      (n) => Math.hypot(n.x! - x, n.y! - y) < state.current.settings.nodeRadius,
     )
   }
 
@@ -120,7 +113,7 @@ export function Graph(props: GraphProps) {
       )
 
       drawAllLinks(state)
-      drawAllNodes(state, NODE_RADIUS)
+      drawAllNodes(state, state.current.settings.nodeRadius)
     },
     [clearCanvas],
   )
@@ -149,12 +142,18 @@ export function Graph(props: GraphProps) {
         'link',
         forceLink(state.current.links)
           .id((d) => (d as { id: string }).id)
-          .distance(LINK_DISTANCE)
-          .strength(LINK_STRENGTH),
+          .distance(state.current.settings.linkDistance)
+          .strength(state.current.settings.linkStrength),
       )
       .force('charge', forceManyBody().strength(-100))
       //TODO: Add width and height from parent
-      .force('center', forceCenter(WIDTH / 2, HEIGHT / 2))
+      .force(
+        'center',
+        forceCenter(
+          state.current.settings.width / 2,
+          state.current.settings.height / 2,
+        ),
+      )
       .alphaDecay(alphaDecay)
       .on('tick', () => {
         requestRender()
@@ -201,10 +200,15 @@ export function Graph(props: GraphProps) {
 
   useHandlers({
     state,
-    nodeRadius: NODE_RADIUS,
     draw: requestRender,
     getPointerCoords,
   })
 
-  return <canvas ref={register('canvas')} width={WIDTH} height={HEIGHT} />
+  return (
+    <canvas
+      ref={register('canvas')}
+      width={state.current.settings.width}
+      height={state.current.settings.height}
+    />
+  )
 }

@@ -2,7 +2,8 @@ import React from 'react'
 
 import { Quadtree, Simulation, zoomIdentity, ZoomTransform } from 'd3'
 
-import { HoveredData, LinkType, NodeType } from '../typings'
+import { HoveredData, LinkType, NodeType, Settings } from '../typings'
+import { INITIAL_SETTINGS } from '../constants'
 
 export type State = {
   canvas: HTMLCanvasElement | null
@@ -17,6 +18,8 @@ export type State = {
   transform: ZoomTransform
   //drag and zoom, mb rename like isProcess
   isDragging: boolean
+
+  settings: Settings
 }
 
 const INITIAL_STATE = {
@@ -35,6 +38,8 @@ const INITIAL_STATE = {
   transform: zoomIdentity,
   //drag and zoom, mb rename like isProcess
   isDragging: false,
+
+  settings: INITIAL_SETTINGS,
 } as State
 
 export type RefState = React.RefObject<State>

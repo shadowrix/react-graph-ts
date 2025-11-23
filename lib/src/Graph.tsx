@@ -17,12 +17,18 @@ export type GraphProps = {
   onClick?: OnClickFn
 }
 
+const ALPHA_DECAY = 0.05
+const FIXED_ALPHA_DECAY = 0.6
+
 export function Graph(props: GraphProps) {
   const { refs: state, register } = useRefManager()
 
-  const alphaDecay = props.isFixed
-    ? state.current.settings.fixedAlphaDecay
-    : state.current.settings.alphaDecay
+  React.useEffect(() => {
+    state.current.settings.isFixed = props.isFixed
+    state.current.settings.alphaDecay = props.isFixed
+      ? FIXED_ALPHA_DECAY
+      : ALPHA_DECAY
+  }, [props.isFixed])
 
   const handleClick = useEffectEvent((...params: Parameters<OnClickFn>) => {
     props.onClick?.(...params)
@@ -113,15 +119,12 @@ export function Graph(props: GraphProps) {
   useInitialize({
     state,
     isFixed: props.isFixed,
-    alphaDecay,
     draw: requestRender,
     updateCache,
   })
 
   useDrag({
     state,
-    alphaDecay,
-    isFixed: props.isFixed,
     updateCache,
     getPointerCoords,
     draw: requestRender,

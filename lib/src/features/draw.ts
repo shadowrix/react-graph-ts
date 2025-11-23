@@ -27,7 +27,11 @@ export function drawLink(state: RefState, link: LinkType) {
   state.current.context.beginPath()
   state.current.context.lineWidth = 1
   state.current.context.strokeStyle = state.current.colors.link
-  if (state.current.hoveredData.link?.id === link.id) {
+  if (
+    state.current.hoveredData.link?.id === link.id ||
+    state.current.hoveredData.node?.id === source.id ||
+    state.current.hoveredData.node?.id === target.id
+  ) {
     state.current.context.lineWidth = 4
     state.current.context.strokeStyle = state.current.colors.linkHover
   }
@@ -63,6 +67,8 @@ export function drawNode(state: RefState, node: NodeType, radius: number) {
   // context.strokeStyle = state.current.colors.node
   // context.lineWidth = 1
   // context.stroke()
+
+  if (state.current.transform.k < 0.6) return
 
   // label
   context.font = '12px sans-serif'

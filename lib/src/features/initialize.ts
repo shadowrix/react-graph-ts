@@ -6,7 +6,6 @@ import { RefState } from '../state'
 export type UseInitializeParameters = {
   state: RefState
   isFixed: boolean
-  alphaDecay: number
   updateCache: () => void
   draw: () => void
 }
@@ -14,7 +13,6 @@ export type UseInitializeParameters = {
 export function useInitialize({
   state,
   isFixed,
-  alphaDecay,
   draw,
   updateCache,
 }: UseInitializeParameters) {
@@ -33,7 +31,7 @@ export function useInitialize({
           .distance(state.current.settings.linkDistance)
           .strength(state.current.settings.linkStrength),
       )
-      .force('charge', forceManyBody().strength(-100))
+      .force('charge', forceManyBody().strength(-700))
       //TODO: Add width and height from parent
       .force(
         'center',
@@ -42,7 +40,7 @@ export function useInitialize({
           state.current.settings.height / 2,
         ),
       )
-      .alphaDecay(alphaDecay)
+      .alphaDecay(state.current.settings.alphaDecay)
       .on('tick', () => {
         draw()
         tickCounter++

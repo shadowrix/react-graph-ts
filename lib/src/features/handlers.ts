@@ -2,36 +2,29 @@ import React from 'react'
 
 import { HoveredData, LinkType, NodeType } from '../typings'
 import { Quadtree } from 'd3'
+import { RefState } from '../state'
 
 export type UseHandlersParameters = {
-  canvasRef: React.RefObject<HTMLCanvasElement | null>
   nodeRadius: number
-  nodesCacheRef: React.RefObject<Quadtree<NodeType> | null>
-  hoveredData: React.RefObject<HoveredData>
-  linksGridRef: React.RefObject<Map<string, LinkType[]>>
-  isDraggingRef: React.RefObject<boolean>
+  state: RefState
   draw: () => void
   getPointerCoords: (clientX: number, clientY: number) => [number, number]
 }
 
 export function useHandlers({
-  canvasRef,
+  state,
   nodeRadius,
-  hoveredData,
-  linksGridRef,
-  isDraggingRef,
-  nodesCacheRef,
   draw,
   getPointerCoords,
 }: UseHandlersParameters) {
   React.useEffect(() => {
     function findHoveredNode(gx: number, gy: number, radius: number) {
-      return nodesCacheRef.current?.find(gx, gy, radius) || null
+      return state.current.nodesCache?.find(gx, gy, radius) || null
     }
-    const canvas = canvasRef.current!
+    const canvas = state.current.canvas!
 
     function handleMove(event: PointerEvent) {
-      if (isDraggingRef.current) return
+      if (state.current.isDragging) return
 
       const [x, y] = getPointerCoords(event.clientX, event.clientY)
 
@@ -40,24 +33,26 @@ export function useHandlers({
       let hoveredLink: LinkType | null = null
 
       if (!hoveredNode) {
-        hoveredLink = findLink(x, y, linksGridRef.current)
+        hoveredLink = findLink(x, y, state.current.linksGrid)
 
         if (
-          !hoveredData.current.node &&
-          !hoveredData.current.link &&
+          !state.current.hoveredData.node &&
+          !state.current.hoveredData.link &&
           !hoveredLink
         )
           return
       }
 
       if (
-        (hoveredNode?.id && hoveredData.current.node?.id === hoveredNode?.id) ||
-        (hoveredLink?.id && hoveredData.current.link?.id === hoveredLink?.id)
+        (hoveredNode?.id &&
+          state.current.hoveredData.node?.id === hoveredNode?.id) ||
+        (hoveredLink?.id &&
+          state.current.hoveredData.link?.id === hoveredLink?.id)
       )
         return
 
-      hoveredData.current.link = hoveredLink
-      hoveredData.current.node = hoveredNode
+      state.current.hoveredData.link = hoveredLink
+      state.current.hoveredData.node = hoveredNode
 
       draw()
     }

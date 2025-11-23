@@ -1,30 +1,24 @@
 import React from 'react'
 
 import { select, zoom, ZoomTransform } from 'd3'
+import { RefState } from '../state'
 
 export type UseZoomParameters = {
-  canvasRef: React.RefObject<HTMLCanvasElement | null>
-  transformRef: React.RefObject<ZoomTransform>
-  isDraggingRef: React.RefObject<boolean>
+  state: RefState
   draw: () => void
 }
 
-export function useZoom({
-  canvasRef,
-  isDraggingRef,
-  transformRef,
-  draw,
-}: UseZoomParameters) {
+export function useZoom({ state, draw }: UseZoomParameters) {
   React.useEffect(() => {
     const zoomFn = zoom<HTMLCanvasElement, unknown>()
       .scaleExtent([0.03, 8])
       .on('zoom', (event) => {
-        transformRef.current = event.transform
+        state.current.transform = event.transform
         draw()
       })
-      .on('start', () => (isDraggingRef.current = true))
-      .on('end', () => (isDraggingRef.current = false))
+      .on('start', () => (state.current.isDragging = true))
+      .on('end', () => (state.current.isDragging = false))
 
-    select(canvasRef.current!).call(zoomFn)
+    select(state.current.canvas!).call(zoomFn)
   }, [])
 }

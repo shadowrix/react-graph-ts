@@ -14,6 +14,7 @@ import { drawAllLinks, drawAllNodes } from './features/draw'
 import { useDrag } from './features/drag'
 import { useZoom } from './features/zoom'
 import { useHandlers } from './features/handlers'
+import { useRefManager } from './state'
 
 export type GraphProps = {
   nodes: NodeType[]
@@ -35,36 +36,37 @@ const ALPHA_DECAY = 0.05
 const FIXED_ALPHA_DECAY = 0.6
 
 export function Graph(props: GraphProps) {
-  const canvasRef = React.useRef<HTMLCanvasElement | null>(null)
-  const contextRef = React.useRef<CanvasRenderingContext2D | null>(null)
+  const { refs: state, register } = useRefManager()
+  // const canvasRef = React.useRef<HTMLCanvasElement | null>(null)
+  // const contextRef = React.useRef<CanvasRenderingContext2D | null>(null)
 
-  const nodesRef = React.useRef<NodeType[]>([])
-  const nodesCacheRef = React.useRef<Quadtree<NodeType> | null>(null)
-  const linksRef = React.useRef<LinkType[]>([])
-  const linksGridRef = React.useRef<Map<string, LinkType[]>>(new Map())
+  // const nodesRef = React.useRef<NodeType[]>([])
+  // const nodesCacheRef = React.useRef<Quadtree<NodeType> | null>(null)
+  // const linksRef = React.useRef<LinkType[]>([])
+  // const linksGridRef = React.useRef<Map<string, LinkType[]>>(new Map())
 
-  const isRequestRendering = React.useRef(false)
+  // const isRequestRendering = React.useRef(false)
 
-  const hoveredData = React.useRef<HoveredData>({
-    link: null,
-    node: null,
-  })
+  // const hoveredData = React.useRef<HoveredData>({
+  //   link: null,
+  //   node: null,
+  // })
 
-  const simulationEngineRef = React.useRef<d3.Simulation<
-    NodeType,
-    undefined
-  > | null>(null)
+  // const simulationEngineRef = React.useRef<d3.Simulation<
+  //   NodeType,
+  //   undefined
+  // > | null>(null)
 
-  const transformRef = React.useRef(zoomIdentity)
-  //drag and zoom, mb rename like isProcess
-  const isDraggingRef = React.useRef(false)
+  // const transformRef = React.useRef(zoomIdentity)
+  // //drag and zoom, mb rename like isProcess
+  // const isDraggingRef = React.useRef(false)
 
   const alphaDecay = props.isFixed ? FIXED_ALPHA_DECAY : ALPHA_DECAY
 
   /** SET NODES AND LINKS */
   React.useEffect(() => {
-    nodesRef.current = JSON.parse(JSON.stringify(props.nodes))
-    linksRef.current = JSON.parse(JSON.stringify(props.links))
+    state.current.nodes = JSON.parse(JSON.stringify(props.nodes))
+    state.current.links = JSON.parse(JSON.stringify(props.links))
   }, [props.nodes, props.links])
 
   const clearCanvas = React.useCallback(function clearCanvas(
@@ -86,7 +88,7 @@ export function Graph(props: GraphProps) {
       return `${cx},${cy}`
     }
 
-    for (const link of linksRef.current) {
+    for (const link of state.current.links) {
       const source = link.source as unknown as NodeType
       const target = link.target as unknown as NodeType
 
@@ -111,54 +113,49 @@ export function Graph(props: GraphProps) {
       }
     }
 
-    linksGridRef.current = grid
+    state.current.linksGrid = grid
     // return { grid, cellSize }
   }, [])
 
   function findNode(x: number, y: number) {
-    return nodesRef.current.find(
+    return state.current.nodes.find(
       (n) => Math.hypot(n.x! - x, n.y! - y) < NODE_RADIUS,
     )
   }
 
   function getPointerCoords(clientX: number, clientY: number) {
-    const rect = canvasRef.current!.getBoundingClientRect()
+    const rect = state.current.canvas!.getBoundingClientRect()
     const x = clientX - rect.left
     const y = clientY - rect.top
 
-    return transformRef.current.invert([x, y])
+    return state.current.transform.invert([x, y])
   }
 
   const draw = React.useCallback(
     function draw() {
-      if (!contextRef.current) return
-      clearCanvas(contextRef.current)
-      contextRef.current?.setTransform(
-        transformRef.current.k,
+      if (!state.current.context) return
+      clearCanvas(state.current.context)
+      state.current.context?.setTransform(
+        state.current.transform.k,
         0,
         0,
-        transformRef.current.k,
-        transformRef.current.x,
-        transformRef.current.y,
+        state.current.transform.k,
+        state.current.transform.x,
+        state.current.transform.y,
       )
 
-      drawAllLinks(contextRef.current, hoveredData, linksRef.current)
-      drawAllNodes(
-        contextRef.current,
-        hoveredData,
-        nodesRef.current,
-        NODE_RADIUS,
-      )
+      drawAllLinks(state)
+      drawAllNodes(state, NODE_RADIUS)
     },
     [clearCanvas],
   )
 
   const requestRender = React.useCallback(
     function requestRender() {
-      if (isRequestRendering.current) return
-      isRequestRendering.current = true
+      if (state.current.isRequestRendering) return
+      state.current.isRequestRendering = true
       requestAnimationFrame(() => {
-        isRequestRendering.current = false
+        state.current.isRequestRendering = false
         draw()
       })
     },
@@ -167,15 +164,15 @@ export function Graph(props: GraphProps) {
 
   /** INITIALIZE */
   React.useEffect(() => {
-    const canvas = canvasRef.current!
+    const canvas = state.current.canvas!
     const context = canvas.getContext('2d')!
-    contextRef.current = context
+    state.current.context = context
     let tickCounter = 0
 
-    simulationEngineRef.current = forceSimulation(nodesRef.current)
+    state.current.simulationEngine = forceSimulation(state.current.nodes)
       .force(
         'link',
-        forceLink(linksRef.current)
+        forceLink(state.current.links)
           .id((d) => (d as { id: string }).id)
           .distance(LINK_DISTANCE)
           .strength(LINK_STRENGTH),
@@ -194,7 +191,7 @@ export function Graph(props: GraphProps) {
       })
       .on('end', () => {
         if (props.isFixed) {
-          nodesRef.current.forEach((node) => {
+          state.current.nodes.forEach((node) => {
             node.fx = node.x
             node.fy = node.y
           })
@@ -205,45 +202,34 @@ export function Graph(props: GraphProps) {
   }, [requestRender, buildLinkGrid, alphaDecay, props.isFixed])
 
   const updateNodesCache = React.useCallback(function updateNodesCache() {
-    nodesCacheRef.current = quadtree<NodeType>()
+    state.current.nodesCache = quadtree<NodeType>()
       .x((d) => d.x!)
       .y((d) => d.y!)
-      .addAll(nodesRef.current)
+      .addAll(state.current.nodes)
   }, [])
 
   useDrag({
+    state,
+    alphaDecay,
+    isFixed: props.isFixed,
     findNode,
+    buildLinkGrid,
     getPointerCoords,
     updateNodesCache,
-    buildLinkGrid,
     draw: requestRender,
-    alphaDecay,
-    transformRef,
-    isDraggingRef,
-    nodes: nodesRef,
-    canvas: canvasRef,
-    isFixed: props.isFixed,
-    nodeRadius: NODE_RADIUS,
-    simulationRef: simulationEngineRef,
   })
 
   useZoom({
-    canvasRef,
-    transformRef,
-    isDraggingRef,
+    state,
     draw: requestRender,
   })
 
   useHandlers({
-    canvasRef,
+    state,
     nodeRadius: NODE_RADIUS,
-    nodesCacheRef,
-    hoveredData,
-    isDraggingRef,
     draw: requestRender,
     getPointerCoords,
-    linksGridRef,
   })
 
-  return <canvas ref={canvasRef} width={WIDTH} height={HEIGHT} />
+  return <canvas ref={register('canvas')} width={WIDTH} height={HEIGHT} />
 }

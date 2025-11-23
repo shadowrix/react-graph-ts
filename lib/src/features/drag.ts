@@ -1,38 +1,28 @@
 import React from 'react'
 
-import { NodeType } from '../typings'
-import { drag, select, ZoomTransform } from 'd3'
+import { drag, select } from 'd3'
+import { RefState } from '../state'
 
 export type UseDragParameters = {
-  canvas: React.RefObject<HTMLCanvasElement | null>
-  nodes: React.RefObject<NodeType[]>
-  transformRef: React.RefObject<ZoomTransform>
-  isDraggingRef: React.RefObject<boolean>
+  state: RefState
   draw: () => void
   findNode: (x: number, y: number) => void
   getPointerCoords: (clientX: number, clientY: number) => [number, number]
   updateNodesCache: () => void
   buildLinkGrid: () => void
-  nodeRadius: number
-  simulationRef: React.RefObject<d3.Simulation<NodeType, undefined> | null>
   alphaDecay: number
   isFixed: boolean
 }
 
 export function useDrag({
+  state,
   draw,
   findNode,
   updateNodesCache,
   buildLinkGrid,
   getPointerCoords,
-  nodes,
-  canvas,
-  isDraggingRef,
   isFixed,
-  transformRef,
   alphaDecay,
-  nodeRadius,
-  simulationRef,
 }: UseDragParameters) {
   React.useEffect(() => {
     const dragFn = drag<HTMLCanvasElement, any>()
@@ -45,14 +35,14 @@ export function useDrag({
       })
       .on('start', (event) => {
         if (!event.active)
-          simulationRef.current?.alphaTarget(alphaDecay).restart()
-        isDraggingRef.current = true
+          state.current.simulationEngine?.alphaTarget(alphaDecay).restart()
+        state.current.isDragging = true
         event.subject.fx = event.subject.x
         event.subject.fy = event.subject.y
       })
       .on('drag', (event) => {
-        const displacementX = event.dx / transformRef.current.k
-        const displacementY = event.dy / transformRef.current.k
+        const displacementX = event.dx / state.current.transform.k
+        const displacementY = event.dy / state.current.transform.k
 
         event.subject.x = event.subject.fx + displacementX
         event.subject.y = event.subject.fy + displacementY
@@ -60,16 +50,16 @@ export function useDrag({
         event.subject.fy = event.subject.fy + displacementY
       })
       .on('end', (event) => {
-        if (!event.active) simulationRef.current?.alphaTarget(0)
+        if (!event.active) state.current.simulationEngine?.alphaTarget(0)
         if (!isFixed) {
           event.subject.fx = null
           event.subject.fy = null
         }
-        isDraggingRef.current = false
+        state.current.isDragging = false
         updateNodesCache()
         buildLinkGrid()
       })
 
-    select(canvas.current!).call(dragFn)
-  }, [canvas, nodes, draw, updateNodesCache, buildLinkGrid, isFixed])
+    select(state.current.canvas!).call(dragFn)
+  }, [draw, updateNodesCache, buildLinkGrid, isFixed])
 }

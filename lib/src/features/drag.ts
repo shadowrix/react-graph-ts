@@ -39,11 +39,11 @@ export function useDrag({
       .on('start', (event) => {
         if (!event.active)
           state.current.simulationEngine?.alphaTarget(alphaDecay).restart()
-        state.current.isDragging = true
         event.subject.fx = event.subject.x
         event.subject.fy = event.subject.y
       })
       .on('drag', (event) => {
+        state.current.isDragging = true
         const displacementX = event.dx / state.current.transform.k
         const displacementY = event.dy / state.current.transform.k
 

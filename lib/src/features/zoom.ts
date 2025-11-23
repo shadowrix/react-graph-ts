@@ -15,8 +15,8 @@ export function useZoom({ state, draw }: UseZoomParameters) {
       .on('zoom', (event) => {
         state.current.transform = event.transform
         draw()
+        state.current.isDragging = true
       })
-      .on('start', () => (state.current.isDragging = true))
       .on('end', () => (state.current.isDragging = false))
 
     select(state.current.canvas!).call(zoomFn)

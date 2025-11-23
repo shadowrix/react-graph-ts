@@ -1,23 +1,29 @@
 import React from 'react'
 
-import { LinkType, NodeType } from '../typings'
+import { select } from 'd3'
+
 import { RefState } from '../state'
+import { ClickType, LinkType, NodeType, OnClickFn } from '../typings'
 
 export type UseHandlersParameters = {
   state: RefState
   draw: () => void
+  handleClick: OnClickFn
   getPointerCoords: (clientX: number, clientY: number) => [number, number]
 }
 
 export function useHandlers({
   state,
   draw,
+  handleClick,
   getPointerCoords,
 }: UseHandlersParameters) {
+  function findHoveredNode(gx: number, gy: number, radius: number) {
+    return state.current.nodesCache?.find(gx, gy, radius) || null
+  }
+
+  /** HANDLE HOVER */
   React.useEffect(() => {
-    function findHoveredNode(gx: number, gy: number, radius: number) {
-      return state.current.nodesCache?.find(gx, gy, radius) || null
-    }
     const canvas = state.current.canvas!
 
     function handleMove(event: PointerEvent) {
@@ -62,6 +68,58 @@ export function useHandlers({
 
     return () => canvas.removeEventListener('pointermove', handleMove)
   }, [draw])
+
+  /** HANDLE CLICKS */
+  React.useEffect(() => {
+    const canvas = select(state.current.canvas)
+
+    canvas.on('contextmenu', (event) => {
+      event.preventDefault()
+    })
+    canvas.on('pointerup', (event: MouseEvent) => {
+      const { button, ctrlKey } = event
+
+      if (state.current.isDragging) return
+
+      function handleTarget(type: ClickType) {
+        if (state.current.hoveredData.link)
+          return handleClick(state.current.hoveredData.link, type, event)
+        if (state.current.hoveredData.node)
+          return handleClick(state.current.hoveredData.node, type, event)
+
+        const [x, y] = getPointerCoords(event.clientX, event.clientY)
+
+        const clickedNode = findHoveredNode(
+          x,
+          y,
+          state.current.settings.nodeRadius,
+        )
+
+        if (clickedNode) return handleClick(clickedNode, type, event)
+
+        const clickedLink = findLink(x, y, state.current.linksGrid)
+
+        if (clickedLink) return handleClick(clickedLink, type, event)
+
+        return handleClick(null, type, event)
+      }
+
+      switch (true) {
+        case button === 0 && ctrlKey:
+          return handleTarget('ctrl-left')
+        case button === 0:
+          return handleTarget('left')
+        case button === 2 && ctrlKey:
+          return handleTarget('ctrl-right')
+        case button === 2:
+          return handleTarget('right')
+      }
+    })
+    return () => {
+      canvas.on('mousedown', null)
+      canvas.on('contextmenu', null)
+    }
+  }, [])
 }
 
 function pointNearLine(px: number, py: number, link: LinkType, maxDist = 2) {

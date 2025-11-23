@@ -18,3 +18,11 @@ export type HoveredData = {
 }
 
 export type Settings = typeof INITIAL_SETTINGS
+
+export type ClickType = 'right' | 'left' | 'ctrl-left' | 'ctrl-right'
+
+export type OnClickFn = (
+  target: NodeType | LinkType | null,
+  click: ClickType,
+  event: MouseEvent,
+) => void

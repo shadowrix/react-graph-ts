@@ -1,5 +1,6 @@
-import { forceCenter, forceLink, forceManyBody, forceSimulation } from 'd3'
 import React from 'react'
+
+import { forceCenter, forceLink, forceManyBody, forceSimulation } from 'd3'
 import { RefState } from '../state'
 
 export type UseInitializeParameters = {

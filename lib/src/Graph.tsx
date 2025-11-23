@@ -1,7 +1,7 @@
-import React from 'react'
+import React, { useEffectEvent } from 'react'
 
 import { quadtree } from 'd3'
-import { LinkType, NodeType } from './typings'
+import { ClickType, LinkType, NodeType, OnClickFn } from './typings'
 import { drawAllLinks, drawAllNodes } from './features/draw'
 import { useDrag } from './features/drag'
 import { useZoom } from './features/zoom'
@@ -14,6 +14,7 @@ export type GraphProps = {
   nodes: NodeType[]
   links: LinkType[]
   isFixed: boolean
+  onClick: OnClickFn
 }
 
 export function Graph(props: GraphProps) {
@@ -22,6 +23,10 @@ export function Graph(props: GraphProps) {
   const alphaDecay = props.isFixed
     ? state.current.settings.fixedAlphaDecay
     : state.current.settings.alphaDecay
+
+  const handleClick = useEffectEvent((...params: Parameters<OnClickFn>) => {
+    props.onClick(...params)
+  })
 
   /** SET NODES AND LINKS */
   React.useEffect(() => {
@@ -131,6 +136,7 @@ export function Graph(props: GraphProps) {
     state,
     draw: requestRender,
     getPointerCoords,
+    handleClick,
   })
 
   return (

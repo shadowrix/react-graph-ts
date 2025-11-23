@@ -10,6 +10,8 @@ export type LinkType = {
   source: string
   target: string
   drawIndex?: number
+  curveIndex?: number
+  curveGroupSize?: number
 }
 
 export type HoveredData = {

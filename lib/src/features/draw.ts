@@ -5,6 +5,7 @@ import { LinkType, NodeType } from '../typings'
 export function drawLink(state: RefState, link: LinkType) {
   const source = link.source as unknown as NodeType
   const target = link.target as unknown as NodeType
+
   if (
     !source?.x ||
     !target?.x ||
@@ -14,26 +15,87 @@ export function drawLink(state: RefState, link: LinkType) {
   )
     return
 
-  const mx = (source.x! + target.x!) / 2
-  const my = (source.y! + target.y!) / 2
-  const dx = target.x! - source.x!
-  const dy = target.y! - source.y!
-  const length = Math.hypot(dx, dy) || 1
-  const nx = -dy / length
-  const ny = dx / length
-  const cx = mx + nx
-  const cy = my + ny
+  const sx = source.x
+  const sy = source.y
+  const tx = target.x
+  const ty = target.y
+
+  if (link.curveGroupSize === 1) {
+    state.current.context.beginPath()
+    state.current.context.moveTo(sx, sy)
+    state.current.context.lineTo(tx, ty)
+    state.current.context.strokeStyle = state.current.colors.link
+    state.current.context.lineWidth = 1
+    if (state.current.hoveredData.link?.id === link.id) {
+      state.current.context.lineWidth = 4
+      state.current.context.strokeStyle = state.current.colors.linkHover
+    }
+    state.current.context.stroke()
+    return
+  }
+
+  const mx = (sx + tx) * 0.5
+  const my = (sy + ty) * 0.5
+
+  const dx = tx - sx
+  const dy = ty - sy
+
+  // fast inverse length
+  const invLen = 1 / Math.sqrt(dx * dx + dy * dy)
+
+  const nx = -dy * invLen
+  const ny = dx * invLen
+
+  // curve offset based on multi-edge index
+  const baseOffset = 0.08
+  const evenNumber = (link.curveIndex ?? 1) % 2 === 0 ? 1 : -1
+  const offset = evenNumber * (link.curveIndex ?? 1) * baseOffset
+
+  const cpx = mx + nx * offset
+  const cpy = my + ny * offset
 
   state.current.context.beginPath()
+  state.current.context.moveTo(sx, sy)
+  state.current.context.quadraticCurveTo(cpx, cpy, tx, ty)
+
   state.current.context.lineWidth = 1
   state.current.context.strokeStyle = state.current.colors.link
   if (state.current.hoveredData.link?.id === link.id) {
     state.current.context.lineWidth = 4
     state.current.context.strokeStyle = state.current.colors.linkHover
   }
-  state.current.context.moveTo(source.x, source.y)
-  state.current.context.quadraticCurveTo(cx, cy, target.x, target.y)
   state.current.context.stroke()
+  // const source = link.source as unknown as NodeType
+  // const target = link.target as unknown as NodeType
+  // if (
+  //   !source?.x ||
+  //   !target?.x ||
+  //   !source?.y ||
+  //   !target?.y ||
+  //   !state.current.context
+  // )
+  //   return
+
+  // const mx = (source.x! + target.x!) / 2
+  // const my = (source.y! + target.y!) / 2
+  // const dx = target.x! - source.x!
+  // const dy = target.y! - source.y!
+  // const length = Math.hypot(dx, dy) || 1
+  // const nx = -dy / length
+  // const ny = dx / length
+  // const cx = mx + nx
+  // const cy = my + ny
+
+  // state.current.context.beginPath()
+  // state.current.context.lineWidth = 1
+  // state.current.context.strokeStyle = state.current.colors.link
+  // if (state.current.hoveredData.link?.id === link.id) {
+  //   state.current.context.lineWidth = 4
+  //   state.current.context.strokeStyle = state.current.colors.linkHover
+  // }
+  // state.current.context.moveTo(source.x, source.y)
+  // state.current.context.quadraticCurveTo(cx, cy, target.x, target.y)
+  // state.current.context.stroke()
 }
 
 export function drawAllLinks(state: RefState) {

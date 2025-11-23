@@ -5,11 +5,9 @@ import {
   forceLink,
   forceManyBody,
   forceCenter,
-  zoomIdentity,
-  Quadtree,
   quadtree,
 } from 'd3'
-import { HoveredData, LinkType, NodeType } from './typings'
+import { LinkType, NodeType } from './typings'
 import { drawAllLinks, drawAllNodes } from './features/draw'
 import { useDrag } from './features/drag'
 import { useZoom } from './features/zoom'
@@ -37,29 +35,6 @@ const FIXED_ALPHA_DECAY = 0.6
 
 export function Graph(props: GraphProps) {
   const { refs: state, register } = useRefManager()
-  // const canvasRef = React.useRef<HTMLCanvasElement | null>(null)
-  // const contextRef = React.useRef<CanvasRenderingContext2D | null>(null)
-
-  // const nodesRef = React.useRef<NodeType[]>([])
-  // const nodesCacheRef = React.useRef<Quadtree<NodeType> | null>(null)
-  // const linksRef = React.useRef<LinkType[]>([])
-  // const linksGridRef = React.useRef<Map<string, LinkType[]>>(new Map())
-
-  // const isRequestRendering = React.useRef(false)
-
-  // const hoveredData = React.useRef<HoveredData>({
-  //   link: null,
-  //   node: null,
-  // })
-
-  // const simulationEngineRef = React.useRef<d3.Simulation<
-  //   NodeType,
-  //   undefined
-  // > | null>(null)
-
-  // const transformRef = React.useRef(zoomIdentity)
-  // //drag and zoom, mb rename like isProcess
-  // const isDraggingRef = React.useRef(false)
 
   const alphaDecay = props.isFixed ? FIXED_ALPHA_DECAY : ALPHA_DECAY
 

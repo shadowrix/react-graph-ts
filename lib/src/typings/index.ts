@@ -9,10 +9,15 @@ export type LinkType = {
   id: string
   source: string
   target: string
-  control?: { x: number; y: number }
+  // curve
   drawIndex?: number
+  control?: { x: number; y: number }
   curveIndex?: number
   curveGroupSize?: number
+  //particles
+  particleProgress?: number
+  particleSpeed?: number
+  particleActive?: boolean
 }
 
 export type HoveredData = {

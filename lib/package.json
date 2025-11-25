@@ -12,7 +12,20 @@
   "keywords": [
     "d3",
     "react",
-    "typescript"
+    "typescript",
+    "graph",
+    "graph-data-structure",
+    "graph-visualization",
+    "graph-library",
+    "directed-graph",
+    "undirected-graph",
+    "nodes",
+    "edges",
+    "react-component",
+    "jsx",
+    "graph-ts",
+    "data-structures",
+    "react-graph-ts"
   ],
   "main": "dist/react-graph-ts.umd.js",
   "module": "dist/react-graph-ts.es.js",
@@ -22,7 +35,6 @@
   ],
   "exports": {
     ".": {
-      "development": "./src/index.ts",
       "types": "./dist/index.d.ts",
       "import": "./dist/react-graph-ts.es.js",
       "require": "./dist/react-graph-ts.umd.js"

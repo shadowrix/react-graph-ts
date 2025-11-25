@@ -26,19 +26,30 @@ export function drawLink(state: RefState, link: LinkType) {
   const tx = target.x
   const ty = target.y
 
-  if (link.curveGroupSize === 1) {
-    state.current.context.beginPath()
-    state.current.context.moveTo(sx, sy)
-    state.current.context.lineTo(tx, ty)
-    state.current.context.strokeStyle = state.current.colors.link
-    state.current.context.lineWidth = 1
-    if (isHovered) {
-      state.current.context.lineWidth = 2
-      state.current.context.strokeStyle = state.current.colors.linkHover
+  function setLineSettings() {
+    if (state.current.settings.isDashed) {
+      state.current.context!.setLineDash([10, 5])
     }
-    state.current.context.stroke()
-    return
+    state.current.context!.strokeStyle = state.current.colors.link
+    state.current.context!.lineWidth = 1
+    if (isHovered) {
+      state.current.context!.lineWidth = 2
+      state.current.context!.strokeStyle = state.current.colors.linkHover
+
+      //TODO: If particles
+      // state.current.context.
+      // state.current.context.arc(px, py, 3, 0, Math.PI * 2)
+    }
   }
+
+  // if (link.curveGroupSize === 1) {
+  //   state.current.context.beginPath()
+  //   state.current.context.moveTo(sx, sy)
+  //   state.current.context.lineTo(tx, ty)
+  //   setLineSettings()
+  //   state.current.context.stroke()
+  //   return
+  // }
 
   // if (!link.control)
   link.control = computeControlPoint(source, target, link.curveIndex ?? 0)
@@ -47,13 +58,7 @@ export function drawLink(state: RefState, link: LinkType) {
   state.current.context.beginPath()
   state.current.context.moveTo(sx, sy)
   state.current.context.quadraticCurveTo(cp.x, cp.y, tx, ty)
-
-  state.current.context.lineWidth = 1
-  state.current.context.strokeStyle = state.current.colors.link
-  if (isHovered) {
-    state.current.context.lineWidth = 2
-    state.current.context.strokeStyle = state.current.colors.linkHover
-  }
+  setLineSettings()
   state.current.context.stroke()
 }
 
@@ -101,8 +106,9 @@ export function drawNode(
   // label
   context.font = '12px sans-serif'
   context.fillStyle = state.current.colors.nodeLabel
-  context.textBaseline = 'middle'
-  context.fillText(label, x + radius + 6, y)
+  context.textBaseline = 'bottom'
+  context.textAlign = 'center'
+  context.fillText(label, x, y - radius - 6)
 }
 
 export function drawAllNodes(

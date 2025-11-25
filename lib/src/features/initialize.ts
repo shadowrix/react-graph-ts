@@ -5,7 +5,7 @@ import { RefState } from '../state'
 
 export type UseInitializeParameters = {
   state: RefState
-  isFixed: boolean
+  isFixed?: boolean
   updateCache: () => void
   draw: () => void
 }
@@ -49,7 +49,7 @@ export function useInitialize({
         }
       })
       .on('end', () => {
-        if (isFixed) {
+        if (state.current.settings.isFixed) {
           state.current.nodes.forEach((node) => {
             node.fx = node.x
             node.fy = node.y

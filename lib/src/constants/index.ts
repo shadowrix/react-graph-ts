@@ -12,6 +12,12 @@ export const INITIAL_SETTINGS = {
   alphaDecay: 0.05,
 
   isFixed: false,
+
+  //Particles of link
+  particlesSpeed: 0.015,
+  particlesIsActive: true,
+
+  isDashed: true
 }
 
 export const COLORS = {
@@ -26,4 +32,6 @@ export const COLORS = {
   linkActive: '#DDB67D',
 
   nodeLabel: '#D9DBE0',
+
+  particles: '#ff1974',
 }

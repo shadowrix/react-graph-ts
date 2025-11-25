@@ -19,10 +19,12 @@ import { assignCurves, buildLinkGrid } from './helpers'
 export type GraphProps = {
   nodes: NodeType[]
   links: LinkType[]
-  isFixed: boolean
+  isFixed?: boolean
   onClick?: OnClickFn
   getLabel?: GetLabelFn
   detectNodeColor?: DetectNodeColorFn
+  //LINKS
+  dashedLinks?: boolean
 }
 
 const ALPHA_DECAY = 0.05
@@ -32,11 +34,15 @@ export function Graph(props: GraphProps) {
   const { refs: state, register } = useRefManager()
 
   React.useEffect(() => {
-    state.current.settings.isFixed = props.isFixed
+    state.current.settings.isFixed = props.isFixed ?? false
     state.current.settings.alphaDecay = props.isFixed
       ? FIXED_ALPHA_DECAY
       : ALPHA_DECAY
   }, [props.isFixed])
+
+  React.useEffect(() => {
+    state.current.settings.isDashed = Boolean(props.dashedLinks)
+  }, [props.dashedLinks])
 
   const handleClick = useEffectEvent((...params: Parameters<OnClickFn>) => {
     props.onClick?.(...params)

@@ -9,16 +9,20 @@ export type State = {
   canvas: HTMLCanvasElement | null
   context: CanvasRenderingContext2D | null
   nodes: NodeType[]
-  nodesCache: Quadtree<NodeType> | null
   links: LinkType[]
-  linksGrid: Map<string, LinkType[]>
   isRequestRendering: boolean
-  hoveredData: HoveredData
   simulationEngine: Simulation<NodeType, undefined> | null
   transform: ZoomTransform
+  //-----------------CACHE-------------------
+  nodesCache: Quadtree<NodeType> | null
+  linksGrid: Map<string, LinkType[]>
+  //-----------------STATES-------------------
   //drag and zoom, mb rename like isProcess
   isDragging: boolean
+  hoveredData: HoveredData
+  particleProgress: number
 
+  //-----------------SETTINGS-------------------
   settings: Settings
 
   colors: Colors
@@ -32,14 +36,15 @@ const INITIAL_STATE = {
   links: [],
   linksGrid: new Map(),
   isRequestRendering: false,
-  hoveredData: {
-    link: null,
-    node: null,
-  },
   simulationEngine: null,
   transform: zoomIdentity,
   //drag and zoom, mb rename like isProcess
   isDragging: false,
+  hoveredData: {
+    link: null,
+    node: null,
+  },
+  particleProgress: 0,
 
   settings: INITIAL_SETTINGS,
 

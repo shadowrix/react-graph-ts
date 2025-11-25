@@ -9,6 +9,7 @@ export type LinkType = {
   id: string
   source: string
   target: string
+  control?: { x: number; y: number }
   drawIndex?: number
   curveIndex?: number
   curveGroupSize?: number

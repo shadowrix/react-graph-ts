@@ -40,7 +40,53 @@ export function useHandlers({
       let hoveredLink: LinkType | null = null
 
       if (!hoveredNode) {
-        hoveredLink = findLink(x, y, state.current.linksGrid)
+        const cellSize = 150
+
+        const cx = Math.floor(x / cellSize)
+        const cy = Math.floor(y / cellSize)
+
+        const key = `${cx},${cy}`
+        const candidates = state.current.linksGrid.get(key)
+        if (!candidates) return null
+
+        const sortedCandidates = candidates
+          .slice()
+          .sort((a, b) => (b.drawIndex ?? 0) - (a.drawIndex ?? 0))
+
+        for (let i = sortedCandidates.length - 1; i >= 0; i--) {
+          const link = sortedCandidates[i]
+          // compute control (use cached)
+          const source = link.source as unknown as NodeType
+          const target = link.target as unknown as NodeType
+          console.log(link.id, '-------------->', link.control)
+          link.control = computeControlPoint(
+            source,
+            target,
+            link.curveIndex || 0,
+          )
+
+          console.log(link.id, 'after-------------->', link.control)
+
+          const cp = link.control
+          // tolerance in graph (no zoom here) is hoverPx
+          const hoverPx = 2 // screen pixels tolerance (how 'thick' hover area is)
+          if (
+            hitTestQuadratic(
+              x,
+              y,
+              source.x!,
+              source.y!,
+              cp.x,
+              cp.y,
+              target.x!,
+              target.y!,
+              hoverPx,
+            )
+          ) {
+            hoveredLink = link
+            break
+          }
+        }
 
         if (
           !state.current.hoveredData.node &&
@@ -97,9 +143,9 @@ export function useHandlers({
 
         if (clickedNode) return handleClick(clickedNode, type, event)
 
-        const clickedLink = findLink(x, y, state.current.linksGrid)
+        // const clickedLink = findLink(x, y, state.current.linksGrid)
 
-        if (clickedLink) return handleClick(clickedLink, type, event)
+        // if (clickedLink) return handleClick(clickedLink, type, event)
 
         return handleClick(null, type, event)
       }
@@ -122,45 +168,91 @@ export function useHandlers({
   }, [])
 }
 
-function pointNearLine(px: number, py: number, link: LinkType, maxDist = 2) {
-  const { x: x1, y: y1 } = link.source as unknown as Required<NodeType>
-  const { x: x2, y: y2 } = link.target as unknown as Required<NodeType>
-
-  const L2 = (x2 - x1) ** 2 + (y2 - y1) ** 2
-  if (L2 === 0) return false
-
-  let t = ((px - x1) * (x2 - x1) + (py - y1) * (y2 - y1)) / L2
-  t = Math.max(0, Math.min(1, t))
-
-  const projX = x1 + t * (x2 - x1)
-  const projY = y1 + t * (y2 - y1)
-
-  return Math.hypot(px - projX, py - projY) <= maxDist
+// conservative bezier bbox (control + endpoints)
+function bezierBBox(
+  x0: number,
+  y0: number,
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number,
+) {
+  return {
+    minX: Math.min(x0, x1, x2),
+    minY: Math.min(y0, y1, y2),
+    maxX: Math.max(x0, x1, x2),
+    maxY: Math.max(y0, y1, y2),
+  }
 }
 
-function findLink(
-  mouseX: number,
-  mouseY: number,
-  gridData: Map<string, LinkType[]>,
+// dense sampling hit-test for quadratic bezier
+function hitTestQuadratic(
+  px: number,
+  py: number,
+  x0: number,
+  y0: number,
+  xc: number,
+  yc: number,
+  x2: number,
+  y2: number,
+  tol: number,
 ) {
-  const cellSize = 150
+  // quick bbox test with tolerance
+  const bb = bezierBBox(x0, y0, xc, yc, x2, y2)
+  if (
+    px < bb.minX - tol ||
+    px > bb.maxX + tol ||
+    py < bb.minY - tol ||
+    py > bb.maxY + tol
+  )
+    return false
 
-  const cx = Math.floor(mouseX / cellSize)
-  const cy = Math.floor(mouseY / cellSize)
-
-  const key = `${cx},${cy}`
-  const candidates = gridData.get(key)
-  if (!candidates) return null
-
-  const sortedCandidates = candidates
-    .slice()
-    .sort((a, b) => (b.drawIndex ?? 0) - (a.drawIndex ?? 0))
-
-  for (const link of sortedCandidates) {
-    if (pointNearLine(mouseX, mouseY, link)) {
-      return link
-    }
+  const chord = Math.hypot(x2 - x0, y2 - y0)
+  const contLen = Math.hypot(xc - x0, yc - y0) + Math.hypot(x2 - xc, y2 - yc)
+  const approxLen = (chord + contLen) / 2
+  const steps = Math.max(16, Math.min(120, Math.ceil(approxLen / 1)))
+  console.log('tol ---------------->', tol)
+  const tol2 = tol * tol
+  for (let i = 0; i <= steps; i++) {
+    const t = i / steps
+    const mt = 1 - t
+    const x = mt * mt * x0 + 2 * mt * t * xc + t * t * x2
+    const y = mt * mt * y0 + 2 * mt * t * yc + t * t * y2
+    const dx = px - x,
+      dy = py - y
+    if (dx * dx + dy * dy <= tol2) return true
   }
+  return false
+}
 
-  return null
+export function computeControlPoint(
+  source: NodeType,
+  target: NodeType,
+  curveIndex: number,
+) {
+  const baseOffsetFraction = 0.12 // fraction of link length, try 0.06..0.12
+  const treatAsFraction = true
+  const sx = source.x!,
+    sy = source.y!,
+    tx = target.x!,
+    ty = target.y!
+  const mx = (sx + tx) * 0.5
+  const my = (sy + ty) * 0.5
+  const dx = tx - sx,
+    dy = ty - sy
+  const len = Math.hypot(dx, dy) || 1
+  const invLen = 1 / len
+  const nx = -dy * invLen
+  const ny = dx * invLen
+
+  const sign = curveIndex % 2 === 0 ? 1 : -1
+  const multiplier = curveIndex
+  const numericOffset = treatAsFraction
+    ? baseOffsetFraction * len * multiplier
+    : baseOffsetFraction * multiplier
+
+  return {
+    x: mx + nx * numericOffset * sign,
+    y: my + ny * numericOffset * sign,
+  }
 }

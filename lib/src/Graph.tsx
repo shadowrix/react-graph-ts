@@ -8,7 +8,7 @@ import { useZoom } from './features/zoom'
 import { useHandlers } from './features/handlers'
 import { useRefManager } from './state'
 import { useInitialize } from './features/initialize'
-import { buildLinkGrid } from './helpers'
+import { assignDirectionalCurves, buildLinkGrid } from './helpers'
 
 export type GraphProps = {
   nodes: NodeType[]
@@ -51,7 +51,8 @@ export function Graph(props: GraphProps) {
   /** SET NODES AND LINKS */
   React.useEffect(() => {
     state.current.nodes = JSON.parse(JSON.stringify(props.nodes))
-    state.current.links = JSON.parse(JSON.stringify(props.links))
+    const links = assignDirectionalCurves(props.links)
+    state.current.links = links
   }, [props.nodes, props.links])
 
   const clearCanvas = React.useCallback(function clearCanvas(
@@ -113,9 +114,9 @@ export function Graph(props: GraphProps) {
     [draw],
   )
 
-  //link cellSize = link length * 0.6
   const updateLinkGrid = React.useCallback(function updateLinkGrid() {
     const grid = buildLinkGrid(state.current.links)
+    console.log(grid)
     state.current.linksGrid = grid
   }, [])
 

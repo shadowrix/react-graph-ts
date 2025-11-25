@@ -31,7 +31,7 @@ export function useInitialize({
           .distance(state.current.settings.linkDistance)
           .strength(state.current.settings.linkStrength),
       )
-      .force('charge', forceManyBody().strength(-700))
+      .force('charge', forceManyBody().strength(-200))
       //TODO: Add width and height from parent
       .force(
         'center',

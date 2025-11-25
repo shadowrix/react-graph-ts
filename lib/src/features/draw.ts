@@ -7,6 +7,11 @@ export function drawLink(state: RefState, link: LinkType) {
   const source = link.source as unknown as NodeType
   const target = link.target as unknown as NodeType
 
+  const isHovered =
+    state.current.hoveredData.link?.id === link.id ||
+    state.current.hoveredData.node?.id === source.id ||
+    state.current.hoveredData.node?.id === target.id
+
   if (
     !source?.x ||
     !target?.x ||
@@ -27,8 +32,8 @@ export function drawLink(state: RefState, link: LinkType) {
     state.current.context.lineTo(tx, ty)
     state.current.context.strokeStyle = state.current.colors.link
     state.current.context.lineWidth = 1
-    if (state.current.hoveredData.link?.id === link.id) {
-      state.current.context.lineWidth = 4
+    if (isHovered) {
+      state.current.context.lineWidth = 2
       state.current.context.strokeStyle = state.current.colors.linkHover
     }
     state.current.context.stroke()
@@ -45,12 +50,8 @@ export function drawLink(state: RefState, link: LinkType) {
 
   state.current.context.lineWidth = 1
   state.current.context.strokeStyle = state.current.colors.link
-  if (
-    state.current.hoveredData.link?.id === link.id ||
-    state.current.hoveredData.node?.id === source.id ||
-    state.current.hoveredData.node?.id === target.id
-  ) {
-    state.current.context.lineWidth = 4
+  if (isHovered) {
+    state.current.context.lineWidth = 2
     state.current.context.strokeStyle = state.current.colors.linkHover
   }
   state.current.context.stroke()

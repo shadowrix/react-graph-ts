@@ -1,7 +1,13 @@
 import React, { useEffectEvent } from 'react'
 
-import { quadtree, unixDay } from 'd3'
-import { DetectNodeColorFn, LinkType, NodeType, OnClickFn } from './typings'
+import { quadtree } from 'd3'
+import {
+  DetectNodeColorFn,
+  GetLabelFn,
+  LinkType,
+  NodeType,
+  OnClickFn,
+} from './typings'
 import { drawAllLinks, drawAllNodes } from './features/draw'
 import { useDrag } from './features/drag'
 import { useZoom } from './features/zoom'
@@ -15,6 +21,7 @@ export type GraphProps = {
   links: LinkType[]
   isFixed: boolean
   onClick?: OnClickFn
+  getLabel?: GetLabelFn
   detectNodeColor?: DetectNodeColorFn
 }
 
@@ -35,6 +42,16 @@ export function Graph(props: GraphProps) {
     props.onClick?.(...params)
   })
 
+  const getLabel = useEffectEvent((...params: Parameters<GetLabelFn>) => {
+    if (props.getLabel) {
+      return props.getLabel(...params)
+    }
+
+    const [node] = params
+    console.log(node)
+    return node?.id
+  })
+
   const handleDetectNodeColor = useEffectEvent(
     (...params: Parameters<DetectNodeColorFn>) => {
       if (props.detectNodeColor) {
@@ -52,7 +69,6 @@ export function Graph(props: GraphProps) {
   React.useEffect(() => {
     state.current.nodes = JSON.parse(JSON.stringify(props.nodes))
     const links = assignCurves(props.links)
-    console.log('links --->', links)
     state.current.links = links
   }, [props.nodes, props.links])
 
@@ -97,6 +113,7 @@ export function Graph(props: GraphProps) {
       drawAllNodes(
         state,
         state.current.settings.nodeRadius,
+        getLabel,
         handleDetectNodeColor,
       )
     },

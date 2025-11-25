@@ -1,9 +1,25 @@
 {
   "name": "react-graph-ts",
-  "version": "0.1.0",
+  "version": "0.0.1",
+  "private": false,
+  "description": "Graph stand on d3",
+  "author": "shadowrix164@gmail.com",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shadowrix/react-graph-ts.git"
+  },
+  "keywords": [
+    "d3",
+    "react",
+    "typescript"
+  ],
   "main": "dist/react-graph-ts.umd.js",
   "module": "dist/react-graph-ts.es.js",
   "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "exports": {
     ".": {
       "development": "./src/index.ts",
@@ -15,7 +31,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "prepare": "npm run build"
   },
   "peerDependencies": {
     "d3": "^7.9.0",

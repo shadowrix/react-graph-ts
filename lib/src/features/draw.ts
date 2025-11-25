@@ -1,6 +1,6 @@
 import { RefState } from '../state'
 import { computeControlPoint } from './handlers'
-import { DetectNodeColorFn, LinkType, NodeType } from '../typings'
+import { DetectNodeColorFn, GetLabelFn, LinkType, NodeType } from '../typings'
 
 //TODO: Add all settings for links and mb custom links
 export function drawLink(state: RefState, link: LinkType) {
@@ -73,6 +73,7 @@ export function drawNode(
   node: NodeType,
   radius: number,
   detectNodeColorFn: DetectNodeColorFn,
+  getLabel: GetLabelFn,
 ) {
   const x = node.x!
   const y = node.y!
@@ -94,23 +95,25 @@ export function drawNode(
   // context.lineWidth = 1
   // context.stroke()
 
-  if (state.current.transform.k < 0.6) return
+  const label = getLabel(node)
+  if (state.current.transform.k < 0.6 || !label) return
 
   // label
   context.font = '12px sans-serif'
   context.fillStyle = state.current.colors.nodeLabel
   context.textBaseline = 'middle'
-  context.fillText(String(node.id), x + radius + 6, y)
+  context.fillText(label, x + radius + 6, y)
 }
 
 export function drawAllNodes(
   state: RefState,
   radius: number,
+  getLabel: GetLabelFn,
   detectNodeColorFn: DetectNodeColorFn,
 ) {
   if (!state.current.context) return
 
   for (const node of state.current.nodes) {
-    drawNode(state, node, radius, detectNodeColorFn)
+    drawNode(state, node, radius, detectNodeColorFn, getLabel)
   }
 }

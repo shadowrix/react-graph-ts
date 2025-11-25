@@ -2,7 +2,7 @@ export const INITIAL_SETTINGS = {
   // background: 'grey',
 
   linkDistance: 100,
-  linkStrength: 0.4,
+  linkStrength: 0.7,
 
   nodeRadius: 10,
 

@@ -33,3 +33,5 @@ export type OnClickFn = (
 ) => void
 
 export type DetectNodeColorFn = (target: NodeType, isHover: boolean) => string
+
+export type GetLabelFn = (target: NodeType) => string

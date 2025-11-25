@@ -8,6 +8,7 @@ import {
   LinkType,
   NodeType,
   OnClickFn,
+  Settings,
 } from './typings'
 import { drawAllLinks, drawAllNodes } from './features/draw'
 import { useDrag } from './features/drag'
@@ -18,15 +19,17 @@ import { useInitialize } from './features/initialize'
 import { assignCurves, buildLinkGrid } from './helpers'
 
 export type GraphProps = {
-  nodes: NodeType[]
-  links: LinkType[]
   isFixed?: boolean
+  settings?: Settings
   onClick?: OnClickFn
-  getLabel?: GetLabelFn
-  detectNodeColor?: DetectNodeColorFn
   //LINKS
+  links: LinkType[]
   dashedLinks?: boolean
   colors?: Partial<Colors>
+  //NODES
+  nodes: NodeType[]
+  getLabel?: GetLabelFn
+  detectNodeColor?: DetectNodeColorFn
 }
 
 const ALPHA_DECAY = 0.05
@@ -34,6 +37,10 @@ const FIXED_ALPHA_DECAY = 0.6
 
 export function Graph(props: GraphProps) {
   const { refs: state, register } = useRefManager()
+  const [sizes, setSizes] = React.useState({
+    width: 0,
+    height: 0,
+  })
 
   React.useEffect(() => {
     state.current.settings.isFixed = props.isFixed ?? false
@@ -49,6 +56,13 @@ export function Graph(props: GraphProps) {
   React.useEffect(() => {
     state.current.colors = { ...state.current.colors, ...(props.colors ?? {}) }
   }, [props.colors])
+
+  React.useEffect(() => {
+    state.current.settings = {
+      ...state.current.settings,
+      ...(props.settings ?? {}),
+    }
+  }, [props.settings])
 
   const handleClick = useEffectEvent((...params: Parameters<OnClickFn>) => {
     props.onClick?.(...params)
@@ -163,6 +177,29 @@ export function Graph(props: GraphProps) {
     [updateNodesCache, updateLinkGrid],
   )
 
+  /** SIZES */
+  React.useEffect(() => {
+    if (state.current.canvas?.parentElement) {
+      const resizeObserver = new ResizeObserver(() => {
+        const width = state.current.canvas!.parentElement!.clientWidth
+        const height = state.current.canvas!.parentElement!.clientHeight
+        state.current.settings.width = width
+        state.current.settings.height = height
+        setSizes({
+          width,
+          height,
+        })
+        requestRender()
+      })
+
+      resizeObserver.observe(document.body)
+
+      return () => {
+        resizeObserver.disconnect()
+      }
+    }
+  }, [])
+
   useInitialize({
     state,
     isFixed: props.isFixed,
@@ -192,8 +229,8 @@ export function Graph(props: GraphProps) {
   return (
     <canvas
       ref={register('canvas')}
-      width={state.current.settings.width}
-      height={state.current.settings.height}
+      width={sizes.width}
+      height={sizes.height}
     />
   )
 }

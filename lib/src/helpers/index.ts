@@ -82,34 +82,31 @@ function quadraticBezierBBox(
   return { minX, minY, maxX, maxY }
 }
 
-export function assignDirectionalCurves(links: LinkType[]) {
+export function assignCurves(links: LinkType[]): LinkType[] {
   const groups = new Map<string, LinkType[]>()
 
-  const copiedLinks = JSON.parse(JSON.stringify(links))
+  for (const link of links) {
+    const s = String(link.source)
+    const t = String(link.target)
 
-  for (const link of copiedLinks) {
-    // Keep direction: (A->B !== B->A)
-    const key = `${String(link.source)}->${String(link.target)}`
+    const normalized = s.localeCompare(t) <= 0 ? [s, t] : [t, s]
 
-    let group = groups.get(key)
-    if (!group) {
-      group = []
-      groups.set(key, group)
-    }
-    group.push(link)
+    const key = JSON.stringify(normalized)
+
+    const group = groups.get(key)
+    if (group) group.push(link)
+    else groups.set(key, [link])
   }
-
-  // Assign curve indexes per group
   for (const group of groups.values()) {
     const n = group.length
-    const centerOffset = (n - 1) / 2 // allows symmetric spacing
+    const center = n - 1
 
     for (let i = 0; i < n; i++) {
       const link = group[i]
-      link.curveIndex = i - centerOffset
+      link.curveIndex = i + 1 - center // -1, 0, +1, ...
       link.curveGroupSize = n
     }
   }
 
-  return copiedLinks as LinkType[]
+  return links
 }

@@ -41,7 +41,7 @@ export function drawLink(state: RefState, link: LinkType) {
   }
 
   // if (!link.control)
-  link.control = computeControlPoint(source, target, link.curveIndex || 0)
+  link.control = computeControlPoint(source, target, link.curveIndex ?? 0)
   const cp = link.control
 
   state.current.context.beginPath()

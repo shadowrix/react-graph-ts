@@ -64,7 +64,7 @@ export function useHandlers({
             link.curveIndex || 0,
           )
 
-          const cp = link.control
+          const cp = link.control!
           // tolerance in graph (no zoom here) is hoverPx
           const hoverPx = 2 // screen pixels tolerance (how 'thick' hover area is)
           if (

@@ -8,7 +8,7 @@ import { useZoom } from './features/zoom'
 import { useHandlers } from './features/handlers'
 import { useRefManager } from './state'
 import { useInitialize } from './features/initialize'
-import { assignDirectionalCurves, buildLinkGrid } from './helpers'
+import { assignCurves, buildLinkGrid } from './helpers'
 
 export type GraphProps = {
   nodes: NodeType[]
@@ -51,7 +51,8 @@ export function Graph(props: GraphProps) {
   /** SET NODES AND LINKS */
   React.useEffect(() => {
     state.current.nodes = JSON.parse(JSON.stringify(props.nodes))
-    const links = assignDirectionalCurves(props.links)
+    const links = assignCurves(props.links)
+    console.log('links --->', links)
     state.current.links = links
   }, [props.nodes, props.links])
 

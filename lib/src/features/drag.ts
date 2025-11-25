@@ -8,8 +8,6 @@ export type UseDragParameters = {
   draw: () => void
   getPointerCoords: (clientX: number, clientY: number) => [number, number]
   updateCache: () => void
-  alphaDecay: number
-  isFixed: boolean
 }
 
 export function useDrag({
@@ -17,8 +15,6 @@ export function useDrag({
   draw,
   updateCache,
   getPointerCoords,
-  isFixed,
-  alphaDecay,
 }: UseDragParameters) {
   React.useEffect(() => {
     function findNode(x: number, y: number) {
@@ -34,11 +30,14 @@ export function useDrag({
           event.sourceEvent.clientX,
           event.sourceEvent.clientY,
         )
+        console.log('drag')
         return findNode(x, y)
       })
       .on('start', (event) => {
         if (!event.active)
-          state.current.simulationEngine?.alphaTarget(alphaDecay).restart()
+          state.current.simulationEngine
+            ?.alphaTarget(state.current.settings.alphaDecay)
+            .restart()
         event.subject.fx = event.subject.x
         event.subject.fy = event.subject.y
       })
@@ -54,7 +53,7 @@ export function useDrag({
       })
       .on('end', (event) => {
         if (!event.active) state.current.simulationEngine?.alphaTarget(0)
-        if (!isFixed) {
+        if (!state.current.settings.isFixed) {
           event.subject.fx = null
           event.subject.fy = null
         }
@@ -63,5 +62,5 @@ export function useDrag({
       })
 
     select(state.current.canvas!).call(dragFn)
-  }, [draw, isFixed])
+  }, [draw])
 }

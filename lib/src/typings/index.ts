@@ -31,3 +31,5 @@ export type OnClickFn = (
   click: ClickType,
   event: MouseEvent,
 ) => void
+
+export type DetectNodeColorFn = (target: NodeType, isHover: boolean) => string

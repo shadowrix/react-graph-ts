@@ -10,7 +10,8 @@ export const INITIAL_SETTINGS = {
   height: 800,
 
   alphaDecay: 0.05,
-  fixedAlphaDecay: 0.6,
+
+  isFixed: false,
 }
 
 export const COLORS = {

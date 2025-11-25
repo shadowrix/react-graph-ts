@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { select, zoom, ZoomTransform } from 'd3'
+import { select, zoom } from 'd3'
 import { RefState } from '../state'
 
 export type UseZoomParameters = {

@@ -84,21 +84,24 @@ export function drawNode(
   const y = node.y!
   const context = state.current.context!
 
+  const isHovered =
+    state.current.hoveredData.node?.id === node.id ||
+    (state.current.hoveredData.link?.source as unknown as NodeType)?.id ===
+      node.id ||
+    (state.current.hoveredData.link?.target as unknown as NodeType)?.id ===
+      node.id
+
   context.beginPath()
   context.fillStyle = detectNodeColorFn
     ? detectNodeColorFn(node, false)
     : state.current.colors.node
   context.arc(x, y, radius, 0, Math.PI * 2)
-  if (state.current.hoveredData.node?.id === node.id) {
-    context.fillStyle = detectNodeColorFn
-      ? detectNodeColorFn(node, true)
-      : state.current.colors.nodeHover
-    context.arc(x, y, radius * 2, 0, Math.PI * 2)
+  if (isHovered) {
+    context.strokeStyle = state.current.colors.nodeHover
+    context.lineWidth = state.current.settings.hoveredBorder
+    context.stroke()
   }
   context.fill()
-  // context.strokeStyle = state.current.colors.node
-  // context.lineWidth = 1
-  // context.stroke()
 
   const label = getLabel(node)
   if (state.current.transform.k < 0.6 || !label) return

@@ -2,6 +2,7 @@ import React, { useEffectEvent } from 'react'
 
 import { quadtree } from 'd3'
 import {
+  Colors,
   DetectNodeColorFn,
   GetLabelFn,
   LinkType,
@@ -25,6 +26,7 @@ export type GraphProps = {
   detectNodeColor?: DetectNodeColorFn
   //LINKS
   dashedLinks?: boolean
+  colors?: Partial<Colors>
 }
 
 const ALPHA_DECAY = 0.05
@@ -44,6 +46,10 @@ export function Graph(props: GraphProps) {
     state.current.settings.isDashed = Boolean(props.dashedLinks)
   }, [props.dashedLinks])
 
+  React.useEffect(() => {
+    state.current.colors = { ...state.current.colors, ...(props.colors ?? {}) }
+  }, [props.colors])
+
   const handleClick = useEffectEvent((...params: Parameters<OnClickFn>) => {
     props.onClick?.(...params)
   })
@@ -54,7 +60,6 @@ export function Graph(props: GraphProps) {
     }
 
     const [node] = params
-    console.log(node)
     return node?.id
   })
 
@@ -140,7 +145,6 @@ export function Graph(props: GraphProps) {
 
   const updateLinkGrid = React.useCallback(function updateLinkGrid() {
     const grid = buildLinkGrid(state.current.links)
-    console.log(grid)
     state.current.linksGrid = grid
   }, [])
 

@@ -30,7 +30,7 @@ export function useDrag({
           event.sourceEvent.clientX,
           event.sourceEvent.clientY,
         )
-        console.log('drag')
+
         return findNode(x, y)
       })
       .on('start', (event) => {

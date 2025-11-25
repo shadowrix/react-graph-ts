@@ -1,10 +1,9 @@
 export const INITIAL_SETTINGS = {
-  // background: 'grey',
-
   linkDistance: 100,
   linkStrength: 0.7,
 
-  nodeRadius: 10,
+  nodeRadius: 8,
+  hoveredBorder: 4,
 
   width: 1200,
   height: 800,
@@ -17,7 +16,7 @@ export const INITIAL_SETTINGS = {
   particlesSpeed: 0.015,
   particlesIsActive: true,
 
-  isDashed: true
+  isDashed: true,
 }
 
 export const COLORS = {

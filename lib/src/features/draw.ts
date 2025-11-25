@@ -38,7 +38,7 @@ export function drawLink(state: RefState, link: LinkType) {
   // if (!link.control)
   link.control = computeControlPoint(source, target, link.curveIndex || 0)
   const cp = link.control
-  console.log(link.id, '-------------->', cp, link)
+  
   state.current.context.beginPath()
   state.current.context.moveTo(sx, sy)
   state.current.context.quadraticCurveTo(cp.x, cp.y, tx, ty)

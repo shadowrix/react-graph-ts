@@ -90,9 +90,9 @@ export function Graph(props: GraphProps) {
     [draw],
   )
 
-  //link cellSize = link length * 0.6
   const updateLinkGrid = React.useCallback(function updateLinkGrid() {
     const grid = buildLinkGrid(state.current.links)
+    console.log(grid)
     state.current.linksGrid = grid
   }, [])
 

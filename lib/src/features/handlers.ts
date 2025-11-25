@@ -58,14 +58,11 @@ export function useHandlers({
           // compute control (use cached)
           const source = link.source as unknown as NodeType
           const target = link.target as unknown as NodeType
-          console.log(link.id, '-------------->', link.control)
           link.control = computeControlPoint(
             source,
             target,
             link.curveIndex || 0,
           )
-
-          console.log(link.id, 'after-------------->', link.control)
 
           const cp = link.control
           // tolerance in graph (no zoom here) is hoverPx
@@ -210,8 +207,8 @@ function hitTestQuadratic(
   const chord = Math.hypot(x2 - x0, y2 - y0)
   const contLen = Math.hypot(xc - x0, yc - y0) + Math.hypot(x2 - xc, y2 - yc)
   const approxLen = (chord + contLen) / 2
-  const steps = Math.max(16, Math.min(120, Math.ceil(approxLen / 1)))
-  console.log('tol ---------------->', tol)
+  const steps = Math.max(16, Math.ceil(approxLen / 1))
+
   const tol2 = tol * tol
   for (let i = 0; i <= steps; i++) {
     const t = i / steps

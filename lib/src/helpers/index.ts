@@ -2,6 +2,7 @@ import { computeControlPoint } from '../features/handlers'
 import { LinkType, NodeType } from '../typings'
 
 export function buildLinkGrid(links: LinkType[]) {
+  //link cellSize = link length * 0.6
   const cellSize = 150
   const grid = new Map<string, LinkType[]>()
 
@@ -9,87 +10,76 @@ export function buildLinkGrid(links: LinkType[]) {
     return `${cx},${cy}`
   }
 
-  // function computeSampleCount(x0, y0, xc, yc, x2, y2) {
-  //   const chord = Math.hypot(x2 - x0, y2 - y0)
-  //   return Math.min(12, Math.max(6, Math.ceil(chord / 80)))
-  // }
-
-  function bezierPoint(
-    x0: number,
-    y0: number,
-    xc: number,
-    yc: number,
-    x2: number,
-    y2: number,
-    t: number,
-  ) {
-    const mt = 1 - t
-    return {
-      x: mt * mt * x0 + 2 * mt * t * xc + t * t * x2,
-      y: mt * mt * y0 + 2 * mt * t * yc + t * t * y2,
-    }
-  }
-
   for (const link of links) {
     const source = link.source as unknown as NodeType
     const target = link.target as unknown as NodeType
 
     if (source.x && source.y && target.x && target.y) {
-      // const minX = Math.min(source.x, target.x)
-      // const maxX = Math.max(source.x, target.x)
-      // const minY = Math.min(source.y, target.y)
-      // const maxY = Math.max(source.y, target.y)
       // 1. Compute control point (your existing function)
-      const c = computeControlPoint(source, target, link.curveIndex ?? 1)
-
-      // const steps = computeSampleCount(s.x, s.y, c.x, c.y, t.x, t.y)
-      const steps = 8
-
-      for (let i = 0; i <= steps; i++) {
-        const tval = i / steps
-        const p = bezierPoint(
-          source.x,
-          source.y,
-          c.x,
-          c.y,
-          target.x,
-          target.y,
-          tval,
-        )
-        const cx = Math.floor(p.x / cellSize)
-        const cy = Math.floor(p.y / cellSize)
-
-        const k = key(cx, cy)
-        if (!grid.has(k)) grid.set(k, [])
-        grid.get(k)!.push(link)
-      }
+      const control = computeControlPoint(source, target, link.curveIndex ?? 1)
 
       // 2. Compute bezier bounding box
-      // const bb = quadraticBezierBBox(
-      //   source.x,
-      //   source.y,
-      //   c.x,
-      //   c.y,
-      //   target.x,
-      //   target.y,
-      // )
+      const bb = quadraticBezierBBox(
+        source.x,
+        source.y,
+        control.x,
+        control.y,
+        target.x,
+        target.y,
+      )
 
-      // const startX = Math.floor(bb.minX / cellSize)
-      // const endX = Math.floor(bb.maxX / cellSize)
-      // const startY = Math.floor(bb.minY / cellSize)
-      // const endY = Math.floor(bb.maxY / cellSize)
+      const startX = Math.floor(bb.minX / cellSize)
+      const endX = Math.floor(bb.maxX / cellSize)
+      const startY = Math.floor(bb.minY / cellSize)
+      const endY = Math.floor(bb.maxY / cellSize)
 
-      // for (let cx = startX; cx <= endX; cx++) {
-      //   for (let cy = startY; cy <= endY; cy++) {
-      //     const k = key(cx, cy)
-      //     if (!grid.has(k)) grid.set(k, [])
-      //     grid.get(k)!.push(link)
-      //   }
-      // }
+      for (let cx = startX; cx <= endX; cx++) {
+        for (let cy = startY; cy <= endY; cy++) {
+          const k = key(cx, cy)
+          if (!grid.has(k)) grid.set(k, [])
+          grid.get(k)!.push(link)
+        }
+      }
     }
   }
 
   return grid
+}
+
+function quadraticBezierBBox(
+  x0: number,
+  y0: number,
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number,
+) {
+  function extrema(p0: number, p1: number, p2: number) {
+    const denom = p0 - 2 * p1 + p2
+    if (denom === 0) return [] // no interior extrema
+    const t = (p0 - p1) / denom
+    return t > 0 && t < 1 ? [t] : []
+  }
+
+  const ts = [...extrema(x0, x1, x2), ...extrema(y0, y1, y2), 0, 1]
+
+  let minX = Infinity,
+    minY = Infinity
+  let maxX = -Infinity,
+    maxY = -Infinity
+
+  for (const t of ts) {
+    const mt = 1 - t
+    const x = mt * mt * x0 + 2 * mt * t * x1 + t * t * x2
+    const y = mt * mt * y0 + 2 * mt * t * y1 + t * t * y2
+
+    if (x < minX) minX = x
+    if (x > maxX) maxX = x
+    if (y < minY) minY = y
+    if (y > maxY) maxY = y
+  }
+
+  return { minX, minY, maxX, maxY }
 }
 
 export function assignDirectionalCurves(links: LinkType[]) {
@@ -116,8 +106,8 @@ export function assignDirectionalCurves(links: LinkType[]) {
 
     for (let i = 0; i < n; i++) {
       const link = group[i]
-      link.curveIndex = i - centerOffset // -1, 0, +1 etc
-      link.curveGroupSize = n // useful for hover radius
+      link.curveIndex = i - centerOffset
+      link.curveGroupSize = n
     }
   }
 

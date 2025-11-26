@@ -133,7 +133,7 @@ function GraphComponent<TLink extends {}, TNode extends {}>(
 
   /** SET NODES AND LINKS */
   React.useEffect(() => {
-    state.current.nodes = JSON.parse(JSON.stringify(props.nodes))
+    state.current.nodes = props.nodes
     const links = assignCurves(props.links)
     state.current.links = links
     //TODO: It's not good solution

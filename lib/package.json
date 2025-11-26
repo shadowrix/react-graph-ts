@@ -1,6 +1,6 @@
 {
   "name": "react-graph-ts",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "private": false,
   "description": "Graph stand on d3",
   "author": "shadowrix164@gmail.com",
@@ -35,7 +35,6 @@
   ],
   "exports": {
     ".": {
-      "development": "./src/index.ts",
       "types": "./dist/index.d.ts",
       "import": "./dist/react-graph-ts.es.js",
       "require": "./dist/react-graph-ts.umd.js"

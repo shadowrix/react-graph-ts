@@ -2,26 +2,40 @@ import React from 'react'
 
 import { forceCenter, forceLink, forceManyBody, forceSimulation } from 'd3'
 import { RefState } from '../state'
+import { Colors, LinkType, NodeType, Settings } from '../typings'
 
 export type UseInitializeParameters = {
   state: RefState
   isFixed?: boolean
   updateCache: () => void
   draw: () => void
+  nodes: NodeType
+  links: LinkType
+  settings?: Partial<Settings>
+  dashedLinks?: boolean
+  colors?: Partial<Colors>
 }
 
 export function useInitialize({
+  nodes,
+  links,
   state,
   isFixed,
+  settings,
+  dashedLinks,
+  colors,
   draw,
   updateCache,
 }: UseInitializeParameters) {
   /** INITIALIZE */
   React.useEffect(() => {
+    console.log('as?')
     const canvas = state.current!.canvas!
     const context = canvas.getContext('2d')!
     state.current!.context = context
     let tickCounter = 0
+
+    state.current!.simulationEngine?.stop()
 
     state.current!.simulationEngine = forceSimulation(state.current!.nodes)
       .force(
@@ -59,7 +73,8 @@ export function useInitialize({
       })
 
     return () => {
+      console.log('unmount?')
       state.current!.simulationEngine?.stop()
     }
-  }, [isFixed])
+  }, [isFixed, nodes, links, settings, dashedLinks, colors])
 }

@@ -256,6 +256,11 @@ export function Graph<TLink extends {}, TNode extends {}>(
     isFixed: props.isFixed,
     draw: requestRender,
     updateCache,
+    nodes: props.nodes as any,
+    links: props.links as any,
+    settings: props.settings,
+    dashedLinks: props.dashedLinks,
+    colors: props.colors,
   })
 
   useDrag({

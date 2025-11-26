@@ -12,14 +12,21 @@ import {
   Settings,
   LinkLabelFn,
   GraphRef,
+  OnSelectedNodesFn,
 } from './typings'
-import { drawAllLinks, drawAllNodes, drawLinkTooltip } from './features/draw'
+import {
+  drawAllLinks,
+  drawAllNodes,
+  drawLasso,
+  drawLinkTooltip,
+} from './features/draw'
 import { useDrag } from './features/drag'
 import { useZoom } from './features/zoom'
 import { useHandlers } from './features/handlers'
 import { useRefManager } from './state'
 import { useInitialize } from './features/initialize'
 import { assignCurves, buildLinkGrid, zoomToFit } from './helpers'
+import { useLasso } from './features/lasso'
 
 export type GraphProps<TLink extends {}, TNode extends {}> = {
   id?: string
@@ -37,6 +44,7 @@ export type GraphProps<TLink extends {}, TNode extends {}> = {
   nodes: NodeType<TNode>[]
   getLabel?: GetLabelFn<TNode>
   nodeColor?: DetectNodeColorFn<TNode>
+  onSelectedNode?: OnSelectedNodesFn
 }
 
 const ALPHA_DECAY = 0.05
@@ -136,6 +144,12 @@ function GraphComponent<TLink extends {}, TNode extends {}>(
     return state.current.colors.link
   }
 
+  function onSelectedNode(...params: Parameters<OnSelectedNodesFn<TNode>>) {
+    if (props.onSelectedNode) {
+      props.onSelectedNode(...params)
+    }
+  }
+
   /** SET NODES AND LINKS */
   React.useEffect(() => {
     state.current.nodes = props.nodes
@@ -183,10 +197,10 @@ function GraphComponent<TLink extends {}, TNode extends {}>(
         state.current.transform.x,
         state.current.transform.y,
       )
-      if (!state.current.enablePanInteraction) {
-        state.current.preRenderCb?.()
-        return
-      }
+      // if (!state.current.enablePanInteraction) {
+      //   state.current.preRenderCb?.()
+      //   return
+      // }
 
       drawAllLinks(state, handleLinkColor as any)
       drawAllNodes(
@@ -205,6 +219,9 @@ function GraphComponent<TLink extends {}, TNode extends {}>(
           state.current!.hoveredData.pointer?.y,
           getLinkLabel as any,
         )
+      }
+      if (state.current.isLassoing) {
+        drawLasso(state)
       }
     },
     [clearCanvas],
@@ -308,6 +325,13 @@ function GraphComponent<TLink extends {}, TNode extends {}>(
     draw: startAnimationLoop,
     getPointerCoords,
     handleClick: handleClick as any,
+  })
+
+  useLasso({
+    state,
+    draw: requestRender,
+    getPointerCoords,
+    onSelectedNode: onSelectedNode as any,
   })
 
   return (

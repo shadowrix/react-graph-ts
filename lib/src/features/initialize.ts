@@ -29,7 +29,6 @@ export function useInitialize({
 }: UseInitializeParameters) {
   /** INITIALIZE */
   React.useEffect(() => {
-    console.log('as?')
     const canvas = state.current!.canvas!
     const context = canvas.getContext('2d')!
     state.current!.context = context

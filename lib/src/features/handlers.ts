@@ -170,7 +170,7 @@ export function useHandlers({
       }
     })
     return () => {
-      canvas.on('mousedown', null)
+      canvas.on('mouseup', null)
       canvas.on('contextmenu', null)
     }
   }, [])

@@ -263,3 +263,27 @@ export function drawLinkTooltip(
   )
   state.current.context!.stroke()
 }
+
+export function drawLasso(state: RefState) {
+  const lassoPath = state.current?.lassoPath
+  if (lassoPath && lassoPath?.length > 0) {
+    state.current!.context!.beginPath()
+    state.current!.context!.moveTo(lassoPath[0][0], lassoPath[0][1])
+    for (let i = 1; i < lassoPath.length; i++) {
+      state.current!.context!.lineTo(lassoPath[i][0], lassoPath[i][1])
+    }
+    state.current!.context!.setLineDash([4, 8])
+    state.current!.context!.closePath()
+    state.current!.context!.lineWidth = 1
+    state.current!.context!.fillStyle = 'rgba(0,0,0,.1)'
+    state.current!.context!.fill('evenodd')
+    state.current!.context!.strokeStyle = '#363740'
+    state.current!.context!.stroke()
+    state.current!.context!.setLineDash([])
+  }
+}
+//   context.fill('evenodd')
+//   context.setLineDash([4, 8])
+//   context.lineWidth = 1
+//   context.fillStyle = 'rgba(0,0,0,.1)'
+//   context.strokeStyle = '#363740'

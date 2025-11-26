@@ -56,6 +56,10 @@ export type DetectNodeColorFn<TNode extends {} = {}> = (
   isHover: boolean,
 ) => string
 
+export type OnSelectedNodesFn<TNode extends {} = {}> = (
+  nodes: NodeType<TNode>[],
+) => void
+
 export type GetLabelFn<TNode extends {} = {}> = (
   target: NodeType<TNode>,
 ) => string

@@ -22,6 +22,9 @@ export type State = {
   zoomBehavior: ZoomBehavior<HTMLCanvasElement, unknown> | null
   preRenderCb: (() => void) | null
   enablePanInteraction: boolean
+  //-----------------LASSO-------------------
+  lassoPath: [number, number][]
+  isLassoing: boolean
   //-----------------CACHE-------------------
   nodesCache: Quadtree<NodeType> | null
   linksGrid: Map<string, LinkType[]>
@@ -50,6 +53,8 @@ const INITIAL_STATE = {
   zoomBehavior: null,
   preRenderCb: null,
   enablePanInteraction: true,
+  lassoPath: [],
+  isLassoing: false,
   //drag and zoom, mb rename like isProcess
   isDragging: false,
   hoveredData: {

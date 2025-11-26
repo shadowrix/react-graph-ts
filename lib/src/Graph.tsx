@@ -3,6 +3,7 @@ import React from 'react'
 import { quadtree } from 'd3'
 import {
   Colors,
+  LinkColorFn,
   DetectNodeColorFn,
   GetLabelFn,
   LinkType,
@@ -20,12 +21,13 @@ import { assignCurves, buildLinkGrid } from './helpers'
 
 export type GraphProps<TLink extends {}, TNode extends {}> = {
   isFixed?: boolean
-  settings?: Settings
+  settings?: Partial<Settings>
   onClick?: OnClickFn<TNode, TLink>
   //LINKS
   links: LinkType<TLink>[]
   dashedLinks?: boolean
   colors?: Partial<Colors>
+  linkColor?: LinkColorFn<TLink>
   //NODES
   nodes: NodeType<TNode>[]
   getLabel?: GetLabelFn<TNode>
@@ -92,6 +94,17 @@ export function Graph<TLink extends {}, TNode extends {}>(
     return state.current.colors.node
   }
 
+  const handleLinkColor = (...params: Parameters<LinkColorFn<TLink>>) => {
+    if (props.linkColor) {
+      return props.linkColor(...params)
+    }
+    const [_, isHover] = params
+    if (isHover) {
+      return state.current.colors.linkHover
+    }
+    return state.current.colors.link
+  }
+
   /** SET NODES AND LINKS */
   React.useEffect(() => {
     state.current.nodes = JSON.parse(JSON.stringify(props.nodes))
@@ -136,7 +149,7 @@ export function Graph<TLink extends {}, TNode extends {}>(
         state.current.transform.y,
       )
 
-      drawAllLinks(state)
+      drawAllLinks(state, handleLinkColor as any)
       drawAllNodes(
         state,
         state.current.settings.nodeRadius,

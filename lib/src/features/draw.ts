@@ -1,9 +1,19 @@
 import { RefState } from '../state'
 import { computeControlPoint } from './handlers'
-import { DetectNodeColorFn, GetLabelFn, LinkType, NodeType } from '../typings'
+import {
+  DetectNodeColorFn,
+  GetLabelFn,
+  LinkColorFn,
+  LinkType,
+  NodeType,
+} from '../typings'
 
 //TODO: Add all settings for links and mb custom links
-export function drawLink(state: RefState, link: LinkType) {
+export function drawLink(
+  state: RefState,
+  link: LinkType,
+  linkColor: LinkColorFn,
+) {
   const source = link.source as unknown as NodeType
   const target = link.target as unknown as NodeType
 
@@ -46,11 +56,11 @@ export function drawLink(state: RefState, link: LinkType) {
   if (state.current!.settings.isDashed) {
     state.current!.context!.setLineDash([10, 5])
   }
-  state.current!.context!.strokeStyle = state.current!.colors.link
+  state.current!.context!.strokeStyle = linkColor(link, false)
   state.current!.context!.lineWidth = 1
   if (isHovered) {
     state.current!.context!.lineWidth = 2
-    state.current!.context!.strokeStyle = state.current!.colors.linkHover
+    state.current!.context!.strokeStyle = linkColor(link, true)
   }
 
   state.current!.context.stroke()
@@ -60,7 +70,7 @@ export function drawLink(state: RefState, link: LinkType) {
   }
 }
 
-export function drawAllLinks(state: RefState) {
+export function drawAllLinks(state: RefState, linkColor: LinkColorFn) {
   if (state.current!.hoveredData.link || state.current!.hoveredData.node) {
     state.current!.particleProgress =
       state.current!.particleProgress + state.current!.settings.particlesSpeed
@@ -74,7 +84,7 @@ export function drawAllLinks(state: RefState) {
   for (let index = 0; index < state.current!.links.length; index++) {
     const link = state.current!.links[index]
 
-    drawLink(state, link)
+    drawLink(state, link, linkColor)
 
     link.drawIndex = index
   }

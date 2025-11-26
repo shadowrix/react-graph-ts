@@ -126,9 +126,19 @@ export function useHandlers({
 
       function handleTarget(type: ClickType) {
         if (state.current!.hoveredData.link)
-          return handleClick(state.current!.hoveredData.link, type, event)
+          return handleClick(
+            state.current!.hoveredData.link,
+            'link',
+            type,
+            event,
+          )
         if (state.current!.hoveredData.node)
-          return handleClick(state.current!.hoveredData.node, type, event)
+          return handleClick(
+            state.current!.hoveredData.node,
+            'node',
+            type,
+            event,
+          )
 
         const [x, y] = getPointerCoords(event.clientX, event.clientY)
 
@@ -138,13 +148,13 @@ export function useHandlers({
           state.current!.settings.nodeRadius,
         )
 
-        if (clickedNode) return handleClick(clickedNode, type, event)
+        if (clickedNode) return handleClick(clickedNode, 'node', type, event)
 
-        // const clickedLink = findLink(x, y, state.current!.linksGrid)
+        const clickedLink = findLink(state, x, y)
 
-        // if (clickedLink) return handleClick(clickedLink, type, event)
+        if (clickedLink) return handleClick(clickedLink, 'link', type, event)
 
-        return handleClick(null, type, event)
+        return handleClick(null, 'background', type, event)
       }
 
       switch (true) {
@@ -252,4 +262,47 @@ export function computeControlPoint(
     x: mx + nx * numericOffset * sign,
     y: my + ny * numericOffset * sign,
   }
+}
+
+function findLink(state: RefState, pointerX: number, pointerY: number) {
+  const cellSize = 150
+
+  const cx = Math.floor(pointerX / cellSize)
+  const cy = Math.floor(pointerY / cellSize)
+
+  const key = `${cx},${cy}`
+  const candidates = state.current!.linksGrid.get(key)
+  if (!candidates) return null
+
+  const sortedCandidates = candidates
+    .slice()
+    .sort((a, b) => (b.drawIndex ?? 0) - (a.drawIndex ?? 0))
+
+  for (let i = sortedCandidates.length - 1; i >= 0; i--) {
+    const link = sortedCandidates[i]
+    // compute control (use cached)
+    const source = link.source as unknown as NodeType
+    const target = link.target as unknown as NodeType
+    link.control = computeControlPoint(source, target, link.curveIndex || 0)
+
+    const cp = link.control!
+    // tolerance in graph (no zoom here) is hoverPx
+    const hoverPx = 2 // screen pixels tolerance (how 'thick' hover area is)
+    if (
+      hitTestQuadratic(
+        pointerX,
+        pointerY,
+        source.x!,
+        source.y!,
+        cp.x,
+        cp.y,
+        target.x!,
+        target.y!,
+        hoverPx,
+      )
+    ) {
+      return link
+    }
+  }
+  return null
 }

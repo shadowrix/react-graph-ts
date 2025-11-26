@@ -32,11 +32,19 @@ export type Colors = typeof COLORS
 
 export type ClickType = 'right' | 'left' | 'ctrl-left' | 'ctrl-right'
 
+export type TargetType = 'background' | 'node' | 'link'
+
 export type OnClickFn<TNode extends {} = {}, TLink extends {} = {}> = (
   target: NodeType<TNode> | LinkType<TLink> | null,
-  click: ClickType,
+  targetType: TargetType,
+  clickType: ClickType,
   event: MouseEvent,
 ) => void
+
+export type LinkColorFn<TLink extends {} = {}> = (
+  target: LinkType<TLink>,
+  isHover: boolean,
+) => string
 
 export type DetectNodeColorFn<TNode extends {} = {}> = (
   target: NodeType<TNode>,

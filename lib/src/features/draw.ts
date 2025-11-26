@@ -10,11 +10,7 @@ import {
 } from '../typings'
 
 //TODO: Add all settings for links and mb custom links
-export function drawLink(
-  state: RefState,
-  link: LinkType,
-  linkColor: LinkColorFn,
-) {
+export function drawLink(state: RefState, link: LinkType) {
   const source = link.source as unknown as NodeType
   const target = link.target as unknown as NodeType
 
@@ -54,14 +50,15 @@ export function drawLink(
   state.current!.context.moveTo(sx, sy)
   state.current!.context.quadraticCurveTo(cp.x, cp.y, tx, ty)
 
+  state.current!.context!.setLineDash([])
   if (state.current!.settings.isDashed) {
     state.current!.context!.setLineDash([10, 5])
   }
-  state.current!.context!.strokeStyle = linkColor(link, false)
+  state.current!.context!.strokeStyle = state.current!.linkColor!(link, false)
   state.current!.context!.lineWidth = 1
   if (isHovered) {
     state.current!.context!.lineWidth = 2
-    state.current!.context!.strokeStyle = linkColor(link, true)
+    state.current!.context!.strokeStyle = state.current!.linkColor!(link, true)
   }
 
   state.current!.context.stroke()
@@ -73,7 +70,7 @@ export function drawLink(
   }
 }
 
-export function drawAllLinks(state: RefState, linkColor: LinkColorFn) {
+export function drawAllLinks(state: RefState) {
   if (state.current!.hoveredData.link || state.current!.hoveredData.node) {
     state.current!.particleProgress =
       state.current!.particleProgress + state.current!.settings.particlesSpeed
@@ -87,20 +84,14 @@ export function drawAllLinks(state: RefState, linkColor: LinkColorFn) {
   for (let index = 0; index < state.current!.links.length; index++) {
     const link = state.current!.links[index]
 
-    drawLink(state, link, linkColor)
+    drawLink(state, link)
 
     link.drawIndex = index
   }
 }
 
 //TODO: Add all settings for node and custom nodes
-export function drawNode(
-  state: RefState,
-  node: NodeType,
-  radius: number,
-  detectNodeColorFn: DetectNodeColorFn,
-  getLabel: GetLabelFn,
-) {
+export function drawNode(state: RefState, node: NodeType, radius: number) {
   const x = node.x!
   const y = node.y!
   const context = state.current!.context!
@@ -113,8 +104,8 @@ export function drawNode(
       node.id
 
   context.beginPath()
-  context.fillStyle = detectNodeColorFn
-    ? detectNodeColorFn(node, false)
+  context.fillStyle = state.current!.nodeColor
+    ? state.current!.nodeColor(node, false)
     : state.current!.colors.node
   context.arc(x, y, radius, 0, Math.PI * 2)
   if (isHovered) {
@@ -124,7 +115,7 @@ export function drawNode(
   }
   context.fill()
 
-  const label = getLabel(node)
+  const label = state.current!.getLabel?.(node)
   if (state.current!.transform.k < 0.6 || !label) return
 
   // label
@@ -135,16 +126,11 @@ export function drawNode(
   context.fillText(label, x, y - radius - 6)
 }
 
-export function drawAllNodes(
-  state: RefState,
-  radius: number,
-  getLabel: GetLabelFn,
-  detectNodeColorFn: DetectNodeColorFn,
-) {
+export function drawAllNodes(state: RefState, radius: number) {
   if (!state.current!.context) return
 
   for (const node of state.current!.nodes) {
-    drawNode(state, node, radius, detectNodeColorFn, getLabel)
+    drawNode(state, node, radius)
   }
 }
 
@@ -227,11 +213,10 @@ export function drawLinkTooltip(
   state: RefState,
   pointerX: number,
   pointerY: number,
-  linkLabel: LinkLabelFn,
 ) {
   if (!state.current?.hoveredData.link) return
 
-  const text = linkLabel(state.current.hoveredData.link)
+  const text = state.current?.linkLabel?.(state.current.hoveredData.link)
   const padX = 6 // horizontal padding
   const padY = 4 // vertical padding
   const fontSize = 12
@@ -240,7 +225,7 @@ export function drawLinkTooltip(
   state.current.context!.textBaseline = 'top'
   state.current.context!.textAlign = 'center' // << center text horizontally
 
-  const textWidth = state.current.context!.measureText(text).width
+  const textWidth = state.current.context!.measureText(text ?? '').width
   const tooltipWidth = textWidth + padX * 2
   const tooltipHeight = fontSize + padY * 2
 
@@ -257,7 +242,7 @@ export function drawLinkTooltip(
   // Draw text centered inside
   state.current.context!.fillStyle = 'white'
   state.current.context!.fillText(
-    text,
+    text ?? '',
     x + tooltipWidth / 2, // centered horizontally
     y + padY, // top padding
   )

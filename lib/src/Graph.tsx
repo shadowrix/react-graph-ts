@@ -44,7 +44,7 @@ export type GraphProps<TLink extends {}, TNode extends {}> = {
   nodes: NodeType<TNode>[]
   getLabel?: GetLabelFn<TNode>
   nodeColor?: DetectNodeColorFn<TNode>
-  onSelectedNode?: OnSelectedNodesFn
+  onSelectedNode?: OnSelectedNodesFn<TNode>
 }
 
 const ALPHA_DECAY = 0.05
@@ -102,53 +102,57 @@ function GraphComponent<TLink extends {}, TNode extends {}>(
     props.onClick?.(...params)
   }
 
-  const getNodeLabel = (...params: Parameters<GetLabelFn<TNode>>) => {
+  /** SET FUNCTIONS */
+  React.useEffect(() => {
     if (props.getLabel) {
-      return props.getLabel(...params)
+      state.current!.getLabel = props.getLabel as any
+      return
     }
-
-    const [node] = params
-    return node?.id
-  }
-
-  const getLinkLabel = (...params: Parameters<LinkLabelFn<TLink>>) => {
-    if (props.linkLabel) {
-      return props.linkLabel(...params)
+    state.current!.getLabel = (...params: Parameters<GetLabelFn>) => {
+      const [node] = params
+      return node?.id
     }
-
-    const [link] = params
-    return link?.id
-  }
-
-  const handleDetectNodeColor = (
-    ...params: Parameters<DetectNodeColorFn<TNode>>
-  ) => {
+  }, [props.getLabel])
+  React.useEffect(() => {
     if (props.nodeColor) {
-      return props.nodeColor(...params)
+      state.current!.nodeColor = props.nodeColor as any
     }
-    const [_, isHover] = params
-    if (isHover) {
-      return state.current.colors.nodeHover
+    state.current!.nodeColor = (...params: Parameters<DetectNodeColorFn>) => {
+      const [_, isHover] = params
+      if (isHover) {
+        return state.current.colors.nodeHover
+      }
+      return state.current.colors.node
     }
-    return state.current.colors.node
-  }
-
-  const handleLinkColor = (...params: Parameters<LinkColorFn<TLink>>) => {
-    if (props.linkColor) {
-      return props.linkColor(...params)
-    }
-    const [_, isHover] = params
-    if (isHover) {
-      return state.current.colors.linkHover
-    }
-    return state.current.colors.link
-  }
-
-  function onSelectedNode(...params: Parameters<OnSelectedNodesFn<TNode>>) {
+  }, [props.nodeColor])
+  React.useEffect(() => {
     if (props.onSelectedNode) {
-      props.onSelectedNode(...params)
+      state.current!.onSelectedNode = props.onSelectedNode as any
     }
-  }
+  }, [props.onSelectedNode])
+  React.useEffect(() => {
+    if (props.linkColor) {
+      state.current!.linkColor = props.linkColor as any
+      return
+    }
+    state.current!.linkColor = (...params: Parameters<LinkColorFn>) => {
+      const [_, isHover] = params
+      if (isHover) {
+        return state.current.colors.linkHover
+      }
+      return state.current.colors.link
+    }
+  }, [props.linkColor])
+  React.useEffect(() => {
+    if (props.linkLabel) {
+      state.current!.linkLabel = props.linkLabel as any
+      return
+    }
+    state.current!.linkLabel = (...params: Parameters<LinkLabelFn>) => {
+      const [link] = params
+      return link?.id
+    }
+  }, [props.linkLabel])
 
   /** SET NODES AND LINKS */
   React.useEffect(() => {
@@ -202,13 +206,8 @@ function GraphComponent<TLink extends {}, TNode extends {}>(
       //   return
       // }
 
-      drawAllLinks(state, handleLinkColor as any)
-      drawAllNodes(
-        state,
-        state.current.settings.nodeRadius,
-        getNodeLabel as any,
-        handleDetectNodeColor as any,
-      )
+      drawAllLinks(state)
+      drawAllNodes(state, state.current.settings.nodeRadius)
       if (
         state.current!.hoveredData.pointer?.x &&
         state.current!.hoveredData.pointer?.y
@@ -217,7 +216,6 @@ function GraphComponent<TLink extends {}, TNode extends {}>(
           state,
           state.current!.hoveredData.pointer?.x,
           state.current!.hoveredData.pointer?.y,
-          getLinkLabel as any,
         )
       }
       if (state.current.isLassoing) {
@@ -331,7 +329,6 @@ function GraphComponent<TLink extends {}, TNode extends {}>(
     state,
     draw: requestRender,
     getPointerCoords,
-    onSelectedNode: onSelectedNode as any,
   })
 
   return (

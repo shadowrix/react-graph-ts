@@ -1,6 +1,6 @@
 {
   "name": "react-graph-ts",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "private": false,
   "description": "Graph stand on d3",
   "author": "shadowrix164@gmail.com",

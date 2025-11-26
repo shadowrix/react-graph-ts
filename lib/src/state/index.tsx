@@ -8,7 +8,18 @@ import {
   ZoomTransform,
 } from 'd3'
 
-import { Colors, HoveredData, LinkType, NodeType, Settings } from '../typings'
+import {
+  Colors,
+  DetectNodeColorFn,
+  GetLabelFn,
+  HoveredData,
+  LinkColorFn,
+  LinkLabelFn,
+  LinkType,
+  NodeType,
+  OnSelectedNodesFn,
+  Settings,
+} from '../typings'
 import { COLORS, INITIAL_SETTINGS } from '../constants'
 
 export type State = {
@@ -38,6 +49,12 @@ export type State = {
   settings: Settings
 
   colors: Colors
+  //-----------------Functions-------------------
+  getLabel?: GetLabelFn
+  nodeColor?: DetectNodeColorFn
+  onSelectedNode?: OnSelectedNodesFn
+  linkColor?: LinkColorFn
+  linkLabel?: LinkLabelFn
 }
 
 const INITIAL_STATE = {

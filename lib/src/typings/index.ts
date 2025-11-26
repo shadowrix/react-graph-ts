@@ -67,4 +67,6 @@ export type GetLabelFn<TNode extends {} = {}> = (
 export type GraphRef = {
   getPointerCoords: (x: number, y: number) => [number, number]
   onRenderFramePre: (cb: () => void) => void
+  zoom: (scale: number, duration?: number) => void
+  centerAt: (x: number, y: number, duration?: number) => void
 }

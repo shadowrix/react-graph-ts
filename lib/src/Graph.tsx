@@ -25,7 +25,13 @@ import { useZoom } from './features/zoom'
 import { useHandlers } from './features/handlers'
 import { useRefManager } from './state'
 import { useInitialize } from './features/initialize'
-import { assignCurves, buildLinkGrid, zoomToFit } from './helpers'
+import {
+  assignCurves,
+  buildLinkGrid,
+  centerAt,
+  zoom,
+  zoomToFit,
+} from './helpers'
 import { useLasso } from './features/lasso'
 
 export type GraphProps<TLink extends {}, TNode extends {}> = {
@@ -66,6 +72,12 @@ function GraphComponent<TLink extends {}, TNode extends {}>(
     },
     onRenderFramePre(cb: () => void) {
       state.current.preRenderCb = cb
+    },
+    zoom: (scale: number, duration?: number) => {
+      zoom(state, scale, duration)
+    },
+    centerAt: (x: number, y: number, duration?: number) => {
+      centerAt(state, x, y, duration)
     },
   }))
 

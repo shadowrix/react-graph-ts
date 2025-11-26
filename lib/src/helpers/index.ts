@@ -1,4 +1,4 @@
-import { select, zoomIdentity } from 'd3'
+import { select, zoomIdentity, ZoomTransform } from 'd3'
 import { computeControlPoint } from '../features/handlers'
 import { RefState } from '../state'
 import { LinkType, NodeType } from '../typings'
@@ -155,4 +155,44 @@ export function zoomToFit(state: RefState) {
     .transition()
     .duration(450)
     .call(state.current!.zoomBehavior!.transform!, nextTransform)
+}
+
+function animateTo(state: RefState, transform: ZoomTransform, duration = 0) {
+  const selection = select(state.current!.canvas)
+
+  if (duration === 0) {
+    selection.call(state.current!.zoomBehavior!.transform! as any, transform)
+  } else {
+    selection
+      .transition()
+      .duration(duration)
+      .call(state.current!.zoomBehavior!.transform! as any, transform)
+  }
+}
+
+export function centerAt(state: RefState, x: number, y: number, duration = 0) {
+  const t = state.current!.transform
+  const width = state.current!.canvas!.width
+  const height = state.current!.canvas!.height
+
+  const newTransform = zoomIdentity
+    .translate(width / 2 - t.k * x, height / 2 - t.k * y)
+    .scale(t.k)
+
+  animateTo(state, newTransform, duration)
+}
+
+export function zoom(state: RefState, scale: number, duration = 0) {
+  const t = state.current!.transform
+  const width = state.current!.canvas!.width
+  const height = state.current!.canvas!.height
+
+  const newTransform = zoomIdentity
+    .translate(
+      width / 2 - scale * ((width / 2 - t.x) / t.k),
+      height / 2 - scale * ((height / 2 - t.y) / t.k),
+    )
+    .scale(scale)
+
+  animateTo(state, newTransform, duration)
 }

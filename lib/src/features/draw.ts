@@ -267,8 +267,3 @@ export function drawLasso(state: RefState) {
     state.current!.context!.setLineDash([])
   }
 }
-//   context.fill('evenodd')
-//   context.setLineDash([4, 8])
-//   context.lineWidth = 1
-//   context.fillStyle = 'rgba(0,0,0,.1)'
-//   context.strokeStyle = '#363740'

@@ -178,6 +178,7 @@ function GraphComponent<TLink extends {}, TNode extends {}>(
         state.current.transform.x,
         state.current.transform.y,
       )
+      state.current.preRenderCb?.()
 
       drawAllLinks(state, handleLinkColor as any)
       drawAllNodes(
@@ -207,7 +208,6 @@ function GraphComponent<TLink extends {}, TNode extends {}>(
       state.current.isRequestRendering = true
       requestAnimationFrame(() => {
         state.current.isRequestRendering = false
-        state.current.preRenderCb?.()
         draw()
       })
     },

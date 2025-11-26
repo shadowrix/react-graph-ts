@@ -103,6 +103,7 @@ export function useHandlers({
 
       state.current!.hoveredData.link = hoveredLink
       state.current!.hoveredData.node = hoveredNode
+      state.current!.hoveredData.pointer = { x, y }
 
       draw()
     }

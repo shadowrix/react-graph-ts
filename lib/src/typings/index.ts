@@ -24,6 +24,7 @@ export type LinkType<T extends {} = {}> = {
 export type HoveredData<TNode extends {} = {}, TLink extends {} = {}> = {
   link: LinkType<TNode> | null
   node: NodeType<TLink> | null
+  pointer?: { x?: number; y?: number } | null
 }
 
 export type Settings = typeof INITIAL_SETTINGS
@@ -40,6 +41,10 @@ export type OnClickFn<TNode extends {} = {}, TLink extends {} = {}> = (
   clickType: ClickType,
   event: MouseEvent,
 ) => void
+
+export type LinkLabelFn<TLink extends {} = {}> = (
+  link: LinkType<TLink>,
+) => string
 
 export type LinkColorFn<TLink extends {} = {}> = (
   target: LinkType<TLink>,

@@ -4,6 +4,7 @@ import {
   DetectNodeColorFn,
   GetLabelFn,
   LinkColorFn,
+  LinkLabelFn,
   LinkType,
   NodeType,
 } from '../typings'
@@ -65,8 +66,10 @@ export function drawLink(
 
   state.current!.context.stroke()
 
-  if (isHovered && state.current!.settings.withParticles) {
-    drawCurvedLinkParticle(state, link, cp.x, cp.y)
+  if (isHovered) {
+    if (state.current!.settings.withParticles) {
+      drawCurvedLinkParticle(state, link, cp.x, cp.y)
+    }
   }
 }
 
@@ -197,4 +200,66 @@ function getPointOnQuadraticCurve(
   const y = mt * mt * sy + 2 * mt * t * cy + t * t * ty
 
   return { x, y }
+}
+
+function drawRoundedRect(
+  context: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  r: number,
+) {
+  context.beginPath()
+  context.moveTo(x + r, y)
+  context.lineTo(x + w - r, y)
+  context.quadraticCurveTo(x + w, y, x + w, y + r)
+  context.lineTo(x + w, y + h - r)
+  context.quadraticCurveTo(x + w, y + h, x + w - r, y + h)
+  context.lineTo(x + r, y + h)
+  context.quadraticCurveTo(x, y + h, x, y + h - r)
+  context.lineTo(x, y + r)
+  context.quadraticCurveTo(x, y, x + r, y)
+  context.closePath()
+}
+
+export function drawLinkTooltip(
+  state: RefState,
+  pointerX: number,
+  pointerY: number,
+  linkLabel: LinkLabelFn,
+) {
+  if (!state.current?.hoveredData.link) return
+
+  const text = linkLabel(state.current.hoveredData.link)
+  const padX = 6 // horizontal padding
+  const padY = 4 // vertical padding
+  const fontSize = 12
+
+  state.current.context!.font = `${fontSize}px sans-serif`
+  state.current.context!.textBaseline = 'top'
+  state.current.context!.textAlign = 'center' // << center text horizontally
+
+  const textWidth = state.current.context!.measureText(text).width
+  const tooltipWidth = textWidth + padX * 2
+  const tooltipHeight = fontSize + padY * 2
+
+  const x = pointerX + 4
+  const y = pointerY + 4
+
+  // Draw background (rounded rect)
+  state.current.context!.fillStyle = 'rgba(0,0,0,0.70)'
+  state.current.context!.strokeStyle = 'rgba(0,0,0,0)'
+  state.current.context!.lineWidth = 0
+  drawRoundedRect(state.current.context!, x, y, tooltipWidth, tooltipHeight, 6)
+  state.current.context!.fill()
+
+  // Draw text centered inside
+  state.current.context!.fillStyle = 'white'
+  state.current.context!.fillText(
+    text,
+    x + tooltipWidth / 2, // centered horizontally
+    y + padY, // top padding
+  )
+  state.current.context!.stroke()
 }

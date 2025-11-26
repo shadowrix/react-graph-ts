@@ -10,8 +10,9 @@ import {
   NodeType,
   OnClickFn,
   Settings,
+  LinkLabelFn,
 } from './typings'
-import { drawAllLinks, drawAllNodes } from './features/draw'
+import { drawAllLinks, drawAllNodes, drawLinkTooltip } from './features/draw'
 import { useDrag } from './features/drag'
 import { useZoom } from './features/zoom'
 import { useHandlers } from './features/handlers'
@@ -28,6 +29,7 @@ export type GraphProps<TLink extends {}, TNode extends {}> = {
   dashedLinks?: boolean
   colors?: Partial<Colors>
   linkColor?: LinkColorFn<TLink>
+  linkLabel?: LinkLabelFn<TLink>
   //NODES
   nodes: NodeType<TNode>[]
   getLabel?: GetLabelFn<TNode>
@@ -72,13 +74,22 @@ export function Graph<TLink extends {}, TNode extends {}>(
     props.onClick?.(...params)
   }
 
-  const getLabel = (...params: Parameters<GetLabelFn<TNode>>) => {
+  const getNodeLabel = (...params: Parameters<GetLabelFn<TNode>>) => {
     if (props.getLabel) {
       return props.getLabel(...params)
     }
 
     const [node] = params
     return node?.id
+  }
+
+  const getLinkLabel = (...params: Parameters<LinkLabelFn<TLink>>) => {
+    if (props.linkLabel) {
+      return props.linkLabel(...params)
+    }
+
+    const [link] = params
+    return link?.id
   }
 
   const handleDetectNodeColor = (
@@ -153,9 +164,20 @@ export function Graph<TLink extends {}, TNode extends {}>(
       drawAllNodes(
         state,
         state.current.settings.nodeRadius,
-        getLabel as any,
+        getNodeLabel as any,
         handleDetectNodeColor as any,
       )
+      if (
+        state.current!.hoveredData.pointer?.x &&
+        state.current!.hoveredData.pointer?.y
+      ) {
+        drawLinkTooltip(
+          state,
+          state.current!.hoveredData.pointer?.x,
+          state.current!.hoveredData.pointer?.y,
+          getLinkLabel as any,
+        )
+      }
     },
     [clearCanvas],
   )

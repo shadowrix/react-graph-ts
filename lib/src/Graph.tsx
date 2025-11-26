@@ -55,6 +55,9 @@ function GraphComponent<TLink extends {}, TNode extends {}>(
     getPointerCoords(x, y) {
       return getPointerCoords(x, y)
     },
+    onRenderFramePre(cb: () => void) {
+      state.current.preRenderCb = cb
+    },
   }))
 
   React.useEffect(() => {
@@ -204,6 +207,7 @@ function GraphComponent<TLink extends {}, TNode extends {}>(
       state.current.isRequestRendering = true
       requestAnimationFrame(() => {
         state.current.isRequestRendering = false
+        state.current.preRenderCb?.()
         draw()
       })
     },

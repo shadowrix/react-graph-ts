@@ -20,6 +20,7 @@ export type State = {
   simulationEngine: Simulation<NodeType, undefined> | null
   transform: ZoomTransform
   zoomBehavior: ZoomBehavior<HTMLCanvasElement, unknown> | null
+  preRenderCb: (() => void) | null
   //-----------------CACHE-------------------
   nodesCache: Quadtree<NodeType> | null
   linksGrid: Map<string, LinkType[]>
@@ -46,6 +47,7 @@ const INITIAL_STATE = {
   simulationEngine: null,
   transform: zoomIdentity,
   zoomBehavior: null,
+  preRenderCb: null,
   //drag and zoom, mb rename like isProcess
   isDragging: false,
   hoveredData: {

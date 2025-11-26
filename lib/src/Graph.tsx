@@ -214,13 +214,9 @@ function GraphComponent<TLink extends {}, TNode extends {}>(
         state.current.transform.x,
         state.current.transform.y,
       )
-      // if (!state.current.enablePanInteraction) {
-      //   state.current.preRenderCb?.()
-      //   return
-      // }
 
       drawAllLinks(state)
-      drawAllNodes(state, state.current.settings.nodeRadius)
+      drawAllNodes(state)
       if (
         state.current!.hoveredData.pointer?.x &&
         state.current!.hoveredData.pointer?.y

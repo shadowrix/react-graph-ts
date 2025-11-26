@@ -1,13 +1,6 @@
 import { RefState } from '../state'
 import { computeControlPoint } from './handlers'
-import {
-  DetectNodeColorFn,
-  GetLabelFn,
-  LinkColorFn,
-  LinkLabelFn,
-  LinkType,
-  NodeType,
-} from '../typings'
+import { LinkType, NodeType } from '../typings'
 
 //TODO: Add all settings for links and mb custom links
 export function drawLink(state: RefState, link: LinkType) {
@@ -126,11 +119,11 @@ export function drawNode(state: RefState, node: NodeType, radius: number) {
   context.fillText(label, x, y - radius - 6)
 }
 
-export function drawAllNodes(state: RefState, radius: number) {
+export function drawAllNodes(state: RefState) {
   if (!state.current!.context) return
 
   for (const node of state.current!.nodes) {
-    drawNode(state, node, radius)
+    drawNode(state, node, state.current!.settings.nodeRadius)
   }
 }
 

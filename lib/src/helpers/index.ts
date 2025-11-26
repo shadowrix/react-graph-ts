@@ -88,10 +88,15 @@ export function assignCurves(links: LinkType[]): LinkType[] {
   const groups = new Map<string, LinkType[]>()
 
   for (const link of links) {
-    const s = String(link.source)
-    const t = String(link.target)
+    const sourceId =
+      typeof link.source === 'string' ? link.source : link.source.id
+    const targetId =
+      typeof link.target === 'string' ? link.target : link.target.id
 
-    const normalized = s.localeCompare(t) <= 0 ? [s, t] : [t, s]
+    const normalized =
+      sourceId.localeCompare(targetId) <= 0
+        ? [sourceId, targetId]
+        : [targetId, sourceId]
 
     const key = JSON.stringify(normalized)
 

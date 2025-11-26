@@ -1,11 +1,12 @@
 import type { SimulationNodeDatum } from 'd3'
 import { COLORS, INITIAL_SETTINGS } from '../constants'
 
-export type NodeType = {
+export type NodeType<T extends {}> = {
   id: string
-} & SimulationNodeDatum
+} & SimulationNodeDatum &
+  T
 
-export type LinkType = {
+export type LinkType<T extends {}> = {
   id: string
   source: string
   target: string
@@ -18,11 +19,11 @@ export type LinkType = {
   particleProgress?: number
   particleSpeed?: number
   particleActive?: boolean
-}
+} & T
 
-export type HoveredData = {
-  link: LinkType | null
-  node: NodeType | null
+export type HoveredData<TNode extends {}, TLink extends {}> = {
+  link: LinkType<TNode> | null
+  node: NodeType<TLink> | null
 }
 
 export type Settings = typeof INITIAL_SETTINGS
@@ -31,12 +32,15 @@ export type Colors = typeof COLORS
 
 export type ClickType = 'right' | 'left' | 'ctrl-left' | 'ctrl-right'
 
-export type OnClickFn = (
-  target: NodeType | LinkType | null,
+export type OnClickFn<TNode extends {}, TLink extends {}> = (
+  target: NodeType<TNode> | LinkType<TLink> | null,
   click: ClickType,
   event: MouseEvent,
 ) => void
 
-export type DetectNodeColorFn = (target: NodeType, isHover: boolean) => string
+export type DetectNodeColorFn<TNode extends {}> = (
+  target: NodeType<TNode>,
+  isHover: boolean,
+) => string
 
-export type GetLabelFn = (target: NodeType) => string
+export type GetLabelFn<TNode extends {}> = (target: NodeType<TNode>) => string

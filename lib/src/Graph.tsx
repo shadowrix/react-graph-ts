@@ -1,4 +1,4 @@
-import React, { useEffectEvent } from 'react'
+import React from 'react'
 
 import { quadtree } from 'd3'
 import {
@@ -18,24 +18,26 @@ import { useRefManager } from './state'
 import { useInitialize } from './features/initialize'
 import { assignCurves, buildLinkGrid } from './helpers'
 
-export type GraphProps = {
+export type GraphProps<TLink extends {}, TNode extends {}> = {
   isFixed?: boolean
   settings?: Settings
-  onClick?: OnClickFn
+  onClick?: OnClickFn<TNode, TLink>
   //LINKS
-  links: LinkType[]
+  links: LinkType<TLink>[]
   dashedLinks?: boolean
   colors?: Partial<Colors>
   //NODES
-  nodes: NodeType[]
-  getLabel?: GetLabelFn
-  detectNodeColor?: DetectNodeColorFn
+  nodes: NodeType<TNode>[]
+  getLabel?: GetLabelFn<TNode>
+  nodeColor?: DetectNodeColorFn<TNode>
 }
 
 const ALPHA_DECAY = 0.05
 const FIXED_ALPHA_DECAY = 0.6
 
-export function Graph(props: GraphProps) {
+export function Graph<TLink extends {}, TNode extends {}>(
+  props: GraphProps<TLink, TNode>,
+) {
   const { refs: state, register, clear } = useRefManager()
   const [sizes, setSizes] = React.useState({
     width: 0,
@@ -64,31 +66,31 @@ export function Graph(props: GraphProps) {
     }
   }, [props.settings])
 
-  const handleClick = useEffectEvent((...params: Parameters<OnClickFn>) => {
+  const handleClick = (...params: Parameters<OnClickFn<TNode, TLink>>) => {
     props.onClick?.(...params)
-  })
+  }
 
-  const getLabel = useEffectEvent((...params: Parameters<GetLabelFn>) => {
+  const getLabel = (...params: Parameters<GetLabelFn<TNode>>) => {
     if (props.getLabel) {
       return props.getLabel(...params)
     }
 
     const [node] = params
     return node?.id
-  })
+  }
 
-  const handleDetectNodeColor = useEffectEvent(
-    (...params: Parameters<DetectNodeColorFn>) => {
-      if (props.detectNodeColor) {
-        return props.detectNodeColor(...params)
-      }
-      const [_, isHover] = params
-      if (isHover) {
-        return state.current.colors.nodeHover
-      }
-      return state.current.colors.node
-    },
-  )
+  const handleDetectNodeColor = (
+    ...params: Parameters<DetectNodeColorFn<TNode>>
+  ) => {
+    if (props.nodeColor) {
+      return props.nodeColor(...params)
+    }
+    const [_, isHover] = params
+    if (isHover) {
+      return state.current.colors.nodeHover
+    }
+    return state.current.colors.node
+  }
 
   /** SET NODES AND LINKS */
   React.useEffect(() => {
@@ -163,7 +165,7 @@ export function Graph(props: GraphProps) {
   }, [])
 
   const updateNodesCache = React.useCallback(function updateNodesCache() {
-    state.current.nodesCache = quadtree<NodeType>()
+    state.current.nodesCache = quadtree<NodeType<TNode>>()
       .x((d) => d.x!)
       .y((d) => d.y!)
       .addAll(state.current.nodes)

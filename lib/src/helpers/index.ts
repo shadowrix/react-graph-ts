@@ -1,4 +1,6 @@
+import { select, zoomIdentity } from 'd3'
 import { computeControlPoint } from '../features/handlers'
+import { RefState } from '../state'
 import { LinkType, NodeType } from '../typings'
 
 export function buildLinkGrid(links: LinkType[]) {
@@ -109,4 +111,48 @@ export function assignCurves(links: LinkType[]): LinkType[] {
   }
 
   return links
+}
+
+export function zoomToFit(state: RefState) {
+  if (!state.current?.nodes?.length) return
+
+  const { width, height } = state.current.canvas!
+
+  // 1. compute graph bounding box
+  let minX = Infinity,
+    maxX = -Infinity,
+    minY = Infinity,
+    maxY = -Infinity
+
+  for (const n of state.current!.nodes) {
+    if (n.x! < minX) minX = n.x!
+    if (n.x! > maxX) maxX = n.x!
+    if (n.y! < minY) minY = n.y!
+    if (n.y! > maxY) maxY = n.y!
+  }
+
+  const graphWidth = maxX - minX
+  const graphHeight = maxY - minY
+
+  // 2. compute scale
+  const padding = 100
+  const scale = Math.min(
+    width / (graphWidth + padding),
+    height / (graphHeight + padding),
+  )
+
+  // 3. compute center
+  const cx = (minX + maxX) / 2
+  const cy = (minY + maxY) / 2
+
+  // 4. create transform
+  const nextTransform = zoomIdentity
+    .translate(width / 2 - cx * scale, height / 2 - cy * scale)
+    .scale(scale)
+
+  // 5. apply with animation
+  select(state.current!.canvas!)
+    .transition()
+    .duration(450)
+    .call(state.current!.zoomBehavior!.transform!, nextTransform)
 }

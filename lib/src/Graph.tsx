@@ -19,7 +19,7 @@ import { useZoom } from './features/zoom'
 import { useHandlers } from './features/handlers'
 import { useRefManager } from './state'
 import { useInitialize } from './features/initialize'
-import { assignCurves, buildLinkGrid } from './helpers'
+import { assignCurves, buildLinkGrid, zoomToFit } from './helpers'
 
 export type GraphProps<TLink extends {}, TNode extends {}> = {
   id?: string
@@ -133,6 +133,10 @@ function GraphComponent<TLink extends {}, TNode extends {}>(
     state.current.nodes = JSON.parse(JSON.stringify(props.nodes))
     const links = assignCurves(props.links)
     state.current.links = links
+    //TODO: It's not good solution
+    setTimeout(() => {
+      zoomToFit(state)
+    }, 80)
   }, [props.nodes, props.links])
 
   const clearCanvas = React.useCallback(function clearCanvas(

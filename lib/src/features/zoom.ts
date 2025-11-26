@@ -10,7 +10,7 @@ export type UseZoomParameters = {
 
 export function useZoom({ state, draw }: UseZoomParameters) {
   React.useEffect(() => {
-    const zoomFn = zoom<HTMLCanvasElement, unknown>()
+    const zoomBehavior = zoom<HTMLCanvasElement, unknown>()
       .scaleExtent([0.03, 8])
       .on('zoom', (event) => {
         state.current!.transform = event.transform
@@ -19,7 +19,9 @@ export function useZoom({ state, draw }: UseZoomParameters) {
       })
       .on('end', () => (state.current!.isDragging = false))
 
-    select(state.current!.canvas!).call(zoomFn)
+    select(state.current!.canvas!).call(zoomBehavior)
+
+    state.current!.zoomBehavior = zoomBehavior
 
     return () => {
       select(state.current!.canvas!).on('.zoom', null)

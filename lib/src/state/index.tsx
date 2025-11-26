@@ -1,6 +1,12 @@
 import React from 'react'
 
-import { Quadtree, Simulation, zoomIdentity, ZoomTransform } from 'd3'
+import {
+  Quadtree,
+  Simulation,
+  ZoomBehavior,
+  zoomIdentity,
+  ZoomTransform,
+} from 'd3'
 
 import { Colors, HoveredData, LinkType, NodeType, Settings } from '../typings'
 import { COLORS, INITIAL_SETTINGS } from '../constants'
@@ -13,6 +19,7 @@ export type State = {
   isRequestRendering: boolean
   simulationEngine: Simulation<NodeType, undefined> | null
   transform: ZoomTransform
+  zoomBehavior: ZoomBehavior<HTMLCanvasElement, unknown> | null
   //-----------------CACHE-------------------
   nodesCache: Quadtree<NodeType> | null
   linksGrid: Map<string, LinkType[]>
@@ -38,6 +45,7 @@ const INITIAL_STATE = {
   isRequestRendering: false,
   simulationEngine: null,
   transform: zoomIdentity,
+  zoomBehavior: null,
   //drag and zoom, mb rename like isProcess
   isDragging: false,
   hoveredData: {

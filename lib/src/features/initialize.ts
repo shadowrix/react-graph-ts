@@ -35,16 +35,7 @@ export function useInitialize({
     let tickCounter = 0
 
     state.current!.simulationEngine?.stop()
-    console.log('start simulation')
-    console.log('Node positions:', state.current!.nodes.slice(0, 5))
-    console.log('Link sample:', state.current!.links.slice(0, 5))
-    console.log(
-      'Canvas size:',
-      state.current!.settings.width,
-      state.current!.settings.height,
-    )
-    console.log('LinkDist:', state.current!.settings.linkDistance)
-    console.log('LinkStrength:', state.current!.settings.linkStrength)
+
     state.current!.simulationEngine = forceSimulation(state.current!.nodes)
       .force(
         'link',
@@ -81,7 +72,6 @@ export function useInitialize({
       })
 
     return () => {
-      console.log('stop simulation')
       state.current!.simulationEngine?.stop()
     }
   }, [isFixed, nodes, links, settings, dashedLinks, colors])

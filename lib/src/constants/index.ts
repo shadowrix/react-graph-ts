@@ -17,7 +17,8 @@ export const INITIAL_SETTINGS = {
   particlesSize: 3,
   withParticles: true,
 
-  isDashed: true,
+  isDashed: false,
+  withNodeLabels: true,
 }
 
 export const COLORS = {

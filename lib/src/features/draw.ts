@@ -111,6 +111,7 @@ export function drawNode(state: RefState, node: NodeType, radius: number) {
   const label = state.current!.getLabel?.(node)
   if (state.current!.transform.k < 0.6 || !label) return
 
+  if (!state.current!.settings.withNodeLabels) return
   // label
   context.font = '12px sans-serif'
   context.fillStyle = state.current!.colors.nodeLabel

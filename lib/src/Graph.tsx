@@ -32,6 +32,7 @@ export type GraphProps<TLink extends {}, TNode extends {}> = {
   colors?: Partial<Colors>
   linkColor?: LinkColorFn<TLink>
   linkLabel?: LinkLabelFn<TLink>
+  enablePanInteraction?: boolean
   //NODES
   nodes: NodeType<TNode>[]
   getLabel?: GetLabelFn<TNode>
@@ -59,6 +60,10 @@ function GraphComponent<TLink extends {}, TNode extends {}>(
       state.current.preRenderCb = cb
     },
   }))
+
+  React.useEffect(() => {
+    state.current.enablePanInteraction = props.enablePanInteraction ?? true
+  }, [props.enablePanInteraction])
 
   React.useEffect(() => {
     state.current.settings.isFixed = props.isFixed ?? false
@@ -178,7 +183,10 @@ function GraphComponent<TLink extends {}, TNode extends {}>(
         state.current.transform.x,
         state.current.transform.y,
       )
-      state.current.preRenderCb?.()
+      if (!state.current.enablePanInteraction) {
+        state.current.preRenderCb?.()
+        return
+      }
 
       drawAllLinks(state, handleLinkColor as any)
       drawAllNodes(

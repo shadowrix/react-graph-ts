@@ -21,6 +21,7 @@ export type State = {
   transform: ZoomTransform
   zoomBehavior: ZoomBehavior<HTMLCanvasElement, unknown> | null
   preRenderCb: (() => void) | null
+  enablePanInteraction: boolean
   //-----------------CACHE-------------------
   nodesCache: Quadtree<NodeType> | null
   linksGrid: Map<string, LinkType[]>
@@ -48,6 +49,7 @@ const INITIAL_STATE = {
   transform: zoomIdentity,
   zoomBehavior: null,
   preRenderCb: null,
+  enablePanInteraction: true,
   //drag and zoom, mb rename like isProcess
   isDragging: false,
   hoveredData: {

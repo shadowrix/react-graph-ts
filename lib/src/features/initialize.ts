@@ -73,7 +73,6 @@ export function useInitialize({
       })
 
     return () => {
-      console.log('unmount?')
       state.current!.simulationEngine?.stop()
     }
   }, [isFixed, nodes, links, settings, dashedLinks, colors])

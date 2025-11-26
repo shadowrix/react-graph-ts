@@ -11,6 +11,7 @@ import {
   OnClickFn,
   Settings,
   LinkLabelFn,
+  GraphRef,
 } from './typings'
 import { drawAllLinks, drawAllNodes, drawLinkTooltip } from './features/draw'
 import { useDrag } from './features/drag'
@@ -21,6 +22,7 @@ import { useInitialize } from './features/initialize'
 import { assignCurves, buildLinkGrid } from './helpers'
 
 export type GraphProps<TLink extends {}, TNode extends {}> = {
+  id?: string
   isFixed?: boolean
   settings?: Partial<Settings>
   onClick?: OnClickFn<TNode, TLink>
@@ -41,7 +43,7 @@ const FIXED_ALPHA_DECAY = 0.6
 
 function GraphComponent<TLink extends {}, TNode extends {}>(
   props: GraphProps<TLink, TNode>,
-  ref: React.ForwardedRef<HTMLCanvasElement>,
+  ref: React.ForwardedRef<GraphRef>,
 ) {
   const { refs: state, register } = useRefManager()
   const [sizes, setSizes] = React.useState({
@@ -49,11 +51,11 @@ function GraphComponent<TLink extends {}, TNode extends {}>(
     height: 0,
   })
 
-  React.useEffect(() => {
-    register('canvas')(
-      (ref as unknown as React.RefObject<HTMLCanvasElement>)!.current,
-    )
-  }, [])
+  React.useImperativeHandle(ref, () => ({
+    getPointerCoords(x, y) {
+      return getPointerCoords(x, y)
+    },
+  }))
 
   React.useEffect(() => {
     state.current.settings.isFixed = props.isFixed ?? false
@@ -292,7 +294,14 @@ function GraphComponent<TLink extends {}, TNode extends {}>(
     handleClick: handleClick as any,
   })
 
-  return <canvas ref={ref} width={sizes.width} height={sizes.height} />
+  return (
+    <canvas
+      id={props.id}
+      ref={register('canvas')}
+      width={sizes.width}
+      height={sizes.height}
+    />
+  )
 }
 
 export const Graph = React.forwardRef(GraphComponent) as <
@@ -300,6 +309,6 @@ export const Graph = React.forwardRef(GraphComponent) as <
   TNode extends {},
 >(
   props: GraphProps<TNode, TLink> & {
-    ref?: React.ForwardedRef<HTMLCanvasElement>
+    ref?: React.ForwardedRef<GraphRef>
   },
 ) => ReturnType<typeof GraphComponent>

@@ -8,8 +8,8 @@ export type NodeType<T extends {} = {}> = {
 
 export type LinkType<T extends {} = {}> = {
   id: string
-  source: string
-  target: string
+  source: string | NodeType
+  target: string | NodeType
   // curve
   drawIndex?: number
   control?: { x: number; y: number }
@@ -59,3 +59,7 @@ export type DetectNodeColorFn<TNode extends {} = {}> = (
 export type GetLabelFn<TNode extends {} = {}> = (
   target: NodeType<TNode>,
 ) => string
+
+export type GraphRef = {
+  getPointerCoords: (x: number, y: number) => [number, number]
+}

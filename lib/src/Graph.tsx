@@ -39,14 +39,21 @@ export type GraphProps<TLink extends {}, TNode extends {}> = {
 const ALPHA_DECAY = 0.05
 const FIXED_ALPHA_DECAY = 0.6
 
-export function Graph<TLink extends {}, TNode extends {}>(
+function GraphComponent<TLink extends {}, TNode extends {}>(
   props: GraphProps<TLink, TNode>,
+  ref: React.ForwardedRef<HTMLCanvasElement>,
 ) {
-  const { refs: state, register, clear } = useRefManager()
+  const { refs: state, register } = useRefManager()
   const [sizes, setSizes] = React.useState({
     width: 0,
     height: 0,
   })
+
+  React.useEffect(() => {
+    register('canvas')(
+      (ref as unknown as React.RefObject<HTMLCanvasElement>)!.current,
+    )
+  }, [])
 
   React.useEffect(() => {
     state.current.settings.isFixed = props.isFixed ?? false
@@ -60,7 +67,10 @@ export function Graph<TLink extends {}, TNode extends {}>(
   }, [props.dashedLinks])
 
   React.useEffect(() => {
-    state.current.colors = { ...state.current.colors, ...(props.colors ?? {}) }
+    state.current.colors = {
+      ...state.current.colors,
+      ...(props.colors ?? {}),
+    }
   }, [props.colors])
 
   React.useEffect(() => {
@@ -282,11 +292,14 @@ export function Graph<TLink extends {}, TNode extends {}>(
     handleClick: handleClick as any,
   })
 
-  return (
-    <canvas
-      ref={register('canvas')}
-      width={sizes.width}
-      height={sizes.height}
-    />
-  )
+  return <canvas ref={ref} width={sizes.width} height={sizes.height} />
 }
+
+export const Graph = React.forwardRef(GraphComponent) as <
+  TLink extends {},
+  TNode extends {},
+>(
+  props: GraphProps<TNode, TLink> & {
+    ref?: React.ForwardedRef<HTMLCanvasElement>
+  },
+) => ReturnType<typeof GraphComponent>

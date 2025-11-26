@@ -62,12 +62,5 @@ export function useRefManager() {
       refs.current[name] = element
     }
 
-  function clear() {
-    for (const [key, value] of Object.entries(INITIAL_STATE)) {
-      //TODO: Исправить типизацию
-      refs.current[key as keyof State] = value as never
-    }
-  }
-
-  return { refs, register, clear }
+  return { refs, register }
 }

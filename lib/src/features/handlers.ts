@@ -115,7 +115,7 @@ export function useHandlers({
 
   /** HANDLE CLICKS */
   React.useEffect(() => {
-    const canvas = select(state.current!.canvas)
+    const canvas = select(state.current!.canvas!)
 
     canvas.on('contextmenu', (event) => {
       event.preventDefault()

@@ -140,8 +140,8 @@ export function Graph<TLink extends {}, TNode extends {}>(
       drawAllNodes(
         state,
         state.current.settings.nodeRadius,
-        getLabel,
-        handleDetectNodeColor,
+        getLabel as any,
+        handleDetectNodeColor as any,
       )
     },
     [clearCanvas],
@@ -165,7 +165,7 @@ export function Graph<TLink extends {}, TNode extends {}>(
   }, [])
 
   const updateNodesCache = React.useCallback(function updateNodesCache() {
-    state.current.nodesCache = quadtree<NodeType<TNode>>()
+    state.current.nodesCache = quadtree<NodeType>()
       .x((d) => d.x!)
       .y((d) => d.y!)
       .addAll(state.current.nodes)
@@ -239,7 +239,7 @@ export function Graph<TLink extends {}, TNode extends {}>(
     state,
     draw: startAnimationLoop,
     getPointerCoords,
-    handleClick,
+    handleClick: handleClick as any,
   })
 
   return (

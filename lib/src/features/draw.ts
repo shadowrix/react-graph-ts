@@ -8,16 +8,16 @@ export function drawLink(state: RefState, link: LinkType) {
   const target = link.target as unknown as NodeType
 
   const isHovered =
-    state.current.hoveredData.link?.id === link.id ||
-    state.current.hoveredData.node?.id === source.id ||
-    state.current.hoveredData.node?.id === target.id
+    state.current!.hoveredData.link?.id === link.id ||
+    state.current!.hoveredData.node?.id === source.id ||
+    state.current!.hoveredData.node?.id === target.id
 
   if (
     !source?.x ||
     !target?.x ||
     !source?.y ||
     !target?.y ||
-    !state.current.context
+    !state.current!.context
   )
     return
 
@@ -27,11 +27,11 @@ export function drawLink(state: RefState, link: LinkType) {
   const ty = target.y
 
   // if (link.curveGroupSize === 1) {
-  //   state.current.context.beginPath()
-  //   state.current.context.moveTo(sx, sy)
-  //   state.current.context.lineTo(tx, ty)
+  //   state.current!.context.beginPath()
+  //   state.current!.context.moveTo(sx, sy)
+  //   state.current!.context.lineTo(tx, ty)
   //   setLineSettings()
-  //   state.current.context.stroke()
+  //   state.current!.context.stroke()
   //   return
   // }
 
@@ -39,40 +39,40 @@ export function drawLink(state: RefState, link: LinkType) {
   link.control = computeControlPoint(source, target, link.curveIndex ?? 0)
   const cp = link.control
 
-  state.current.context.beginPath()
-  state.current.context.moveTo(sx, sy)
-  state.current.context.quadraticCurveTo(cp.x, cp.y, tx, ty)
+  state.current!.context.beginPath()
+  state.current!.context.moveTo(sx, sy)
+  state.current!.context.quadraticCurveTo(cp.x, cp.y, tx, ty)
 
-  if (state.current.settings.isDashed) {
-    state.current.context!.setLineDash([10, 5])
+  if (state.current!.settings.isDashed) {
+    state.current!.context!.setLineDash([10, 5])
   }
-  state.current.context!.strokeStyle = state.current.colors.link
-  state.current.context!.lineWidth = 1
+  state.current!.context!.strokeStyle = state.current!.colors.link
+  state.current!.context!.lineWidth = 1
   if (isHovered) {
-    state.current.context!.lineWidth = 2
-    state.current.context!.strokeStyle = state.current.colors.linkHover
+    state.current!.context!.lineWidth = 2
+    state.current!.context!.strokeStyle = state.current!.colors.linkHover
   }
 
-  state.current.context.stroke()
+  state.current!.context.stroke()
 
-  if (isHovered && state.current.settings.withParticles) {
+  if (isHovered && state.current!.settings.withParticles) {
     drawCurvedLinkParticle(state, link, cp.x, cp.y)
   }
 }
 
 export function drawAllLinks(state: RefState) {
-  if (state.current.hoveredData.link || state.current.hoveredData.node) {
-    state.current.particleProgress =
-      state.current.particleProgress + state.current.settings.particlesSpeed
+  if (state.current!.hoveredData.link || state.current!.hoveredData.node) {
+    state.current!.particleProgress =
+      state.current!.particleProgress + state.current!.settings.particlesSpeed
 
-    if (state.current.particleProgress > 1) {
-      state.current.particleProgress = 0
+    if (state.current!.particleProgress > 1) {
+      state.current!.particleProgress = 0
     }
   } else {
-    state.current.particleProgress = 0
+    state.current!.particleProgress = 0
   }
-  for (let index = 0; index < state.current.links.length; index++) {
-    const link = state.current.links[index]
+  for (let index = 0; index < state.current!.links.length; index++) {
+    const link = state.current!.links[index]
 
     drawLink(state, link)
 
@@ -90,33 +90,33 @@ export function drawNode(
 ) {
   const x = node.x!
   const y = node.y!
-  const context = state.current.context!
+  const context = state.current!.context!
 
   const isHovered =
-    state.current.hoveredData.node?.id === node.id ||
-    (state.current.hoveredData.link?.source as unknown as NodeType)?.id ===
+    state.current!.hoveredData.node?.id === node.id ||
+    (state.current!.hoveredData.link?.source as unknown as NodeType)?.id ===
       node.id ||
-    (state.current.hoveredData.link?.target as unknown as NodeType)?.id ===
+    (state.current!.hoveredData.link?.target as unknown as NodeType)?.id ===
       node.id
 
   context.beginPath()
   context.fillStyle = detectNodeColorFn
     ? detectNodeColorFn(node, false)
-    : state.current.colors.node
+    : state.current!.colors.node
   context.arc(x, y, radius, 0, Math.PI * 2)
   if (isHovered) {
-    context.strokeStyle = state.current.colors.nodeHover
-    context.lineWidth = state.current.settings.hoveredBorder
+    context.strokeStyle = state.current!.colors.nodeHover
+    context.lineWidth = state.current!.settings.hoveredBorder
     context.stroke()
   }
   context.fill()
 
   const label = getLabel(node)
-  if (state.current.transform.k < 0.6 || !label) return
+  if (state.current!.transform.k < 0.6 || !label) return
 
   // label
   context.font = '12px sans-serif'
-  context.fillStyle = state.current.colors.nodeLabel
+  context.fillStyle = state.current!.colors.nodeLabel
   context.textBaseline = 'bottom'
   context.textAlign = 'center'
   context.fillText(label, x, y - radius - 6)
@@ -128,9 +128,9 @@ export function drawAllNodes(
   getLabel: GetLabelFn,
   detectNodeColorFn: DetectNodeColorFn,
 ) {
-  if (!state.current.context) return
+  if (!state.current!.context) return
 
-  for (const node of state.current.nodes) {
+  for (const node of state.current!.nodes) {
     drawNode(state, node, radius, detectNodeColorFn, getLabel)
   }
 }
@@ -156,19 +156,19 @@ function drawCurvedLinkParticle(
     controlY,
     tx,
     ty,
-    state.current.particleProgress,
+    state.current!.particleProgress,
   )
 
-  state.current.context!.beginPath()
-  state.current.context!.arc(
+  state.current!.context!.beginPath()
+  state.current!.context!.arc(
     p.x,
     p.y,
-    state.current.settings.particlesSize,
+    state.current!.settings.particlesSize,
     0,
     Math.PI * 2,
   )
-  state.current.context!.fillStyle = state.current.colors.particles
-  state.current.context!.fill()
+  state.current!.context!.fillStyle = state.current!.colors.particles
+  state.current!.context!.fill()
 }
 
 function getPointOnQuadraticCurve(

@@ -18,9 +18,9 @@ export function useDrag({
 }: UseDragParameters) {
   React.useEffect(() => {
     function findNode(x: number, y: number) {
-      return state.current.nodes.find(
+      return state.current!.nodes.find(
         (n) =>
-          Math.hypot(n.x! - x, n.y! - y) < state.current.settings.nodeRadius,
+          Math.hypot(n.x! - x, n.y! - y) < state.current!.settings.nodeRadius,
       )
     }
 
@@ -35,16 +35,18 @@ export function useDrag({
       })
       .on('start', (event) => {
         if (!event.active)
-          state.current.simulationEngine
-            ?.alphaTarget(state.current.settings.alphaDecay)
+          state
+            .current!.simulationEngine?.alphaTarget(
+              state.current!.settings.alphaDecay,
+            )
             .restart()
         event.subject.fx = event.subject.x
         event.subject.fy = event.subject.y
       })
       .on('drag', (event) => {
-        state.current.isDragging = true
-        const displacementX = event.dx / state.current.transform.k
-        const displacementY = event.dy / state.current.transform.k
+        state.current!.isDragging = true
+        const displacementX = event.dx / state.current!.transform.k
+        const displacementY = event.dy / state.current!.transform.k
 
         event.subject.x = event.subject.fx + displacementX
         event.subject.y = event.subject.fy + displacementY
@@ -52,19 +54,19 @@ export function useDrag({
         event.subject.fy = event.subject.fy + displacementY
       })
       .on('end', (event) => {
-        if (!event.active) state.current.simulationEngine?.alphaTarget(0)
-        if (!state.current.settings.isFixed) {
+        if (!event.active) state.current!.simulationEngine?.alphaTarget(0)
+        if (!state.current!.settings.isFixed) {
           event.subject.fx = null
           event.subject.fy = null
         }
-        state.current.isDragging = false
+        state.current!.isDragging = false
         updateCache()
       })
 
-    select(state.current.canvas!).call(dragFn)
+    select(state.current!.canvas!).call(dragFn)
 
     return () => {
-      select(state.current.canvas!).on('.drag', null)
+      select(state.current!.canvas!).on('.drag', null)
     }
   }, [draw])
 }

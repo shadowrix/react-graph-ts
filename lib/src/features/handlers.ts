@@ -19,22 +19,22 @@ export function useHandlers({
   getPointerCoords,
 }: UseHandlersParameters) {
   function findHoveredNode(gx: number, gy: number, radius: number) {
-    return state.current.nodesCache?.find(gx, gy, radius) || null
+    return state.current!.nodesCache?.find(gx, gy, radius) || null
   }
 
   /** HANDLE HOVER */
   React.useEffect(() => {
-    const canvas = state.current.canvas!
+    const canvas = state.current!.canvas!
 
     function handleMove(event: PointerEvent) {
-      if (state.current.isDragging) return
+      if (state.current!.isDragging) return
 
       const [x, y] = getPointerCoords(event.clientX, event.clientY)
 
       const hoveredNode = findHoveredNode(
         x,
         y,
-        state.current.settings.nodeRadius,
+        state.current!.settings.nodeRadius,
       )
 
       let hoveredLink: LinkType | null = null
@@ -46,7 +46,7 @@ export function useHandlers({
         const cy = Math.floor(y / cellSize)
 
         const key = `${cx},${cy}`
-        const candidates = state.current.linksGrid.get(key)
+        const candidates = state.current!.linksGrid.get(key)
         if (!candidates) return null
 
         const sortedCandidates = candidates
@@ -86,8 +86,8 @@ export function useHandlers({
         }
 
         if (
-          !state.current.hoveredData.node &&
-          !state.current.hoveredData.link &&
+          !state.current!.hoveredData.node &&
+          !state.current!.hoveredData.link &&
           !hoveredLink
         )
           return
@@ -95,14 +95,14 @@ export function useHandlers({
 
       if (
         (hoveredNode?.id &&
-          state.current.hoveredData.node?.id === hoveredNode?.id) ||
+          state.current!.hoveredData.node?.id === hoveredNode?.id) ||
         (hoveredLink?.id &&
-          state.current.hoveredData.link?.id === hoveredLink?.id)
+          state.current!.hoveredData.link?.id === hoveredLink?.id)
       )
         return
 
-      state.current.hoveredData.link = hoveredLink
-      state.current.hoveredData.node = hoveredNode
+      state.current!.hoveredData.link = hoveredLink
+      state.current!.hoveredData.node = hoveredNode
 
       draw()
     }
@@ -114,7 +114,7 @@ export function useHandlers({
 
   /** HANDLE CLICKS */
   React.useEffect(() => {
-    const canvas = select(state.current.canvas)
+    const canvas = select(state.current!.canvas)
 
     canvas.on('contextmenu', (event) => {
       event.preventDefault()
@@ -122,25 +122,25 @@ export function useHandlers({
     canvas.on('pointerup', (event: MouseEvent) => {
       const { button, ctrlKey } = event
 
-      if (state.current.isDragging) return
+      if (state.current!.isDragging) return
 
       function handleTarget(type: ClickType) {
-        if (state.current.hoveredData.link)
-          return handleClick(state.current.hoveredData.link, type, event)
-        if (state.current.hoveredData.node)
-          return handleClick(state.current.hoveredData.node, type, event)
+        if (state.current!.hoveredData.link)
+          return handleClick(state.current!.hoveredData.link, type, event)
+        if (state.current!.hoveredData.node)
+          return handleClick(state.current!.hoveredData.node, type, event)
 
         const [x, y] = getPointerCoords(event.clientX, event.clientY)
 
         const clickedNode = findHoveredNode(
           x,
           y,
-          state.current.settings.nodeRadius,
+          state.current!.settings.nodeRadius,
         )
 
         if (clickedNode) return handleClick(clickedNode, type, event)
 
-        // const clickedLink = findLink(x, y, state.current.linksGrid)
+        // const clickedLink = findLink(x, y, state.current!.linksGrid)
 
         // if (clickedLink) return handleClick(clickedLink, type, event)
 

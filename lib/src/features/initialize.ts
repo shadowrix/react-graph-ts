@@ -18,29 +18,29 @@ export function useInitialize({
 }: UseInitializeParameters) {
   /** INITIALIZE */
   React.useEffect(() => {
-    const canvas = state.current.canvas!
+    const canvas = state.current!.canvas!
     const context = canvas.getContext('2d')!
-    state.current.context = context
+    state.current!.context = context
     let tickCounter = 0
 
-    state.current.simulationEngine = forceSimulation(state.current.nodes)
+    state.current!.simulationEngine = forceSimulation(state.current!.nodes)
       .force(
         'link',
-        forceLink(state.current.links)
+        forceLink(state.current!.links)
           .id((d) => (d as { id: string }).id)
-          .distance(state.current.settings.linkDistance)
-          .strength(state.current.settings.linkStrength),
+          .distance(state.current!.settings.linkDistance)
+          .strength(state.current!.settings.linkStrength),
       )
       .force('charge', forceManyBody().strength(-200))
       //TODO: Add width and height from parent
       .force(
         'center',
         forceCenter(
-          state.current.settings.width / 2,
-          state.current.settings.height / 2,
+          state.current!.settings.width / 2,
+          state.current!.settings.height / 2,
         ),
       )
-      .alphaDecay(state.current.settings.alphaDecay)
+      .alphaDecay(state.current!.settings.alphaDecay)
       .on('tick', () => {
         draw()
         tickCounter++
@@ -49,8 +49,8 @@ export function useInitialize({
         }
       })
       .on('end', () => {
-        if (state.current.settings.isFixed) {
-          state.current.nodes.forEach((node) => {
+        if (state.current!.settings.isFixed) {
+          state.current!.nodes.forEach((node) => {
             node.fx = node.x
             node.fy = node.y
           })
@@ -59,7 +59,7 @@ export function useInitialize({
       })
 
     return () => {
-      state.current.simulationEngine?.stop()
+      state.current!.simulationEngine?.stop()
     }
   }, [isFixed])
 }

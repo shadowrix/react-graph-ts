@@ -13,16 +13,16 @@ export function useZoom({ state, draw }: UseZoomParameters) {
     const zoomFn = zoom<HTMLCanvasElement, unknown>()
       .scaleExtent([0.03, 8])
       .on('zoom', (event) => {
-        state.current.transform = event.transform
+        state.current!.transform = event.transform
         draw()
-        state.current.isDragging = true
+        state.current!.isDragging = true
       })
-      .on('end', () => (state.current.isDragging = false))
+      .on('end', () => (state.current!.isDragging = false))
 
-    select(state.current.canvas!).call(zoomFn)
+    select(state.current!.canvas!).call(zoomFn)
 
     return () => {
-      select(state.current.canvas!).on('.zoom', null)
+      select(state.current!.canvas!).on('.zoom', null)
     }
   }, [])
 }

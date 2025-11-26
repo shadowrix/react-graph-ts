@@ -62,5 +62,9 @@ export function useDrag({
       })
 
     select(state.current.canvas!).call(dragFn)
+
+    return () => {
+      select(state.current.canvas!).on('.drag', null)
+    }
   }, [draw])
 }

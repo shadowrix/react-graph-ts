@@ -57,5 +57,9 @@ export function useInitialize({
         }
         updateCache()
       })
+
+    return () => {
+      state.current.simulationEngine?.stop()
+    }
   }, [isFixed])
 }

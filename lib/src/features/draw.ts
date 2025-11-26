@@ -26,22 +26,6 @@ export function drawLink(state: RefState, link: LinkType) {
   const tx = target.x
   const ty = target.y
 
-  function setLineSettings() {
-    if (state.current.settings.isDashed) {
-      state.current.context!.setLineDash([10, 5])
-    }
-    state.current.context!.strokeStyle = state.current.colors.link
-    state.current.context!.lineWidth = 1
-    if (isHovered) {
-      state.current.context!.lineWidth = 2
-      state.current.context!.strokeStyle = state.current.colors.linkHover
-
-      //TODO: If particles
-      // state.current.context.
-      // state.current.context.arc(px, py, 3, 0, Math.PI * 2)
-    }
-  }
-
   // if (link.curveGroupSize === 1) {
   //   state.current.context.beginPath()
   //   state.current.context.moveTo(sx, sy)
@@ -58,11 +42,35 @@ export function drawLink(state: RefState, link: LinkType) {
   state.current.context.beginPath()
   state.current.context.moveTo(sx, sy)
   state.current.context.quadraticCurveTo(cp.x, cp.y, tx, ty)
-  setLineSettings()
+
+  if (state.current.settings.isDashed) {
+    state.current.context!.setLineDash([10, 5])
+  }
+  state.current.context!.strokeStyle = state.current.colors.link
+  state.current.context!.lineWidth = 1
+  if (isHovered) {
+    state.current.context!.lineWidth = 2
+    state.current.context!.strokeStyle = state.current.colors.linkHover
+  }
+
   state.current.context.stroke()
+
+  if (isHovered && state.current.settings.withParticles) {
+    drawCurvedLinkParticle(state, link, cp.x, cp.y)
+  }
 }
 
 export function drawAllLinks(state: RefState) {
+  if (state.current.hoveredData.link || state.current.hoveredData.node) {
+    state.current.particleProgress =
+      state.current.particleProgress + state.current.settings.particlesSpeed
+
+    if (state.current.particleProgress > 1) {
+      state.current.particleProgress = 0
+    }
+  } else {
+    state.current.particleProgress = 0
+  }
   for (let index = 0; index < state.current.links.length; index++) {
     const link = state.current.links[index]
 
@@ -125,4 +133,58 @@ export function drawAllNodes(
   for (const node of state.current.nodes) {
     drawNode(state, node, radius, detectNodeColorFn, getLabel)
   }
+}
+
+function drawCurvedLinkParticle(
+  state: RefState,
+  link: LinkType,
+  controlX: number,
+  controlY: number,
+) {
+  const source = link.source as unknown as NodeType
+  const target = link.target as unknown as NodeType
+
+  const sx = source.x!
+  const sy = source.y!
+  const tx = target.x!
+  const ty = target.y!
+
+  const p = getPointOnQuadraticCurve(
+    sx,
+    sy,
+    controlX,
+    controlY,
+    tx,
+    ty,
+    state.current.particleProgress,
+  )
+
+  state.current.context!.beginPath()
+  state.current.context!.arc(
+    p.x,
+    p.y,
+    state.current.settings.particlesSize,
+    0,
+    Math.PI * 2,
+  )
+  state.current.context!.fillStyle = state.current.colors.particles
+  state.current.context!.fill()
+}
+
+function getPointOnQuadraticCurve(
+  sx: number,
+  sy: number,
+  cx: number,
+  cy: number,
+  tx: number,
+  ty: number,
+  t: number,
+) {
+  const mt = 1 - t
+
+  const x = mt * mt * sx + 2 * mt * t * cx + t * t * tx
+
+  const y = mt * mt * sy + 2 * mt * t * cy + t * t * ty
+
+  return { x, y }
 }

@@ -14,7 +14,8 @@ export const INITIAL_SETTINGS = {
 
   //Particles of link
   particlesSpeed: 0.015,
-  particlesIsActive: true,
+  particlesSize: 3,
+  withParticles: true,
 
   isDashed: true,
 }

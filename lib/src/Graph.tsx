@@ -36,7 +36,7 @@ const ALPHA_DECAY = 0.05
 const FIXED_ALPHA_DECAY = 0.6
 
 export function Graph(props: GraphProps) {
-  const { refs: state, register } = useRefManager()
+  const { refs: state, register, clear } = useRefManager()
   const [sizes, setSizes] = React.useState({
     width: 0,
     height: 0,
@@ -200,6 +200,20 @@ export function Graph(props: GraphProps) {
     }
   }, [])
 
+  const startAnimationLoop = React.useCallback(function startAnimationLoop() {
+    function animate() {
+      requestRender()
+      if (
+        state.current.settings.withParticles &&
+        (state.current.hoveredData.link || state.current.hoveredData.node)
+      ) {
+        requestAnimationFrame(animate)
+      }
+    }
+
+    requestAnimationFrame(animate)
+  }, [])
+
   useInitialize({
     state,
     isFixed: props.isFixed,
@@ -221,7 +235,7 @@ export function Graph(props: GraphProps) {
 
   useHandlers({
     state,
-    draw: requestRender,
+    draw: startAnimationLoop,
     getPointerCoords,
     handleClick,
   })

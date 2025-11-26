@@ -116,6 +116,7 @@ function GraphComponent<TLink extends {}, TNode extends {}>(
   React.useEffect(() => {
     if (props.nodeColor) {
       state.current!.nodeColor = props.nodeColor as any
+      return
     }
     state.current!.nodeColor = (...params: Parameters<DetectNodeColorFn>) => {
       const [_, isHover] = params

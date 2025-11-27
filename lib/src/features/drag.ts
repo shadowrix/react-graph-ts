@@ -57,10 +57,16 @@ export function useDrag({
       })
       .on('end', (event) => {
         if (!event.active) state.current!.simulationEngine?.alphaTarget(0)
-        if (!state.current!.settings.isFixed) {
-          event.subject.fx = null
-          event.subject.fy = null
+        if (
+          state.current!.settings.isFixed ||
+          state.current!.settings.isFixedNodeAfterDrag
+        ) {
+          state.current!.isDragging = false
+          updateCache()
+          return
         }
+        event.subject.fx = null
+        event.subject.fy = null
         state.current!.isDragging = false
         updateCache()
       })

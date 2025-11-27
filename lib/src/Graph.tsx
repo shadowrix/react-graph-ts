@@ -86,10 +86,12 @@ function GraphComponent<TLink extends {}, TNode extends {}>(
   }, [props.enablePanInteraction])
 
   React.useEffect(() => {
-    state.current.nodes?.forEach((node) => {
-      node.fx = undefined
-      node.fy = undefined
-    })
+    if (state.current.settings.isFixed !== props.isFixed && !props.isFixed) {
+      state.current.nodes?.forEach((node) => {
+        node.fx = undefined
+        node.fy = undefined
+      })
+    }
     state.current.settings.isFixed = props.isFixed ?? false
     state.current.settings.alphaDecay = props.isFixed
       ? FIXED_ALPHA_DECAY

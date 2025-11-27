@@ -37,11 +37,15 @@ export function drawLink(state: RefState, link: LinkType) {
 
   // if (!link.control)
   link.control = computeControlPoint(source, target, link.curveIndex ?? 0)
-  const cp = link.control
 
   state.current!.context.beginPath()
   state.current!.context.moveTo(sx, sy)
-  state.current!.context.quadraticCurveTo(cp.x, cp.y, tx, ty)
+  state.current!.context.quadraticCurveTo(
+    link.control.x,
+    link.control.y,
+    tx,
+    ty,
+  )
 
   state.current!.context!.setLineDash([])
   if (state.current!.settings.isDashed) {
@@ -58,7 +62,7 @@ export function drawLink(state: RefState, link: LinkType) {
 
   if (isHovered) {
     if (state.current!.settings.withParticles) {
-      drawCurvedLinkParticle(state, link, cp.x, cp.y)
+      drawCurvedLinkParticle(state, link, link.control.x, link.control.y)
     }
   }
 }

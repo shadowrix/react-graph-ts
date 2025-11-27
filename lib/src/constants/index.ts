@@ -11,6 +11,7 @@ export const INITIAL_SETTINGS = {
   alphaDecay: 0.05,
 
   isFixed: false,
+  isFixedNodeAfterDrag: true,
 
   //Particles of link
   particlesSpeed: 0.015,

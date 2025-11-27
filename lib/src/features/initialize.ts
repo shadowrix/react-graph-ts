@@ -64,8 +64,8 @@ export function useInitialize({
       .on('end', () => {
         if (state.current!.settings.isFixed) {
           state.current!.nodes.forEach((node) => {
-            node.fx = node.x
-            node.fy = node.y
+            node.fx = node.fx ?? node.x
+            node.fy = node.fy ?? node.y
           })
         }
         updateCache()

@@ -254,7 +254,7 @@ export function computeControlPoint(
   const ny = dx * invLen
 
   const sign = curveIndex % 2 === 0 ? 1 : -1
-  const multiplier = curveIndex
+  const multiplier = curveIndex * Math.sign(curveIndex)
   const numericOffset = treatAsFraction
     ? baseOffsetFraction * len * multiplier
     : baseOffsetFraction * multiplier

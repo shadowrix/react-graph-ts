@@ -110,7 +110,7 @@ export function useHandlers({
 
     canvas.addEventListener('pointermove', handleMove)
 
-    return () => canvas.removeEventListener('pointermove', handleMove)
+    return () => canvas?.removeEventListener?.('pointermove', handleMove)
   }, [draw])
 
   /** HANDLE CLICKS */
@@ -170,8 +170,8 @@ export function useHandlers({
       }
     })
     return () => {
-      canvas.on('mouseup', null)
-      canvas.on('contextmenu', null)
+      canvas?.on?.('mouseup', null)
+      canvas?.on?.('contextmenu', null)
     }
   }, [])
 }

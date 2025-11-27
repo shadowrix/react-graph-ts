@@ -14,6 +14,7 @@ export function useLasso({
   getPointerCoords,
 }: UseLassoParameters) {
   React.useEffect(() => {
+    const canvas = state.current?.canvas!
     function handlePointerDown(event: PointerEvent) {
       if (!(event.ctrlKey || event.altKey || event.metaKey)) {
         return
@@ -43,19 +44,13 @@ export function useLasso({
       draw()
     }
 
-    state.current!.canvas!.addEventListener('pointerdown', handlePointerDown)
-    state.current!.canvas!.addEventListener('pointermove', handlePointerMove)
-    state.current!.canvas!.addEventListener('pointerup', handlePointerUp)
+    canvas?.addEventListener('pointerdown', handlePointerDown)
+    canvas?.addEventListener('pointermove', handlePointerMove)
+    canvas?.addEventListener('pointerup', handlePointerUp)
     return () => {
-      state.current!.canvas!.removeEventListener(
-        'pointerdown',
-        handlePointerDown,
-      )
-      state.current!.canvas!.removeEventListener(
-        'pointermove',
-        handlePointerMove,
-      )
-      state.current!.canvas!.removeEventListener('pointerup', handlePointerUp)
+      canvas?.removeEventListener('pointerdown', handlePointerDown)
+      canvas?.removeEventListener('pointermove', handlePointerMove)
+      canvas?.removeEventListener('pointerup', handlePointerUp)
     }
   }, [draw])
 }

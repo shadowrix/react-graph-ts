@@ -17,6 +17,8 @@ export function useDrag({
   getPointerCoords,
 }: UseDragParameters) {
   React.useEffect(() => {
+    const canvas = state.current!.canvas!
+
     function findNode(x: number, y: number) {
       return state.current!.nodes.find(
         (n) =>
@@ -63,10 +65,10 @@ export function useDrag({
         updateCache()
       })
 
-    select(state.current!.canvas!).call(dragFn)
+    select(canvas).call(dragFn)
 
     return () => {
-      select(state.current!.canvas!).on('.drag', null)
+      select(canvas).on('.drag', null)
     }
   }, [draw])
 }

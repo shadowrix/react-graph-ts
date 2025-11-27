@@ -5,9 +5,13 @@
   "description": "Graph stand on d3",
   "author": "shadowrix164@gmail.com",
   "license": "MIT",
+  "homepage": "https://shadowrix.github.io/react-graph-ts/",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/shadowrix/react-graph-ts.git"
+  },
+  "bugs": {
+    "url": "https://github.com/shadowrix/react-graph-ts/issues"
   },
   "keywords": [
     "d3",

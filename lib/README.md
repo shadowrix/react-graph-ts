@@ -2,6 +2,10 @@
 
 > React + TypeScript library for declaratively creating and working with graph data structures and visualizations. Based on d3
 
+## Demo / Playground
+
+Try the library live: [React Graph TS Playground](https://shadowrix.github.io/react-graph-ts/)
+
 ## 📦 Installation
 
 ```bash
@@ -10,3 +14,4 @@ npm install react-graph-ts
 
 # Or Yarn
 yarn add react-graph-ts
+```

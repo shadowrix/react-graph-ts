@@ -4,6 +4,7 @@
   "scripts": {
     "build": "turbo run build",
     "build:lib": "turbo run build --filter=react-graph-ts",
+    "build:site": "turbo run build --filter=site",
     "dev": "turbo run dev",
     "start:site": "turbo run dev --filter=site",
     "lint": "turbo run lint",

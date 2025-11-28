@@ -2,6 +2,10 @@ import React from 'react'
 
 import { Graph } from 'react-graph-ts'
 import type { LinkType, NodeType } from 'react-graph-ts'
+import { Field } from './components/custom-ui/Field'
+import { Checkbox } from './components/ui/checkbox'
+import { Label } from './components/ui/label'
+import { Separator } from './components/ui/separator'
 
 function createRandomGraph(
   nodeCount: number,
@@ -157,154 +161,119 @@ export default function App() {
   return (
     <div className="w-full h-full flex gap-4 bg-black p-4">
       {/* --- CONTROL PANEL --- */}
-      <div className="bg-[#1c2029] rounded-2xl p-6 shadow-md">
+      <div className="w-[250px] bg-[#1c2029] rounded-2xl p-6 shadow-md">
         <h2 className="text-xl text-white font-semibold mb-4">
           Graph Controls
         </h2>
 
-        {/* Node Count */}
-        <label className="block text-sm text-[#bbbfca]">Nodes</label>
-        <input
-          type="number"
-          className="w-full p-2 rounded-md border mb-3 text-white"
-          value={nodeCount}
-          min={1}
-          max={2000}
-          onChange={(e) => setNodeCount(Number(e.target.value))}
-        />
-
-        {/* Link Count */}
-        <label className="block text-sm text-[#bbbfca]">Links</label>
-        <input
-          type="number"
-          className="w-full p-2 rounded-md border mb-3 text-white"
-          value={linkCount}
-          min={0}
-          max={5000}
-          onChange={(e) => setLinkCount(Number(e.target.value))}
-        />
-
-        {/* Node Size */}
-        <label className="block text-sm text-[#bbbfca]">
-          Node Size ({settings.nodeRadius})
-        </label>
-        <input
-          type="range"
-          min={2}
-          max={40}
-          value={settings.nodeRadius}
-          onChange={(e) =>
-            setSettings({ ...settings, nodeRadius: Number(e.target.value) })
-          }
-          className="w-full mb-3"
-        />
-
-        {/* Link Width
-        <label className="block text-sm text-slate-600">
-          Link Width ({settings.linkWidth})
-        </label>
-        <input
-          type="range"
-          min={0.5}
-          max={5}
-          step={0.1}
-          value={settings.linkWidth}
-          onChange={(e) =>
-            setSettings({ ...settings, linkWidth: Number(e.target.value) })
-          }
-          className="w-full mb-3"
-        />
-
-        // Link Distance 
-        <label className="block text-sm text-slate-600">
-          Link Distance ({settings.linkDistance})
-        </label>
-        <input
-          type="range"
-          min={20}
-          max={200}
-          value={settings.linkDistance}
-          onChange={(e) =>
-            setSettings({ ...settings, linkDistance: Number(e.target.value) })
-          }
-          className="w-full mb-3"
-        />
-
-         // Repulsion
-        <label className="block text-sm text-slate-600">
-          Repulsion ({settings.repulsion})
-        </label>
-        <input
-          type="range"
-          min={-300}
-          max={100}
-          value={settings.repulsion}
-          onChange={(e) =>
-            setSettings({ ...settings, repulsion: Number(e.target.value) })
-          }
-          className="w-full mb-3"
-        /> */}
-
-        {/* Colors */}
-        <div className="mb-3">
-          <label className="block text-sm text-[#bbbfca] mb-1">
-            Node Color
-          </label>
-          <input
-            type="color"
-            value={colors.node}
-            onChange={(e) => setColors({ ...colors, node: e.target.value })}
-          />
+        <div className="flex flex-col gap-1">
+          <Field label="Nodes">
+            <input
+              type="number"
+              className="w-full p-2 rounded-md border mb-3 text-white"
+              value={nodeCount}
+              min={1}
+              max={2000}
+              onChange={(e) => setNodeCount(Number(e.target.value))}
+            />
+          </Field>
+          <Field label="Links">
+            <input
+              type="number"
+              className="w-full p-2 rounded-md border mb-3 text-white"
+              value={linkCount}
+              min={0}
+              max={5000}
+              onChange={(e) => setLinkCount(Number(e.target.value))}
+            />
+          </Field>
+          <Field label={`Node Size (${settings.nodeRadius})`}>
+            <input
+              type="range"
+              min={2}
+              max={40}
+              value={settings.nodeRadius}
+              onChange={(e) =>
+                setSettings({ ...settings, nodeRadius: Number(e.target.value) })
+              }
+              className="w-full mb-3"
+            />
+          </Field>
+          <div className="flex flex-col gap-3 mt-3">
+            <div className="flex flex-col gap-1">
+              <div className="text-xl font-bold text-[#bbbfca]">Colors</div>
+              <Separator orientation="horizontal" />
+            </div>
+            <div className="flex gap-3">
+              <Field label="Node Color">
+                <input
+                  type="color"
+                  value={colors.node}
+                  onChange={(e) =>
+                    setColors({ ...colors, node: e.target.value })
+                  }
+                />
+              </Field>
+              <Field label="Link Color">
+                <input
+                  type="color"
+                  value={colors.link}
+                  onChange={(e) =>
+                    setColors({ ...colors, link: e.target.value })
+                  }
+                />
+              </Field>
+            </div>
+          </div>
+          <div className="flex flex-col gap-5 mt-3">
+            <div className="flex flex-col gap-1">
+              <div className="text-xl font-bold text-[#bbbfca]">Settings</div>
+              <Separator orientation="horizontal" />
+            </div>
+            <div className="flex flex-col gap-3">
+              <div className="flex gap-2">
+                <Checkbox
+                  id="withNodeLabels"
+                  checked={settings.withNodeLabels}
+                  onClick={() =>
+                    setSettings({
+                      ...settings,
+                      withNodeLabels: !settings.withNodeLabels,
+                    })
+                  }
+                />
+                <Label htmlFor="withNodeLabels">Show Labels</Label>
+              </div>
+              <div className="flex gap-2">
+                <Checkbox
+                  id="isFixed"
+                  checked={isFixed}
+                  onClick={() => setIsFixed((prev) => !prev)}
+                />
+                <Label htmlFor="isFixed">Fix Nodes</Label>
+              </div>
+              <div className="flex gap-2">
+                <Checkbox
+                  id="isFixedNodeAfterDrag"
+                  checked={settings.isFixedNodeAfterDrag}
+                  onClick={() =>
+                    setSettings({
+                      ...settings,
+                      isFixedNodeAfterDrag: !settings.isFixedNodeAfterDrag,
+                    })
+                  }
+                />
+                <Label htmlFor="isFixedNodeAfterDrag">
+                  Fix node after drag
+                </Label>
+              </div>
+            </div>
+          </div>
         </div>
-
-        <div className="mb-3">
-          <label className="block text-sm text-[#bbbfca] mb-1">
-            Link Color
-          </label>
-          <input
-            type="color"
-            value={colors.link}
-            onChange={(e) => setColors({ ...colors, link: e.target.value })}
-          />
-        </div>
-
-        {/* Toggles */}
-        <label className="flex items-center gap-2 mb-2 text-sm text-[#bbbfca]">
-          <input
-            type="checkbox"
-            checked={settings.withNodeLabels}
-            onChange={(e) =>
-              setSettings({ ...settings, withNodeLabels: e.target.checked })
-            }
-          />
-          Show Labels
-        </label>
-
-        {/* <label className="flex items-center gap-2 mb-2 text-sm">
-          <input
-            type="checkbox"
-            checked={settings.directed}
-            onChange={(e) =>
-              setSettings({ ...settings, directed: e.target.checked })
-            }
-          />
-          Directed Graph
-        </label> */}
-
-        <label className="flex items-center gap-2 mb-2 text-sm text-[#bbbfca]">
-          <input
-            type="checkbox"
-            checked={isFixed}
-            onChange={(e) => setIsFixed(e.target.checked)}
-          />
-          Fix Nodes
-        </label>
       </div>
 
       {/* --- GRAPH PANEL --- */}
       <div className="w-full flex bg-[#1c2029] rounded-2xl p-4 shadow-md">
-        <h2 className="text-lg text-white font-semibold mb-3">Graph Preview</h2>
-
         <div className="w-full h-full rounded-lg overflow-hidden">
           <Graph
             nodes={nodes}

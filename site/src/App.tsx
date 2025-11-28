@@ -72,12 +72,10 @@ export default function App() {
     nodeRadius: 8,
     hoveredBorder: 4,
 
-    width: 1200,
-    height: 800,
-
     alphaDecay: 0.05,
 
     isFixed: false,
+    isFixedNodeAfterDrag: true,
 
     //Particles of link
     particlesSpeed: 0.015,
@@ -313,6 +311,7 @@ export default function App() {
             links={links}
             isFixed={isFixed}
             colors={colors}
+            settings={settings}
             // onSelectedNode={handleSelectedNode}
           />
         </div>

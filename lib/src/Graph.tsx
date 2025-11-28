@@ -278,6 +278,7 @@ function GraphComponent<TLink extends {}, TNode extends {}>(
       const resizeObserver = new ResizeObserver(() => {
         const width = state.current.canvas!.parentElement!.clientWidth
         const height = state.current.canvas!.parentElement!.clientHeight
+
         state.current.settings.width = width
         state.current.settings.height = height
         setSizes({

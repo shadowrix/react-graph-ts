@@ -88,10 +88,12 @@ export function drawAllLinks(state: RefState) {
 }
 
 //TODO: Add all settings for node and custom nodes
-export function drawNode(state: RefState, node: NodeType, radius: number) {
+export function drawNode(state: RefState, node: NodeType) {
   const x = node.x!
   const y = node.y!
   const context = state.current!.context!
+
+  const radius = state.current!.settings.nodeRadius
 
   const isHovered =
     state.current!.hoveredData.node?.id === node.id ||
@@ -128,7 +130,7 @@ export function drawAllNodes(state: RefState) {
   if (!state.current!.context) return
 
   for (const node of state.current!.nodes) {
-    drawNode(state, node, state.current!.settings.nodeRadius)
+    drawNode(state, node)
   }
 }
 

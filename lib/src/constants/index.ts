@@ -5,8 +5,8 @@ export const INITIAL_SETTINGS = {
   nodeRadius: 8,
   hoveredBorder: 4,
 
-  width: 1200,
-  height: 800,
+  width: 0,
+  height: 0,
 
   alphaDecay: 0.05,
 

@@ -205,7 +205,7 @@ export default function App() {
               <Separator orientation="horizontal" />
             </div>
             <div className="flex gap-3">
-              <Field label="Node Color">
+              <Field label="Node">
                 <input
                   type="color"
                   value={colors.node}
@@ -214,7 +214,7 @@ export default function App() {
                   }
                 />
               </Field>
-              <Field label="Link Color">
+              <Field label="Link">
                 <input
                   type="color"
                   value={colors.link}

@@ -13,8 +13,7 @@ export function drawLink(state: RefState, link: LinkType) {
     state.current!.hoveredData.node?.id === target.id
 
   const isDashed = link.settings?.isDashed ?? state.current!.settings.isDashed
-  const withParticles =
-    link.settings?.withParticles ?? state.current!.settings.withParticles
+  const withParticles = state.current!.settings.withParticles
   const color =
     state.current!.linkColor?.(link, isHovered) ??
     link.settings?.color ??

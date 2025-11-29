@@ -7,7 +7,7 @@ export type NodeType<T extends {} = {}> = {
   T
 
 export type LinkSettings = {
-  withParticles?: boolean
+  // withParticles?: boolean
   color?: string
   withArrow?: boolean
   isDashed?: boolean

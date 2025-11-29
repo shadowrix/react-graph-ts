@@ -12,6 +12,16 @@ export function drawLink(state: RefState, link: LinkType) {
     state.current!.hoveredData.node?.id === source.id ||
     state.current!.hoveredData.node?.id === target.id
 
+  const isDashed = link.settings?.isDashed ?? state.current!.settings.isDashed
+  const withParticles =
+    link.settings?.withParticles ?? state.current!.settings.withParticles
+  const color =
+    state.current!.linkColor?.(link, isHovered) ??
+    link.settings?.color ??
+    state.current!.colors.link
+
+  const width = link.settings?.width ?? 1
+
   if (
     !source?.x ||
     !target?.x ||
@@ -48,20 +58,20 @@ export function drawLink(state: RefState, link: LinkType) {
   )
 
   state.current!.context!.setLineDash([])
-  if (state.current!.settings.isDashed) {
+  if (isDashed) {
     state.current!.context!.setLineDash([10, 5])
   }
-  state.current!.context!.strokeStyle = state.current!.linkColor!(link, false)
-  state.current!.context!.lineWidth = 1
+  state.current!.context!.strokeStyle = color
+  state.current!.context!.lineWidth = width
   if (isHovered) {
     state.current!.context!.lineWidth = 2
-    state.current!.context!.strokeStyle = state.current!.linkColor!(link, true)
+    state.current!.context!.strokeStyle = color
   }
 
   state.current!.context.stroke()
 
   if (isHovered) {
-    if (state.current!.settings.withParticles) {
+    if (withParticles) {
       drawCurvedLinkParticle(state, link, link.control.x, link.control.y)
     }
   }

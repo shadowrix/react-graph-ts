@@ -155,11 +155,11 @@ function GraphComponent<TLink extends {}, TNode extends {}>(
       return
     }
     state.current!.linkColor = (...params: Parameters<LinkColorFn>) => {
-      const [_, isHover] = params
+      const [link, isHover] = params
       if (isHover) {
         return state.current.colors.linkHover
       }
-      return state.current.colors.link
+      return link.settings?.color ?? state.current.colors.link
     }
   }, [props.linkColor])
   React.useEffect(() => {

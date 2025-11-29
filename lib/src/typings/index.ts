@@ -6,19 +6,25 @@ export type NodeType<T extends {} = {}> = {
 } & SimulationNodeDatum &
   T
 
+export type LinkSettings = {
+  withParticles?: boolean
+  color?: string
+  withArrow?: boolean
+  isDashed?: boolean
+  width?: number
+}
+
 export type LinkType<T extends {} = {}> = {
   id: string
   source: string | NodeType
   target: string | NodeType
   // curve
-  drawIndex?: number
   control?: { x: number; y: number }
+  drawIndex?: number
   curveIndex?: number
   curveGroupSize?: number
-  //particles
-  particleProgress?: number
-  particleSpeed?: number
-  particleActive?: boolean
+  //settings
+  settings?: LinkSettings
 } & T
 
 export type HoveredData<TNode extends {} = {}, TLink extends {} = {}> = {

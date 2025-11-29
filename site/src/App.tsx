@@ -160,7 +160,6 @@ export default function App() {
 
   return (
     <div className="w-full h-full flex gap-4 bg-black p-4">
-      {/* --- CONTROL PANEL --- */}
       <div className="w-[250px] bg-[#1c2029] rounded-2xl p-6 shadow-md">
         <h2 className="text-xl text-white font-semibold mb-4">
           Graph Controls

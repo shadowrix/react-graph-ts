@@ -210,7 +210,8 @@ function GraphComponent<TLink extends {}, TNode extends {}>(
   const draw = React.useCallback(
     function draw() {
       if (!state.current.context) return
-
+      console.log('draw')
+      const start = performance.now()
       clearCanvas(state.current.context)
       state.current.context?.setTransform(
         state.current.transform.k,
@@ -236,6 +237,8 @@ function GraphComponent<TLink extends {}, TNode extends {}>(
       if (state.current.isLassoing) {
         drawLasso(state)
       }
+      const end = performance.now()
+      console.log('draw time is ------>', end - start)
     },
     [clearCanvas],
   )

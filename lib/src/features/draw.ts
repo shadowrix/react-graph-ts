@@ -2,6 +2,85 @@ import { RefState } from '../state'
 import { computeControlPoint } from './handlers'
 import { LinkType, NodeType } from '../typings'
 
+function findAngle(sx: number, sy: number, ex: number, ey: number) {
+  return Math.atan2(ey - sy, ex - sx)
+}
+
+// function drawArrowhead1(
+//   context: CanvasRenderingContext2D,
+//   locx,
+//   locy,
+//   angle,
+//   size,
+// ) {
+//   const halfSize = size / 2
+//   ctx.translate(locx, locy)
+//   ctx.rotate(angle)
+//   ctx.translate(-halfSize, -halfSize)
+
+//   ctx.beginPath()
+//   ctx.moveTo(0, 0)
+//   ctx.lineTo(0, 1 * size)
+//   ctx.lineTo(1 * size, 1 * halfSize)
+//   ctx.closePath()
+//   ctx.fill()
+
+//   ctx.translate(halfSize, halfSize)
+//   ctx.rotate(-angle)
+//   ctx.translate(-locx, -locy)
+//   ctx.restore()
+// }
+
+/**
+ * Draw a chevron-style arrow (like ">") whose tip is at (locx, locy).
+ * - Concave/rounded inner back using quadraticCurveTo.
+ * - Very fast: only one transform + one atan2 (angle provided).
+ *
+ * @param ctx    CanvasRenderingContext2D
+ * @param locx   tip x
+ * @param locy   tip y
+ * @param angle  rotation angle in radians (direction the tip points)
+ * @param length distance from tip to the back of the chevron (px)
+ * @param height total height of the arrow (px)
+ * @param inset  how far the inner rounded curve pulls in (0..1). 0 = straight back, 0.5..0.6 typical.
+ * @param color  fill color
+ * @param stroke optional stroke color (null to skip)
+ */
+function drawChevronArrow(
+  context: CanvasRenderingContext2D,
+  locx: number,
+  locy: number,
+  angle: number,
+  length = 14,
+  height = 10,
+  inset = 0.36,
+  color = '#222',
+) {
+  inset = Math.max(0, Math.min(0.9, inset))
+
+  const backX = -Math.abs(length)
+  const halfH = Math.abs(height) / 2
+
+  const controlX = backX * (1 - inset) // when inset=0.36 ~ 0.64*backX
+  const controlY = 0
+
+  context.save()
+  context.translate(locx, locy)
+  context.rotate(angle)
+
+  context.beginPath()
+  context.moveTo(backX, -halfH)
+  context.lineTo(0, 0)
+  context.lineTo(backX, halfH)
+  context.quadraticCurveTo(controlX, controlY, backX, -halfH)
+  context.closePath()
+
+  context.fillStyle = color
+  context.fill()
+
+  context.restore()
+}
+
 //TODO: Add all settings for links and mb custom links
 export function drawLink(state: RefState, link: LinkType) {
   const source = link.source as unknown as NodeType
@@ -18,6 +97,9 @@ export function drawLink(state: RefState, link: LinkType) {
     state.current!.linkColor?.(link, isHovered) ??
     link.settings?.color ??
     state.current!.colors.link
+
+  const withArrow =
+    link.settings?.withArrow ?? state.current?.settings.withLinksArrows
 
   const width = link.settings?.width ?? 1
 
@@ -68,6 +150,24 @@ export function drawLink(state: RefState, link: LinkType) {
   }
 
   state.current!.context.stroke()
+
+  if (withArrow) {
+    const angle = findAngle(link.control.x, link.control.y, tx, ty)
+    const arrowX = tx - Math.cos(angle) * state.current!.settings.nodeRadius
+    const arrowY = ty - Math.sin(angle) * state.current!.settings.nodeRadius
+    // drawArrowhead1(state.current!.context, arrowX, arrowY, angle, 12)
+
+    drawChevronArrow(
+      state.current!.context,
+      arrowX,
+      arrowY,
+      angle,
+      14,
+      10,
+      0.36,
+      state.current!.colors.arrow ?? color,
+    )
+  }
 
   if (isHovered) {
     if (withParticles) {

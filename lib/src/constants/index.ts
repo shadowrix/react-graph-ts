@@ -1,3 +1,5 @@
+import { Colors } from '../typings'
+
 export const INITIAL_SETTINGS = {
   linkDistance: 100,
   linkStrength: 0.7,
@@ -20,6 +22,7 @@ export const INITIAL_SETTINGS = {
 
   isDashed: false,
   withNodeLabels: true,
+  withLinksArrows: true,
 }
 
 export const COLORS = {
@@ -36,4 +39,6 @@ export const COLORS = {
   nodeLabel: '#D9DBE0',
 
   particles: '#ff1974',
-}
+
+  arrow: undefined,
+} as Colors

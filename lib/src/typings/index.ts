@@ -35,7 +35,23 @@ export type HoveredData<TNode extends {} = {}, TLink extends {} = {}> = {
 
 export type Settings = typeof INITIAL_SETTINGS
 
-export type Colors = typeof COLORS
+export type Colors = {
+  background: string
+
+  node: string
+  nodeHover: string
+  nodeActive: string
+
+  link: string
+  linkHover: string
+  linkActive: string
+
+  nodeLabel: string
+
+  particles: string
+
+  arrow?: string
+}
 
 export type ClickType = 'right' | 'left' | 'ctrl-left' | 'ctrl-right'
 

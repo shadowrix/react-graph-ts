@@ -5,14 +5,14 @@ import { RefState } from '../state'
 
 export type UseDragParameters = {
   state: RefState
-  draw: () => void
+  // draw: () => void
   getPointerCoords: (clientX: number, clientY: number) => [number, number]
   updateCache: () => void
 }
 
 export function useDrag({
   state,
-  draw,
+  // draw,
   updateCache,
   getPointerCoords,
 }: UseDragParameters) {
@@ -76,5 +76,5 @@ export function useDrag({
     return () => {
       select(canvas).on('.drag', null)
     }
-  }, [draw])
+  }, [])
 }

@@ -4,13 +4,13 @@ import { polygonContains } from 'd3'
 
 export type UseLassoParameters = {
   state: RefState
-  draw: () => void
+  // draw: () => void
   getPointerCoords: (clientX: number, clientY: number) => [number, number]
 }
 
 export function useLasso({
   state,
-  draw,
+  // draw,
   getPointerCoords,
 }: UseLassoParameters) {
   React.useEffect(() => {
@@ -31,7 +31,7 @@ export function useLasso({
         ...(state.current!.lassoPath ?? []),
         getPointerCoords(event.clientX, event.clientY),
       ]
-      draw()
+      // draw()
     }
 
     function handlePointerUp() {
@@ -41,7 +41,7 @@ export function useLasso({
         polygonContains(state.current!.lassoPath, [node.x!, node.y!]),
       )
       state.current!.onSelectedNode?.(selectedNodes)
-      draw()
+      // draw()
     }
 
     canvas?.addEventListener('pointerdown', handlePointerDown)
@@ -52,5 +52,5 @@ export function useLasso({
       canvas?.removeEventListener('pointermove', handlePointerMove)
       canvas?.removeEventListener('pointerup', handlePointerUp)
     }
-  }, [draw])
+  }, [])
 }

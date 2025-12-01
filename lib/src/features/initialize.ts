@@ -8,7 +8,6 @@ export type UseInitializeParameters = {
   state: RefState
   isFixed?: boolean
   updateCache: () => void
-  // draw: () => void
   nodes: NodeType
   links: LinkType
   settings?: Partial<Settings>
@@ -55,7 +54,6 @@ export function useInitialize({
       )
       .alphaDecay(state.current!.settings.alphaDecay)
       .on('tick', () => {
-        // draw()
         tickCounter++
         if (tickCounter % 6 === 0) {
           updateCache()

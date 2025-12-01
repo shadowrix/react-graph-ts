@@ -210,8 +210,6 @@ function GraphComponent<TLink extends {}, TNode extends {}>(
   const draw = React.useCallback(
     function draw() {
       if (!state.current.context) return
-      console.log('draw')
-      const start = performance.now()
       clearCanvas(state.current.context)
       state.current.context?.setTransform(
         state.current.transform.k,
@@ -237,8 +235,6 @@ function GraphComponent<TLink extends {}, TNode extends {}>(
       if (state.current.isLassoing) {
         drawLasso(state)
       }
-      const end = performance.now()
-      console.log('draw time is ------>', end - start)
     },
     [clearCanvas],
   )
@@ -299,30 +295,11 @@ function GraphComponent<TLink extends {}, TNode extends {}>(
     }
   }, [])
 
-  // const startAnimationLoop = React.useCallback(function startAnimationLoop() {
-  //   function animate() {
-  //     requestRender()
-  //     if (
-  //       state.current.settings.withParticles &&
-  //       (state.current.hoveredData.link || state.current.hoveredData.node)
-  //     ) {
-  //       requestAnimationFrame(animate)
-  //     }
-  //   }
-
-  //   requestAnimationFrame(animate)
-  // }, [])
-
   const frameIdRef = React.useRef<number>()
   React.useEffect(() => {
     function animate() {
       requestRender()
-      // if (
-      //   state.current.settings.withParticles &&
-      //   (state.current.hoveredData.link || state.current.hoveredData.node)
-      // ) {
-      requestAnimationFrame(animate)
-      // }
+      frameIdRef.current = requestAnimationFrame(animate)
     }
     frameIdRef.current = requestAnimationFrame(animate)
     return () => {
@@ -335,7 +312,6 @@ function GraphComponent<TLink extends {}, TNode extends {}>(
   useInitialize({
     state,
     isFixed: props.isFixed,
-    // draw: requestRender,
     updateCache,
     nodes: props.nodes as any,
     links: props.links as any,
@@ -348,24 +324,20 @@ function GraphComponent<TLink extends {}, TNode extends {}>(
     state,
     updateCache,
     getPointerCoords,
-    // draw: requestRender,
   })
 
   useZoom({
     state,
-    // draw: requestRender,
   })
 
   useHandlers({
     state,
-    // draw: startAnimationLoop,
     getPointerCoords,
     handleClick: handleClick as any,
   })
 
   useLasso({
     state,
-    // draw: requestRender,
     getPointerCoords,
   })
 

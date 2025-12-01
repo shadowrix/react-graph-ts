@@ -6,50 +6,10 @@ function findAngle(sx: number, sy: number, ex: number, ey: number) {
   return Math.atan2(ey - sy, ex - sx)
 }
 
-// function drawArrowhead1(
-//   context: CanvasRenderingContext2D,
-//   locx,
-//   locy,
-//   angle,
-//   size,
-// ) {
-//   const halfSize = size / 2
-//   ctx.translate(locx, locy)
-//   ctx.rotate(angle)
-//   ctx.translate(-halfSize, -halfSize)
-
-//   ctx.beginPath()
-//   ctx.moveTo(0, 0)
-//   ctx.lineTo(0, 1 * size)
-//   ctx.lineTo(1 * size, 1 * halfSize)
-//   ctx.closePath()
-//   ctx.fill()
-
-//   ctx.translate(halfSize, halfSize)
-//   ctx.rotate(-angle)
-//   ctx.translate(-locx, -locy)
-//   ctx.restore()
-// }
-
-/**
- * Draw a chevron-style arrow (like ">") whose tip is at (locx, locy).
- * - Concave/rounded inner back using quadraticCurveTo.
- * - Very fast: only one transform + one atan2 (angle provided).
- *
- * @param ctx    CanvasRenderingContext2D
- * @param locx   tip x
- * @param locy   tip y
- * @param angle  rotation angle in radians (direction the tip points)
- * @param length distance from tip to the back of the chevron (px)
- * @param height total height of the arrow (px)
- * @param inset  how far the inner rounded curve pulls in (0..1). 0 = straight back, 0.5..0.6 typical.
- * @param color  fill color
- * @param stroke optional stroke color (null to skip)
- */
-function drawChevronArrow(
+function drawArrow(
   context: CanvasRenderingContext2D,
-  locx: number,
-  locy: number,
+  x: number,
+  y: number,
   angle: number,
   length = 14,
   height = 10,
@@ -65,7 +25,7 @@ function drawChevronArrow(
   const controlY = 0
 
   context.save()
-  context.translate(locx, locy)
+  context.translate(x, y)
   context.rotate(angle)
 
   context.beginPath()
@@ -92,7 +52,8 @@ export function drawLink(state: RefState, link: LinkType) {
     state.current!.hoveredData.node?.id === target.id
 
   const isDashed = link.settings?.isDashed ?? state.current!.settings.isDashed
-  const withParticles = state.current!.settings.withParticles
+  const withParticles =
+    link.settings?.withParticles ?? state.current!.settings.withParticles
   const color =
     state.current!.linkColor?.(link, isHovered) ??
     link.settings?.color ??
@@ -155,9 +116,8 @@ export function drawLink(state: RefState, link: LinkType) {
     const angle = findAngle(link.control.x, link.control.y, tx, ty)
     const arrowX = tx - Math.cos(angle) * state.current!.settings.nodeRadius
     const arrowY = ty - Math.sin(angle) * state.current!.settings.nodeRadius
-    // drawArrowhead1(state.current!.context, arrowX, arrowY, angle, 12)
 
-    drawChevronArrow(
+    drawArrow(
       state.current!.context,
       arrowX,
       arrowY,

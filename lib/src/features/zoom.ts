@@ -5,17 +5,15 @@ import { RefState } from '../state'
 
 export type UseZoomParameters = {
   state: RefState
-  // draw: () => void
 }
 
-export function useZoom({ state, }: UseZoomParameters) {
+export function useZoom({ state }: UseZoomParameters) {
   React.useEffect(() => {
     const canvas = state.current!.canvas!
     const zoomBehavior = zoom<HTMLCanvasElement, unknown>()
       .scaleExtent([0.03, 8])
       .on('zoom', (event) => {
         state.current!.transform = event.transform
-        // draw()
         state.current!.isDragging = true
       })
       .on('end', () => (state.current!.isDragging = false))

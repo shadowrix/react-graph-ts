@@ -7,14 +7,12 @@ import { ClickType, LinkType, NodeType, OnClickFn } from '../typings'
 
 export type UseHandlersParameters = {
   state: RefState
-  // draw: () => void
   handleClick: OnClickFn
   getPointerCoords: (clientX: number, clientY: number) => [number, number]
 }
 
 export function useHandlers({
   state,
-  // draw,
   handleClick,
   getPointerCoords,
 }: UseHandlersParameters) {
@@ -104,8 +102,6 @@ export function useHandlers({
       state.current!.hoveredData.link = hoveredLink
       state.current!.hoveredData.node = hoveredNode
       state.current!.hoveredData.pointer = { x, y }
-
-      // draw()
     }
 
     canvas.addEventListener('pointermove', handleMove)

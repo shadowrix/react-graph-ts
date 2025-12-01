@@ -88,6 +88,7 @@ export default function App() {
 
     isDashed: false,
     withNodeLabels: false,
+    withLinksArrows: false,
     // linkWidth: 1.5,
     // linkDistance: 80,
     // repulsion: -50,
@@ -265,6 +266,19 @@ export default function App() {
                 <Label htmlFor="isFixedNodeAfterDrag">
                   Fix node after drag
                 </Label>
+              </div>
+              <div className="flex gap-2">
+                <Checkbox
+                  id="withLinksArrows"
+                  checked={settings.withLinksArrows}
+                  onClick={() =>
+                    setSettings({
+                      ...settings,
+                      withLinksArrows: !settings.withLinksArrows,
+                    })
+                  }
+                />
+                <Label htmlFor="withLinksArrows">With arrows</Label>
               </div>
             </div>
           </div>

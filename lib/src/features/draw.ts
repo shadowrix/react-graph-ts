@@ -158,41 +158,51 @@ export function drawAllLinks(state: RefState) {
 
 //TODO: Add all settings for node and custom nodes
 export function drawNode(state: RefState, node: NodeType) {
-  const x = node.x!
-  const y = node.y!
-  const context = state.current!.context!
+  function draw() {
+    const x = node.x
+    const y = node.y
+    const context = state.current?.context
 
-  const radius = state.current!.settings.nodeRadius
+    if (!context || !x || !y) return
+    const radius = state.current!.settings.nodeRadius
 
-  const isHovered =
-    state.current!.hoveredData.node?.id === node.id ||
-    (state.current!.hoveredData.link?.source as unknown as NodeType)?.id ===
-      node.id ||
-    (state.current!.hoveredData.link?.target as unknown as NodeType)?.id ===
-      node.id
+    const isHovered =
+      state.current!.hoveredData.node?.id === node.id ||
+      (state.current!.hoveredData.link?.source as unknown as NodeType)?.id ===
+        node.id ||
+      (state.current!.hoveredData.link?.target as unknown as NodeType)?.id ===
+        node.id
 
-  context.beginPath()
-  context.fillStyle = state.current!.nodeColor
-    ? state.current!.nodeColor(node, false)
-    : state.current!.colors.node
-  context.arc(x, y, radius, 0, Math.PI * 2)
-  if (isHovered) {
-    context.strokeStyle = state.current!.colors.nodeHover
-    context.lineWidth = state.current!.settings.hoveredBorder
-    context.stroke()
+    context.beginPath()
+    context.fillStyle = state.current!.nodeColor
+      ? state.current!.nodeColor(node, false)
+      : state.current!.colors.node
+    context.arc(x, y, radius, 0, Math.PI * 2)
+    if (isHovered) {
+      context.strokeStyle = state.current!.colors.nodeHover
+      context.lineWidth = state.current!.settings.hoveredBorder
+      context.stroke()
+    }
+    context.fill()
+
+    const label = state.current!.getLabel?.(node)
+    if (state.current!.transform.k < 0.6 || !label) return
+
+    if (!state.current!.settings.withNodeLabels) return
+    // label
+    context.font = '12px sans-serif'
+    context.fillStyle = state.current!.colors.nodeLabel
+    context.textBaseline = 'bottom'
+    context.textAlign = 'center'
+    context.fillText(label, x, y - radius - 6)
   }
-  context.fill()
 
-  const label = state.current!.getLabel?.(node)
-  if (state.current!.transform.k < 0.6 || !label) return
+  if (state.current?.drawNode) {
+    state.current?.drawNode(state.current!.context!, node, draw)
+    return
+  }
 
-  if (!state.current!.settings.withNodeLabels) return
-  // label
-  context.font = '12px sans-serif'
-  context.fillStyle = state.current!.colors.nodeLabel
-  context.textBaseline = 'bottom'
-  context.textAlign = 'center'
-  context.fillText(label, x, y - radius - 6)
+  draw()
 }
 
 export function drawAllNodes(state: RefState) {

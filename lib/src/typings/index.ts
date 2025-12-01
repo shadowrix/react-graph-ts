@@ -1,5 +1,5 @@
 import type { SimulationNodeDatum } from 'd3'
-import { COLORS, INITIAL_SETTINGS } from '../constants'
+import { INITIAL_SETTINGS } from '../constants'
 
 export type NodeType<T extends {} = {}> = {
   id: string
@@ -80,6 +80,12 @@ export type DetectNodeColorFn<TNode extends {} = {}> = (
 
 export type OnSelectedNodesFn<TNode extends {} = {}> = (
   nodes: NodeType<TNode>[],
+) => void
+
+export type DrawNodeFn<TNode extends {} = {}> = (
+  context: CanvasRenderingContext2D,
+  node: NodeType<TNode>,
+  drawNode: () => void,
 ) => void
 
 export type GetLabelFn<TNode extends {} = {}> = (

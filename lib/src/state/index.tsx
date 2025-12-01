@@ -11,6 +11,7 @@ import {
 import {
   Colors,
   DetectNodeColorFn,
+  DrawNodeFn,
   GetLabelFn,
   HoveredData,
   LinkColorFn,
@@ -55,6 +56,7 @@ export type State = {
   onSelectedNode?: OnSelectedNodesFn
   linkColor?: LinkColorFn
   linkLabel?: LinkLabelFn
+  drawNode?: DrawNodeFn
 }
 
 const INITIAL_STATE = {

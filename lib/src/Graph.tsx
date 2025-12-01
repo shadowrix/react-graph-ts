@@ -13,6 +13,7 @@ import {
   LinkLabelFn,
   GraphRef,
   OnSelectedNodesFn,
+  DrawNodeFn,
 } from './typings'
 import {
   drawAllLinks,
@@ -51,6 +52,7 @@ export type GraphProps<TLink extends {}, TNode extends {}> = {
   getLabel?: GetLabelFn<TNode>
   nodeColor?: DetectNodeColorFn<TNode>
   onSelectedNode?: OnSelectedNodesFn<TNode>
+  drawNode?: DrawNodeFn<TNode>
 }
 
 const ALPHA_DECAY = 0.05
@@ -123,7 +125,7 @@ function GraphComponent<TLink extends {}, TNode extends {}>(
   /** SET FUNCTIONS */
   React.useEffect(() => {
     if (props.getLabel) {
-      state.current!.getLabel = props.getLabel as any
+      state.current!.getLabel = props.getLabel as GetLabelFn
       return
     }
     state.current!.getLabel = (...params: Parameters<GetLabelFn>) => {
@@ -133,7 +135,7 @@ function GraphComponent<TLink extends {}, TNode extends {}>(
   }, [props.getLabel])
   React.useEffect(() => {
     if (props.nodeColor) {
-      state.current!.nodeColor = props.nodeColor as any
+      state.current!.nodeColor = props.nodeColor as DetectNodeColorFn
       return
     }
     state.current!.nodeColor = (...params: Parameters<DetectNodeColorFn>) => {
@@ -146,12 +148,17 @@ function GraphComponent<TLink extends {}, TNode extends {}>(
   }, [props.nodeColor])
   React.useEffect(() => {
     if (props.onSelectedNode) {
-      state.current!.onSelectedNode = props.onSelectedNode as any
+      state.current!.onSelectedNode = props.onSelectedNode as OnSelectedNodesFn
     }
   }, [props.onSelectedNode])
   React.useEffect(() => {
+    if (props.drawNode) {
+      state.current!.drawNode = props.drawNode as DrawNodeFn
+    }
+  }, [props.drawNode])
+  React.useEffect(() => {
     if (props.linkColor) {
-      state.current!.linkColor = props.linkColor as any
+      state.current!.linkColor = props.linkColor as LinkColorFn
       return
     }
     state.current!.linkColor = (...params: Parameters<LinkColorFn>) => {
@@ -164,7 +171,7 @@ function GraphComponent<TLink extends {}, TNode extends {}>(
   }, [props.linkColor])
   React.useEffect(() => {
     if (props.linkLabel) {
-      state.current!.linkLabel = props.linkLabel as any
+      state.current!.linkLabel = props.linkLabel as LinkLabelFn
       return
     }
     state.current!.linkLabel = (...params: Parameters<LinkLabelFn>) => {

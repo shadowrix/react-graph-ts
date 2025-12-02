@@ -118,10 +118,6 @@ function GraphComponent<TLink extends {}, TNode extends {}>(
     }
   }, [props.settings])
 
-  const handleClick = (...params: Parameters<OnClickFn<TNode, TLink>>) => {
-    props.onClick?.(...params)
-  }
-
   /** SET FUNCTIONS */
   React.useEffect(() => {
     if (props.getLabel) {
@@ -151,6 +147,11 @@ function GraphComponent<TLink extends {}, TNode extends {}>(
       state.current!.onSelectedNode = props.onSelectedNode as OnSelectedNodesFn
     }
   }, [props.onSelectedNode])
+  React.useEffect(() => {
+    if (props.onClick) {
+      state.current!.onClick = props.onClick as OnClickFn
+    }
+  }, [props.onClick])
   React.useEffect(() => {
     if (props.drawNode) {
       state.current!.drawNode = props.drawNode as DrawNodeFn
@@ -340,7 +341,6 @@ function GraphComponent<TLink extends {}, TNode extends {}>(
   useHandlers({
     state,
     getPointerCoords,
-    handleClick: handleClick as any,
   })
 
   useLasso({

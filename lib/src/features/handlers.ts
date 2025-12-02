@@ -7,13 +7,11 @@ import { ClickType, LinkType, NodeType, OnClickFn } from '../typings'
 
 export type UseHandlersParameters = {
   state: RefState
-  handleClick: OnClickFn
   getPointerCoords: (clientX: number, clientY: number) => [number, number]
 }
 
 export function useHandlers({
   state,
-  handleClick,
   getPointerCoords,
 }: UseHandlersParameters) {
   function findHoveredNode(gx: number, gy: number, radius: number) {
@@ -123,14 +121,14 @@ export function useHandlers({
 
       function handleTarget(type: ClickType) {
         if (state.current!.hoveredData.link)
-          return handleClick(
+          return state.current?.onClick?.(
             state.current!.hoveredData.link,
             'link',
             type,
             event,
           )
         if (state.current!.hoveredData.node)
-          return handleClick(
+          return state.current?.onClick?.(
             state.current!.hoveredData.node,
             'node',
             type,
@@ -145,13 +143,15 @@ export function useHandlers({
           state.current!.settings.nodeRadius,
         )
 
-        if (clickedNode) return handleClick(clickedNode, 'node', type, event)
+        if (clickedNode)
+          return state.current?.onClick?.(clickedNode, 'node', type, event)
 
         const clickedLink = findLink(state, x, y)
 
-        if (clickedLink) return handleClick(clickedLink, 'link', type, event)
+        if (clickedLink)
+          return state.current?.onClick?.(clickedLink, 'link', type, event)
 
-        return handleClick(null, 'background', type, event)
+        return state.current?.onClick?.(null, 'background', type, event)
       }
 
       switch (true) {

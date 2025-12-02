@@ -18,6 +18,7 @@ import {
   LinkLabelFn,
   LinkType,
   NodeType,
+  OnClickFn,
   OnSelectedNodesFn,
   Settings,
 } from '../typings'
@@ -34,6 +35,8 @@ export type State = {
   zoomBehavior: ZoomBehavior<HTMLCanvasElement, unknown> | null
   preRenderCb: (() => void) | null
   enablePanInteraction: boolean
+
+  onClick?: OnClickFn
   //-----------------LASSO-------------------
   lassoPath: [number, number][]
   isLassoing: boolean

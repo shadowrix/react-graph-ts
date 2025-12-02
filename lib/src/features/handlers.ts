@@ -43,50 +43,50 @@ export function useHandlers({
 
         const key = `${cx},${cy}`
         const candidates = state.current!.linksGrid.get(key)
-        if (!candidates) return null
+        if (candidates) {
+          const sortedCandidates = candidates
+            .slice()
+            .sort((a, b) => (b.drawIndex ?? 0) - (a.drawIndex ?? 0))
 
-        const sortedCandidates = candidates
-          .slice()
-          .sort((a, b) => (b.drawIndex ?? 0) - (a.drawIndex ?? 0))
-
-        for (let i = sortedCandidates.length - 1; i >= 0; i--) {
-          const link = sortedCandidates[i]
-          // compute control (use cached)
-          const source = link.source as unknown as NodeType
-          const target = link.target as unknown as NodeType
-          link.control = computeControlPoint(
-            source,
-            target,
-            link.curveIndex || 0,
-          )
-
-          const cp = link.control!
-          // tolerance in graph (no zoom here) is hoverPx
-          const hoverPx = 2 // screen pixels tolerance (how 'thick' hover area is)
-          if (
-            hitTestQuadratic(
-              x,
-              y,
-              source.x!,
-              source.y!,
-              cp.x,
-              cp.y,
-              target.x!,
-              target.y!,
-              hoverPx,
+          for (let i = sortedCandidates.length - 1; i >= 0; i--) {
+            const link = sortedCandidates[i]
+            // compute control (use cached)
+            const source = link.source as unknown as NodeType
+            const target = link.target as unknown as NodeType
+            link.control = computeControlPoint(
+              source,
+              target,
+              link.curveIndex || 0,
             )
-          ) {
-            hoveredLink = link
-            break
-          }
-        }
 
-        if (
-          !state.current!.hoveredData.node &&
-          !state.current!.hoveredData.link &&
-          !hoveredLink
-        )
-          return
+            const cp = link.control!
+            // tolerance in graph (no zoom here) is hoverPx
+            const hoverPx = 2 // screen pixels tolerance (how 'thick' hover area is)
+            if (
+              hitTestQuadratic(
+                x,
+                y,
+                source.x!,
+                source.y!,
+                cp.x,
+                cp.y,
+                target.x!,
+                target.y!,
+                hoverPx,
+              )
+            ) {
+              hoveredLink = link
+              break
+            }
+          }
+
+          if (
+            !state.current!.hoveredData.node &&
+            !state.current!.hoveredData.link &&
+            !hoveredLink
+          )
+            return
+        }
       }
 
       if (

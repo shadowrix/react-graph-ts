@@ -120,7 +120,7 @@ function SocialGraph() {
 export default SocialGraph;
 ```
 
-_(Adjust nodeConfig / linkConfig / props based on library API — just an illustrative example.)_
+_(Adjust nodes / links / colors based on library API — just an illustrative example.)_
 
 ## ⚙️ API Overview
 

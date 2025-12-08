@@ -151,3 +151,282 @@ Contributions are welcome! If you find bugs or missing features — feel free to
 ## 📄 License
 
 MIT License (see license file).
+
+---
+
+# 🔧 API Reference
+
+## `<Graph />`
+
+The core visualization component.
+
+```tsx
+import { Graph } from 'react-graph-ts'
+```
+
+### Props
+
+| Prop                   | Type                | Default            | Description                                      |
+| ---------------------- | ------------------- | ------------------ | ------------------------------------------------ |
+| `id`                   | `string`            | `undefined`        | Unique DOM id for the graph canvas               |
+| `nodes`                | `NodeType<TNode>[]` | **required**       | Graph nodes                                      |
+| `links`                | `LinkType<TLink>[]` | **required**       | Graph links                                      |
+| `isFixed`              | `boolean`           | `false`            | Force layout to remain fixed after stabilization |
+| `settings`             | `Partial<Settings>` | `INITIAL_SETTINGS` | Simulation & layout configuration                |
+| `colors`               | `Partial<Colors>`   | internal defaults  | UI color palette                                 |
+| `dashedLinks`          | `boolean`           | `false`            | Global dashed link style                         |
+| `enablePanInteraction` | `boolean`           | `true`             | Allow panning interaction                        |
+| `onClick`              | `OnClickFn`         | `undefined`        | Click handler                                    |
+| `linkColor`            | `LinkColorFn`       | `undefined`        | Dynamic link color                               |
+| `linkLabel`            | `LinkLabelFn`       | `undefined`        | Link label renderer                              |
+| `getLabel`             | `GetLabelFn`        | `undefined`        | Node label renderer                              |
+| `nodeColor`            | `DetectNodeColorFn` | `undefined`        | Dynamic node color                               |
+| `onSelectedNode`       | `OnSelectedNodesFn` | `undefined`        | Node selection callback                          |
+| `drawNode`             | `DrawNodeFn`        | `undefined`        | Custom node renderer                             |
+
+---
+
+## 🟣 Node
+
+```ts
+export type NodeType<T = {}> = {
+  id: string
+} & SimulationNodeDatum &
+  T
+```
+
+### Example
+
+```ts
+const nodes = [
+  { id: '1', group: 'A' },
+  { id: '2', group: 'B' },
+]
+```
+
+---
+
+## 🔵 Link
+
+```ts
+export type LinkType<T = {}> = {
+  id: string
+  source: string | NodeType
+  target: string | NodeType
+  control?: { x: number; y: number }
+  settings?: LinkSettings
+} & T
+```
+
+### Per-Link Settings
+
+```ts
+type LinkSettings = {
+  color?: string
+  withArrow?: boolean
+  isDashed?: boolean
+  withParticles?: boolean
+  width?: number
+}
+```
+
+---
+
+## 🎨 Colors
+
+Customize every visual part of the graph.
+
+```ts
+type Colors = {
+  background: string
+  node: string
+  nodeHover: string
+  nodeActive: string
+  link: string
+  linkHover: string
+  linkActive: string
+  nodeLabel: string
+  particles: string
+  arrow?: string
+}
+```
+
+### Example
+
+```ts
+const colors: Partial<Colors> = {
+  background: '#111',
+  node: '#7ccfff',
+  nodeHover: '#fff',
+  link: '#8888',
+  arrow: '#fff',
+}
+```
+
+---
+
+## ⚙️ Settings
+
+Simulation physics and interaction options.
+
+```ts
+type Settings = {
+  linkDistance: number
+  linkStrength: number
+  nodeRadius: number
+  hoveredBorder: number
+  width: number
+  height: number
+  alphaDecay: number
+  isFixed: boolean
+  isFixedNodeAfterDrag: boolean
+  particlesSpeed: number
+  particlesSize: number
+  withParticles: boolean
+  isDashed: boolean
+  withNodeLabels: boolean
+  withLinksArrows: boolean
+}
+```
+
+### Minimal Example
+
+```ts
+const settings: Partial<Settings> = {
+  nodeRadius: 18,
+  withNodeLabels: true
+  withLinksArrows: true
+}
+```
+
+---
+
+## 🎯 Event Handlers
+
+### `onClick`
+
+Called when user clicks anywhere on the graph.
+
+```ts
+type OnClickFn = (
+  target: NodeType | LinkType | null,
+  targetType: 'background' | 'node' | 'link',
+  clickType: 'right' | 'left' | 'ctrl-left' | 'ctrl-right',
+  event: MouseEvent,
+) => void
+```
+
+### `onSelectedNode`
+
+```ts
+type OnSelectedNodesFn = (nodes: NodeType[]) => void
+```
+
+---
+
+## 🎨 Custom Rendering
+
+### `nodeColor`
+
+```ts
+type DetectNodeColorFn<T = {}> = (node: NodeType<T>, isHover: boolean) => string
+```
+
+### `linkColor`
+
+```ts
+type LinkColorFn<T = {}> = (link: LinkType<T>, isHover: boolean) => string
+```
+
+### `getLabel`
+
+```ts
+type GetLabelFn<T = {}> = (node: NodeType<T>) => string
+```
+
+### `drawNode`
+
+Fully custom node rendering via Canvas API:
+
+```ts
+type DrawNodeFn<T = {}> = (
+  context: CanvasRenderingContext2D,
+  node: NodeType<T>,
+  drawNode: () => void,
+) => void
+```
+
+---
+
+## 🔍 Imperative API (Ref)
+
+Graph exposes a small ref-based API:
+
+```ts
+type GraphRef = {
+  getPointerCoords(x: number, y: number): [number, number]
+  onRenderFramePre(cb: () => void): void
+  zoom(scale: number, duration?: number): void
+  centerAt(x: number, y: number, duration?: number): void
+}
+```
+
+Example:
+
+```tsx
+const ref = useRef<GraphRef>(null)
+
+ref.current?.zoom(2, 300)
+```
+
+---
+
+## 🧠 Defaults
+
+Default values used when no `settings` provided:
+
+```ts
+const INITIAL_SETTINGS = {
+  linkDistance: 70,
+  linkStrength: 1,
+  nodeRadius: 6,
+  hoveredBorder: 3,
+  width: 800,
+  height: 600,
+  alphaDecay: 0.02,
+  isFixed: false,
+  isFixedNodeAfterDrag: true,
+  particlesSpeed: 1,
+  particlesSize: 2,
+  withParticles: false,
+  isDashed: false,
+  withNodeLabels: false,
+  withLinksArrows: false,
+}
+```
+
+---
+
+## 🧭 Target Types
+
+Click events provide type information:
+
+```ts
+type TargetType = 'background' | 'node' | 'link'
+```
+
+---
+
+## 🖱️ Click Types
+
+```ts
+type ClickType = 'right' | 'left' | 'ctrl-left' | 'ctrl-right'
+```
+
+---
+
+## ⭐ Notes
+
+- `nodes` and `links` are fully generic — add any custom fields.
+- `settings` and `colors` are **partials** — override only what you need.
+- The graph is rendered using Canvas, not SVG — extremely fast.

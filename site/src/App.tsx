@@ -101,64 +101,6 @@ export default function App() {
     return { nodes, links }
   }, [nodeCount, linkCount])
 
-  // const [isFixed, setIsFixed] = React.useState(false)
-  // const [_nodes, setNodes] = React.useState(nodes)
-  // const [_links, setLinks] = React.useState(links)
-  // const [colors, setColors] = React.useState({})
-  // const [search, setSearch] = React.useState('')
-
-  // function handleCreateNodes() {
-  //   const { nodes, links } = createRandomGraph(50, 150)
-  //   setNodes(nodes)
-  //   setLinks(links)
-  // }
-
-  // function handleChangeColor() {
-  //   setColors({
-  //     background: '#fff',
-
-  //     node: '#be924b',
-  //   })
-  // }
-
-  // function handleSelectedNode(nodes) {
-  //   console.log(nodes)
-  // }
-
-  // const visibleNodes = React.useMemo(() => {
-  //   if (!search) return nodes
-  //   return _nodes.filter((node) => {
-  //     return node.id.includes(search)
-  //   })
-  // }, [search, _nodes])
-
-  // const visibleLinks = React.useMemo(() => {
-  //   const nodesById = visibleNodes.reduce(
-  //     (acc, node) => {
-  //       acc[node.id] = node
-  //       return acc
-  //     },
-  //     {} as Record<string, NodeType>,
-  //   )
-  //   return _links.reduce((acc, link) => {
-  //     const source =
-  //       typeof link.source === 'string'
-  //         ? nodesById[link.source]
-  //         : nodesById[link.source.id]
-  //     const target =
-  //       typeof link.target === 'string'
-  //         ? nodesById[link.target]
-  //         : nodesById[link.target.id]
-  //     if (!source || !target) {
-  //       return acc
-  //     }
-  //     link.source = source
-  //     link.target = target
-  //     acc.push(link)
-  //     return acc
-  //   }, [])
-  // }, [_links, visibleNodes])
-
   return (
     <div className="w-full h-full flex gap-4 bg-black p-4">
       <div className="w-[250px] bg-[#1c2029] rounded-2xl p-6 shadow-md">

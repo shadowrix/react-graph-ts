@@ -306,7 +306,6 @@ function GraphComponent<TLink extends {}, TNode extends {}>(
     nodes: props.nodes as any,
     links: props.links as any,
     settings: props.settings,
-    colors: props.colors,
   })
 
   useDrag({

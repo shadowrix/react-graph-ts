@@ -2,7 +2,7 @@ import React from 'react'
 
 import { forceCenter, forceLink, forceManyBody, forceSimulation } from 'd3'
 import { RefState } from '../state'
-import { Colors, LinkType, NodeType, Settings } from '../typings'
+import { LinkType, NodeType, Settings } from '../typings'
 
 export type UseInitializeParameters = {
   state: RefState
@@ -11,7 +11,6 @@ export type UseInitializeParameters = {
   nodes: NodeType
   links: LinkType
   settings?: Partial<Settings>
-  colors?: Partial<Colors>
 }
 
 export function useInitialize({
@@ -20,7 +19,6 @@ export function useInitialize({
   state,
   isFixed,
   settings,
-  colors,
   // draw,
   updateCache,
 }: UseInitializeParameters) {
@@ -67,5 +65,5 @@ export function useInitialize({
     return () => {
       state.current!.simulationEngine?.stop()
     }
-  }, [isFixed, nodes, links, settings, colors])
+  }, [isFixed, nodes, links, settings])
 }

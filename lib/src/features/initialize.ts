@@ -45,10 +45,7 @@ export function useInitialize({
       //TODO: Add width and height from parent
       .force(
         'center',
-        forceCenter(
-          state.current!.settings.width / 2,
-          state.current!.settings.height / 2,
-        ),
+        forceCenter(state.current!.width / 2, state.current!.height / 2),
       )
       .alphaDecay(state.current!.settings.alphaDecay)
       .on('tick', () => {

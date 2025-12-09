@@ -25,6 +25,10 @@ import {
 import { COLORS, INITIAL_SETTINGS } from '../constants'
 
 export type State = {
+  //GRAPH SIZES
+  width: number
+  height: number
+  //
   canvas: HTMLCanvasElement | null
   context: CanvasRenderingContext2D | null
   nodes: NodeType[]
@@ -61,6 +65,10 @@ export type State = {
 }
 
 const INITIAL_STATE = {
+  //GRAPH SIZES
+  width: 0,
+  height: 0,
+  //
   canvas: null,
   context: null,
   nodes: [],

@@ -185,12 +185,7 @@ function GraphComponent<TLink extends {}, TNode extends {}>(
     context.save()
     context.setTransform(1, 0, 0, 1, 0, 0)
     context.fillStyle = state.current.colors.background
-    context.fillRect(
-      0,
-      0,
-      state.current.settings.width,
-      state.current.settings.height,
-    )
+    context.fillRect(0, 0, state.current.width, state.current.height)
     context.restore()
   }, [])
 
@@ -273,8 +268,8 @@ function GraphComponent<TLink extends {}, TNode extends {}>(
         const width = state.current.canvas!.parentElement!.clientWidth
         const height = state.current.canvas!.parentElement!.clientHeight
 
-        state.current.settings.width = width
-        state.current.settings.height = height
+        state.current.width = width
+        state.current.height = height
         setSizes({
           width,
           height,

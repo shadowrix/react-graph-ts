@@ -174,8 +174,6 @@ import { Graph } from 'react-graph-ts'
 | `isFixed`              | `boolean`           | `false`            | Force layout to remain fixed after stabilization |
 | `settings`             | `Partial<Settings>` | `INITIAL_SETTINGS` | Simulation & layout configuration                |
 | `colors`               | `Partial<Colors>`   | internal defaults  | UI color palette                                 |
-| `dashedLinks`          | `boolean`           | `false`            | Global dashed link style                         |
-| `enablePanInteraction` | `boolean`           | `true`             | Allow panning interaction                        |
 | `onClick`              | `OnClickFn`         | `undefined`        | Click handler                                    |
 | `linkColor`            | `LinkColorFn`       | `undefined`        | Dynamic link color                               |
 | `linkLabel`            | `LinkLabelFn`       | `undefined`        | Link label renderer                              |
@@ -365,7 +363,6 @@ Graph exposes a small ref-based API:
 ```ts
 type GraphRef = {
   getPointerCoords(x: number, y: number): [number, number]
-  onRenderFramePre(cb: () => void): void
   zoom(scale: number, duration?: number): void
   centerAt(x: number, y: number, duration?: number): void
 }

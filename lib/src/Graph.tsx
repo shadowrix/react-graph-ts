@@ -42,11 +42,9 @@ export type GraphProps<TLink extends {}, TNode extends {}> = {
   onClick?: OnClickFn<TNode, TLink>
   //LINKS
   links: LinkType<TLink>[]
-  dashedLinks?: boolean
   colors?: Partial<Colors>
   linkColor?: LinkColorFn<TLink>
   linkLabel?: LinkLabelFn<TLink>
-  enablePanInteraction?: boolean
   //NODES
   nodes: NodeType<TNode>[]
   getLabel?: GetLabelFn<TNode>
@@ -72,9 +70,6 @@ function GraphComponent<TLink extends {}, TNode extends {}>(
     getPointerCoords(x, y) {
       return getPointerCoords(x, y)
     },
-    onRenderFramePre(cb: () => void) {
-      state.current.preRenderCb = cb
-    },
     zoom: (scale: number, duration?: number) => {
       zoom(state, scale, duration)
     },
@@ -82,10 +77,6 @@ function GraphComponent<TLink extends {}, TNode extends {}>(
       centerAt(state, x, y, duration)
     },
   }))
-
-  React.useEffect(() => {
-    state.current.enablePanInteraction = props.enablePanInteraction ?? true
-  }, [props.enablePanInteraction])
 
   React.useEffect(() => {
     if (state.current.settings.isFixed !== props.isFixed && !props.isFixed) {
@@ -99,10 +90,6 @@ function GraphComponent<TLink extends {}, TNode extends {}>(
       ? FIXED_ALPHA_DECAY
       : ALPHA_DECAY
   }, [props.isFixed])
-
-  React.useEffect(() => {
-    state.current.settings.isDashed = Boolean(props.dashedLinks)
-  }, [props.dashedLinks])
 
   React.useEffect(() => {
     state.current.colors = {
@@ -324,7 +311,6 @@ function GraphComponent<TLink extends {}, TNode extends {}>(
     nodes: props.nodes as any,
     links: props.links as any,
     settings: props.settings,
-    dashedLinks: props.dashedLinks,
     colors: props.colors,
   })
 

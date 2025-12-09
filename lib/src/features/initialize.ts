@@ -11,7 +11,6 @@ export type UseInitializeParameters = {
   nodes: NodeType
   links: LinkType
   settings?: Partial<Settings>
-  dashedLinks?: boolean
   colors?: Partial<Colors>
 }
 
@@ -21,7 +20,6 @@ export function useInitialize({
   state,
   isFixed,
   settings,
-  dashedLinks,
   colors,
   // draw,
   updateCache,
@@ -72,5 +70,5 @@ export function useInitialize({
     return () => {
       state.current!.simulationEngine?.stop()
     }
-  }, [isFixed, nodes, links, settings, dashedLinks, colors])
+  }, [isFixed, nodes, links, settings, colors])
 }

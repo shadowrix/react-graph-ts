@@ -33,8 +33,6 @@ export type State = {
   simulationEngine: Simulation<NodeType, undefined> | null
   transform: ZoomTransform
   zoomBehavior: ZoomBehavior<HTMLCanvasElement, unknown> | null
-  preRenderCb: (() => void) | null
-  enablePanInteraction: boolean
 
   onClick?: OnClickFn
   //-----------------LASSO-------------------
@@ -73,8 +71,6 @@ const INITIAL_STATE = {
   simulationEngine: null,
   transform: zoomIdentity,
   zoomBehavior: null,
-  preRenderCb: null,
-  enablePanInteraction: true,
   lassoPath: [],
   isLassoing: false,
   //drag and zoom, mb rename like isProcess

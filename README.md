@@ -16,12 +16,6 @@
   </a>
 </p>
 
-<!-- # react-graph-ts -->
-
-<!-- `react-graph-ts` — Graph library with D3 for React + TypeScript
-
-_Easy to define, manipulate and visualize graph data directly in React apps._ -->
-
 ## 🚀 Quick Start
 
 Install via npm or yarn:
@@ -166,21 +160,21 @@ import { Graph } from 'react-graph-ts'
 
 ### Props
 
-| Prop                   | Type                | Default            | Description                                      |
-| ---------------------- | ------------------- | ------------------ | ------------------------------------------------ |
-| `id`                   | `string`            | `undefined`        | Unique DOM id for the graph canvas               |
-| `nodes`                | `NodeType<TNode>[]` | **required**       | Graph nodes                                      |
-| `links`                | `LinkType<TLink>[]` | **required**       | Graph links                                      |
-| `isFixed`              | `boolean`           | `false`            | Force layout to remain fixed after stabilization |
-| `settings`             | `Partial<Settings>` | `INITIAL_SETTINGS` | Simulation & layout configuration                |
-| `colors`               | `Partial<Colors>`   | internal defaults  | UI color palette                                 |
-| `onClick`              | `OnClickFn`         | `undefined`        | Click handler                                    |
-| `linkColor`            | `LinkColorFn`       | `undefined`        | Dynamic link color                               |
-| `linkLabel`            | `LinkLabelFn`       | `undefined`        | Link label renderer                              |
-| `getLabel`             | `GetLabelFn`        | `undefined`        | Node label renderer                              |
-| `nodeColor`            | `DetectNodeColorFn` | `undefined`        | Dynamic node color                               |
-| `onSelectedNode`       | `OnSelectedNodesFn` | `undefined`        | Node selection callback                          |
-| `drawNode`             | `DrawNodeFn`        | `undefined`        | Custom node renderer                             |
+| Prop             | Type                | Default            | Description                                      |
+| ---------------- | ------------------- | ------------------ | ------------------------------------------------ |
+| `id`             | `string`            | `undefined`        | Unique DOM id for the graph canvas               |
+| `nodes`          | `NodeType<TNode>[]` | **required**       | Graph nodes                                      |
+| `links`          | `LinkType<TLink>[]` | **required**       | Graph links                                      |
+| `isFixed`        | `boolean`           | `false`            | Force layout to remain fixed after stabilization |
+| `settings`       | `Partial<Settings>` | `INITIAL_SETTINGS` | Simulation & layout configuration                |
+| `colors`         | `Partial<Colors>`   | internal defaults  | UI color palette                                 |
+| `onClick`        | `OnClickFn`         | `undefined`        | Click handler                                    |
+| `linkColor`      | `LinkColorFn`       | `undefined`        | Dynamic link color                               |
+| `linkLabel`      | `LinkLabelFn`       | `undefined`        | Link label renderer                              |
+| `getLabel`       | `GetLabelFn`        | `undefined`        | Node label renderer                              |
+| `nodeColor`      | `DetectNodeColorFn` | `undefined`        | Dynamic node color                               |
+| `onSelectedNode` | `OnSelectedNodesFn` | `undefined`        | Node selection callback                          |
+| `drawNode`       | `DrawNodeFn`        | `undefined`        | Custom node renderer                             |
 
 ---
 
@@ -197,8 +191,8 @@ export type NodeType<T = {}> = {
 
 ```ts
 const nodes = [
-  { id: '1', group: 'A' },
-  { id: '2', group: 'B' },
+  { id: '1', label: 'A' },
+  { id: '2', label: 'B' },
 ]
 ```
 

@@ -12,7 +12,7 @@ import {
   Colors,
   DetectNodeColorFn,
   DrawNodeFn,
-  GetLabelFn,
+  NodeLabelFn,
   HoveredData,
   LinkColorFn,
   LinkLabelFn,
@@ -52,7 +52,7 @@ export type State = {
 
   colors: Colors
   //-----------------Functions-------------------
-  getLabel?: GetLabelFn
+  nodeLabel?: NodeLabelFn
   nodeColor?: DetectNodeColorFn
   onSelectedNode?: OnSelectedNodesFn
   linkColor?: LinkColorFn

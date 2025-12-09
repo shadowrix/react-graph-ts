@@ -88,7 +88,7 @@ export type DrawNodeFn<TNode extends {} = {}> = (
   drawNode: () => void,
 ) => void
 
-export type GetLabelFn<TNode extends {} = {}> = (
+export type NodeLabelFn<TNode extends {} = {}> = (
   target: NodeType<TNode>,
 ) => string
 

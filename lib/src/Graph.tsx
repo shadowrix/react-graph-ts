@@ -5,7 +5,7 @@ import {
   Colors,
   LinkColorFn,
   DetectNodeColorFn,
-  GetLabelFn,
+  NodeLabelFn,
   LinkType,
   NodeType,
   OnClickFn,
@@ -47,7 +47,7 @@ export type GraphProps<TLink extends {}, TNode extends {}> = {
   linkLabel?: LinkLabelFn<TLink>
   //NODES
   nodes: NodeType<TNode>[]
-  getLabel?: GetLabelFn<TNode>
+  nodeLabel?: NodeLabelFn<TNode>
   nodeColor?: DetectNodeColorFn<TNode>
   onSelectedNode?: OnSelectedNodesFn<TNode>
   drawNode?: DrawNodeFn<TNode>
@@ -107,15 +107,15 @@ function GraphComponent<TLink extends {}, TNode extends {}>(
 
   /** SET FUNCTIONS */
   React.useEffect(() => {
-    if (props.getLabel) {
-      state.current!.getLabel = props.getLabel as GetLabelFn
+    if (props.nodeLabel) {
+      state.current!.nodeLabel = props.nodeLabel as NodeLabelFn
       return
     }
-    state.current!.getLabel = (...params: Parameters<GetLabelFn>) => {
+    state.current!.nodeLabel = (...params: Parameters<NodeLabelFn>) => {
       const [node] = params
       return node?.id
     }
-  }, [props.getLabel])
+  }, [props.nodeLabel])
   React.useEffect(() => {
     if (props.nodeColor) {
       state.current!.nodeColor = props.nodeColor as DetectNodeColorFn

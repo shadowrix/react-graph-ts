@@ -185,7 +185,7 @@ export function drawNode(state: RefState, node: NodeType) {
     }
     context.fill()
 
-    const label = state.current!.getLabel?.(node)
+    const label = state.current!.nodeLabel?.(node)
     if (state.current!.transform.k < 0.6 || !label) return
 
     if (!state.current!.settings.withNodeLabels) return

@@ -6,6 +6,9 @@ import { Field } from './components/custom-ui/Field'
 import { Checkbox } from './components/ui/checkbox'
 import { Label } from './components/ui/label'
 import { Separator } from './components/ui/separator'
+import { Block } from './components/custom-ui/Block'
+
+import { Header } from './components/custom-ui/Header'
 
 function createRandomGraph(
   nodeCount: number,
@@ -102,143 +105,145 @@ export default function App() {
   }, [nodeCount, linkCount])
 
   return (
-    <div className="w-full h-full flex gap-4 bg-black p-4">
-      <div className="w-[250px] bg-[#1c2029] rounded-2xl p-6 shadow-md">
-        <h2 className="text-xl text-white font-semibold mb-4">
-          Graph Controls
-        </h2>
-
-        <div className="flex flex-col gap-1">
-          <Field label="Nodes">
-            <input
-              type="number"
-              className="w-full p-2 rounded-md border mb-3 text-white"
-              value={nodeCount}
-              min={1}
-              max={2000}
-              onChange={(e) => setNodeCount(Number(e.target.value))}
-            />
-          </Field>
-          <Field label="Links">
-            <input
-              type="number"
-              className="w-full p-2 rounded-md border mb-3 text-white"
-              value={linkCount}
-              min={0}
-              max={5000}
-              onChange={(e) => setLinkCount(Number(e.target.value))}
-            />
-          </Field>
-          <Field label={`Node Size (${settings.nodeRadius})`}>
-            <input
-              type="range"
-              min={2}
-              max={40}
-              value={settings.nodeRadius}
-              onChange={(e) =>
-                setSettings({ ...settings, nodeRadius: Number(e.target.value) })
-              }
-              className="w-full mb-3"
-            />
-          </Field>
-          <div className="flex flex-col gap-3 mt-3">
-            <div className="flex flex-col gap-1">
-              <div className="text-xl font-bold text-[#bbbfca]">Colors</div>
-              <Separator orientation="horizontal" />
+    <div className="w-full h-full flex flex-col gap-4 p-4">
+      <Header />
+      <div className="w-full h-full flex gap-4 bg-black">
+        <Block className="w-[250px]" label="Graph Controls">
+          <div className="flex flex-col gap-1">
+            <Field label="Nodes">
+              <input
+                type="number"
+                className="w-full p-2 rounded-md border mb-3 text-white"
+                value={nodeCount}
+                min={1}
+                max={2000}
+                onChange={(e) => setNodeCount(Number(e.target.value))}
+              />
+            </Field>
+            <Field label="Links">
+              <input
+                type="number"
+                className="w-full p-2 rounded-md border mb-3 text-white"
+                value={linkCount}
+                min={0}
+                max={5000}
+                onChange={(e) => setLinkCount(Number(e.target.value))}
+              />
+            </Field>
+            <Field label={`Node Size (${settings.nodeRadius})`}>
+              <input
+                type="range"
+                min={2}
+                max={40}
+                value={settings.nodeRadius}
+                onChange={(e) =>
+                  setSettings({
+                    ...settings,
+                    nodeRadius: Number(e.target.value),
+                  })
+                }
+                className="w-full mb-3"
+              />
+            </Field>
+            <div className="flex flex-col gap-3 mt-3">
+              <div className="flex flex-col gap-1">
+                <div className="text-xl font-bold text-[#bbbfca]">Colors</div>
+                <Separator orientation="horizontal" />
+              </div>
+              <div className="flex gap-3">
+                <Field label="Node">
+                  <input
+                    type="color"
+                    value={colors.node}
+                    onChange={(e) =>
+                      setColors({ ...colors, node: e.target.value })
+                    }
+                  />
+                </Field>
+                <Field label="Link">
+                  <input
+                    type="color"
+                    value={colors.link}
+                    onChange={(e) =>
+                      setColors({ ...colors, link: e.target.value })
+                    }
+                  />
+                </Field>
+              </div>
             </div>
-            <div className="flex gap-3">
-              <Field label="Node">
-                <input
-                  type="color"
-                  value={colors.node}
-                  onChange={(e) =>
-                    setColors({ ...colors, node: e.target.value })
-                  }
-                />
-              </Field>
-              <Field label="Link">
-                <input
-                  type="color"
-                  value={colors.link}
-                  onChange={(e) =>
-                    setColors({ ...colors, link: e.target.value })
-                  }
-                />
-              </Field>
+            <div className="flex flex-col gap-5 mt-3">
+              <div className="flex flex-col gap-1">
+                <div className="text-xl font-bold text-[#bbbfca]">Settings</div>
+                <Separator orientation="horizontal" />
+              </div>
+              <div className="flex flex-col gap-3">
+                <div className="flex gap-2">
+                  <Checkbox
+                    id="withNodeLabels"
+                    checked={settings.withNodeLabels}
+                    onClick={() =>
+                      setSettings({
+                        ...settings,
+                        withNodeLabels: !settings.withNodeLabels,
+                      })
+                    }
+                  />
+                  <Label htmlFor="withNodeLabels">Show Labels</Label>
+                </div>
+                <div className="flex gap-2">
+                  <Checkbox
+                    id="isFixed"
+                    checked={isFixed}
+                    onClick={() => setIsFixed((prev) => !prev)}
+                  />
+                  <Label htmlFor="isFixed">Fix Nodes</Label>
+                </div>
+                <div className="flex gap-2">
+                  <Checkbox
+                    id="isFixedNodeAfterDrag"
+                    checked={settings.isFixedNodeAfterDrag}
+                    onClick={() =>
+                      setSettings({
+                        ...settings,
+                        isFixedNodeAfterDrag: !settings.isFixedNodeAfterDrag,
+                      })
+                    }
+                  />
+                  <Label htmlFor="isFixedNodeAfterDrag">
+                    Fix node after drag
+                  </Label>
+                </div>
+                <div className="flex gap-2">
+                  <Checkbox
+                    id="withLinksArrows"
+                    checked={settings.withLinksArrows}
+                    onClick={() =>
+                      setSettings({
+                        ...settings,
+                        withLinksArrows: !settings.withLinksArrows,
+                      })
+                    }
+                  />
+                  <Label htmlFor="withLinksArrows">With arrows</Label>
+                </div>
+              </div>
             </div>
           </div>
-          <div className="flex flex-col gap-5 mt-3">
-            <div className="flex flex-col gap-1">
-              <div className="text-xl font-bold text-[#bbbfca]">Settings</div>
-              <Separator orientation="horizontal" />
-            </div>
-            <div className="flex flex-col gap-3">
-              <div className="flex gap-2">
-                <Checkbox
-                  id="withNodeLabels"
-                  checked={settings.withNodeLabels}
-                  onClick={() =>
-                    setSettings({
-                      ...settings,
-                      withNodeLabels: !settings.withNodeLabels,
-                    })
-                  }
-                />
-                <Label htmlFor="withNodeLabels">Show Labels</Label>
-              </div>
-              <div className="flex gap-2">
-                <Checkbox
-                  id="isFixed"
-                  checked={isFixed}
-                  onClick={() => setIsFixed((prev) => !prev)}
-                />
-                <Label htmlFor="isFixed">Fix Nodes</Label>
-              </div>
-              <div className="flex gap-2">
-                <Checkbox
-                  id="isFixedNodeAfterDrag"
-                  checked={settings.isFixedNodeAfterDrag}
-                  onClick={() =>
-                    setSettings({
-                      ...settings,
-                      isFixedNodeAfterDrag: !settings.isFixedNodeAfterDrag,
-                    })
-                  }
-                />
-                <Label htmlFor="isFixedNodeAfterDrag">
-                  Fix node after drag
-                </Label>
-              </div>
-              <div className="flex gap-2">
-                <Checkbox
-                  id="withLinksArrows"
-                  checked={settings.withLinksArrows}
-                  onClick={() =>
-                    setSettings({
-                      ...settings,
-                      withLinksArrows: !settings.withLinksArrows,
-                    })
-                  }
-                />
-                <Label htmlFor="withLinksArrows">With arrows</Label>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+        </Block>
 
-      {/* --- GRAPH PANEL --- */}
-      <div className="w-full flex bg-[#1c2029] rounded-2xl p-4 shadow-md">
-        <div className="w-full h-full rounded-lg overflow-hidden">
-          <Graph
-            nodes={nodes}
-            links={links}
-            isFixed={isFixed}
-            colors={colors}
-            settings={settings}
-            // onSelectedNode={handleSelectedNode}
-          />
-        </div>
+        {/* --- GRAPH PANEL --- */}
+        <Block>
+          <div className="w-full h-full rounded-lg overflow-hidden">
+            <Graph
+              nodes={nodes}
+              links={links}
+              isFixed={isFixed}
+              colors={colors}
+              settings={settings}
+              // onSelectedNode={handleSelectedNode}
+            />
+          </div>
+        </Block>
       </div>
     </div>
   )

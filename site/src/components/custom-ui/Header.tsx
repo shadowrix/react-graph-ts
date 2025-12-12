@@ -2,14 +2,17 @@ import React from 'react'
 import { Separator } from '../ui/separator'
 import { Block } from './Block'
 import { Switch } from './Switch'
+import { NavLink } from 'react-router'
+import { cn } from '@/lib/utils'
+import { PREFIX_ROUTE } from '@/constants'
 
 const ROUTES = [
   {
-    label: 'example',
+    label: 'Example',
     href: '/',
   },
   {
-    label: 'docs',
+    label: 'Docs',
     href: '/docs',
   },
 ]
@@ -18,15 +21,24 @@ export function Header() {
   return (
     <Block className="flex flex-row items-center justify-between">
       <div className="font-bold text-2xl text-[#bbbfca]">react-graph-ts</div>
-      <div className="h-full flex flex-row gap-6">
+      <div className="h-full flex flex-row gap-6 items-center">
         {ROUTES.map((route, index) => {
           return (
             <React.Fragment key={route.href}>
-              <div className="font-semibold cursor-pointer hover:text-sky-700">
+              <NavLink
+                end
+                to={`/${PREFIX_ROUTE}${route.href}`}
+                className={({ isActive }) =>
+                  cn(
+                    'font-semibold cursor-pointer hover:text-[#e3a7c9]',
+                    isActive ? 'text-[#ec69b3]' : '',
+                  )
+                }
+              >
                 {route.label}
-              </div>
+              </NavLink>
               {index % 2 === 0 && (
-                <Separator orientation="vertical" className="h-full" />
+                <Separator orientation="vertical" className="max-h-5" />
               )}
             </React.Fragment>
           )

@@ -1,8 +1,9 @@
 import React from 'react'
+import { NavLink } from 'react-router'
+
 import { Separator } from '../ui/separator'
 import { Block } from './Block'
 import { Switch } from './Switch'
-import { NavLink } from 'react-router'
 import { cn } from '@/lib/utils'
 import { PREFIX_ROUTE } from '@/constants'
 
@@ -19,7 +20,7 @@ const ROUTES = [
 
 export function Header() {
   return (
-    <Block className="flex flex-row items-center justify-between">
+    <Block className="h-16 flex flex-row items-center justify-between">
       <div className="font-bold text-2xl text-[#bbbfca]">react-graph-ts</div>
       <div className="h-full flex flex-row gap-6 items-center">
         {ROUTES.map((route, index) => {

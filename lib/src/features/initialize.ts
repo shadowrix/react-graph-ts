@@ -65,5 +65,5 @@ export function useInitialize({
     return () => {
       state.current!.simulationEngine?.stop()
     }
-  }, [isFixed, nodes, links, settings])
+  }, [isFixed, nodes, links])
 }

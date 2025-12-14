@@ -2,20 +2,18 @@ import { RefState } from '../state'
 import { computeControlPoint } from './handlers'
 import { LinkType, NodeType } from '../typings'
 
-function findAngle(sx: number, sy: number, ex: number, ey: number) {
-  return Math.atan2(ey - sy, ex - sx)
-}
-
 function drawArrow(
   context: CanvasRenderingContext2D,
   x: number,
   y: number,
   angle: number,
-  length = 14,
-  height = 10,
+  size = 14,
   inset = 0.36,
   color = '#222',
 ) {
+  const length = size
+  const height = size / 2
+
   inset = Math.max(0, Math.min(0.9, inset))
 
   const backX = -Math.abs(length)
@@ -39,6 +37,26 @@ function drawArrow(
   context.fill()
 
   context.restore()
+}
+
+function bezierTangent(
+  sourceX: number,
+  sourceY: number,
+  controlX: number,
+  controlY: number,
+  targetX: number,
+  targetY: number,
+  t: number,
+) {
+  return {
+    x: 2 * (1 - t) * (controlX - sourceX) + 2 * t * (targetX - controlX),
+    y: 2 * (1 - t) * (controlY - sourceY) + 2 * t * (targetY - controlY),
+  }
+}
+
+function normalize(vector: { x: number; y: number }) {
+  const l = Math.hypot(vector.x, vector.y)
+  return { x: vector.x / l, y: vector.y / l }
 }
 
 //TODO: Add all settings for links and mb custom links
@@ -73,30 +91,52 @@ export function drawLink(state: RefState, link: LinkType) {
   )
     return
 
-  const sx = source.x
-  const sy = source.y
-  const tx = target.x
-  const ty = target.y
+  const sx = source.x,
+    sy = source.y,
+    tx = target.x,
+    ty = target.y
 
-  // if (link.curveGroupSize === 1) {
-  //   state.current!.context.beginPath()
-  //   state.current!.context.moveTo(sx, sy)
-  //   state.current!.context.lineTo(tx, ty)
-  //   setLineSettings()
-  //   state.current!.context.stroke()
-  //   return
-  // }
-
-  // if (!link.control)
   link.control = computeControlPoint(source, target, link.curveIndex ?? 0)
 
+  const tStart = normalize(
+    bezierTangent(
+      source.x,
+      source.y,
+      link.control.x,
+      link.control.y,
+      target.x,
+      target.y,
+      0,
+    ),
+  )
+  const tEnd = normalize(
+    bezierTangent(
+      source.x,
+      source.y,
+      link.control.x,
+      link.control.y,
+      target.x,
+      target.y,
+      1,
+    ),
+  )
+
+  const start = {
+    x: sx + tStart.x * state.current!.settings.nodeRadius,
+    y: sy + tStart.y * state.current!.settings.nodeRadius,
+  }
+  const end = {
+    x: tx - tEnd.x * state.current!.settings.nodeRadius,
+    y: ty - tEnd.y * state.current!.settings.nodeRadius,
+  }
+
   state.current!.context.beginPath()
-  state.current!.context.moveTo(sx, sy)
+  state.current!.context.moveTo(start.x, start.y)
   state.current!.context.quadraticCurveTo(
     link.control.x,
     link.control.y,
-    tx,
-    ty,
+    end.x,
+    end.y,
   )
 
   state.current!.context!.setLineDash([])
@@ -113,17 +153,13 @@ export function drawLink(state: RefState, link: LinkType) {
   state.current!.context.stroke()
 
   if (withArrow) {
-    const angle = findAngle(link.control.x, link.control.y, tx, ty)
-    const arrowX = tx - Math.cos(angle) * state.current!.settings.nodeRadius
-    const arrowY = ty - Math.sin(angle) * state.current!.settings.nodeRadius
-
+    const angle = Math.atan2(tEnd.y, tEnd.x)
     drawArrow(
       state.current!.context,
-      arrowX,
-      arrowY,
+      end.x,
+      end.y,
       angle,
       14,
-      10,
       0.36,
       state.current!.colors.arrow ?? color,
     )

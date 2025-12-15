@@ -15,12 +15,6 @@ import {
   OnSelectedNodesFn,
   DrawNodeFn,
 } from './typings'
-import {
-  drawAllLinks,
-  drawAllNodes,
-  drawLasso,
-  drawLinkTooltip,
-} from './features/draw'
 import { useDrag } from './features/drag'
 import { useZoom } from './features/zoom'
 import { useHandlers } from './features/handlers'
@@ -34,6 +28,7 @@ import {
   zoomToFit,
 } from './helpers'
 import { useLasso } from './features/lasso'
+import { useEngine } from './features/useEngine'
 
 export type GraphProps<TLink extends {}, TNode extends {}> = {
   id?: string
@@ -179,16 +174,6 @@ function GraphComponent<TLink extends {}, TNode extends {}>(
     }, 80)
   }, [props.nodes, props.links])
 
-  const clearCanvas = React.useCallback(function clearCanvas(
-    context: CanvasRenderingContext2D,
-  ) {
-    context.save()
-    context.setTransform(1, 0, 0, 1, 0, 0)
-    context.fillStyle = state.current.colors.background
-    context.fillRect(0, 0, state.current.width, state.current.height)
-    context.restore()
-  }, [])
-
   function getPointerCoords(clientX: number, clientY: number) {
     const rect = state.current.canvas!.getBoundingClientRect()
     const x = clientX - rect.left
@@ -196,50 +181,6 @@ function GraphComponent<TLink extends {}, TNode extends {}>(
 
     return state.current.transform.invert([x, y])
   }
-
-  const draw = React.useCallback(
-    function draw() {
-      if (!state.current.context) return
-      clearCanvas(state.current.context)
-      state.current.context?.setTransform(
-        state.current.transform.k,
-        0,
-        0,
-        state.current.transform.k,
-        state.current.transform.x,
-        state.current.transform.y,
-      )
-
-      drawAllLinks(state)
-      drawAllNodes(state)
-      if (
-        state.current!.hoveredData.pointer?.x &&
-        state.current!.hoveredData.pointer?.y
-      ) {
-        drawLinkTooltip(
-          state,
-          state.current!.hoveredData.pointer?.x,
-          state.current!.hoveredData.pointer?.y,
-        )
-      }
-      if (state.current.isLassoing) {
-        drawLasso(state)
-      }
-    },
-    [clearCanvas],
-  )
-
-  const requestRender = React.useCallback(
-    function requestRender() {
-      if (state.current.isRequestRendering) return
-      state.current.isRequestRendering = true
-      requestAnimationFrame(() => {
-        state.current.isRequestRendering = false
-        draw()
-      })
-    },
-    [draw],
-  )
 
   const updateLinkGrid = React.useCallback(function updateLinkGrid() {
     const grid = buildLinkGrid(state.current.links)
@@ -274,7 +215,6 @@ function GraphComponent<TLink extends {}, TNode extends {}>(
           width,
           height,
         })
-        requestRender()
       })
 
       resizeObserver.observe(document.body)
@@ -285,19 +225,7 @@ function GraphComponent<TLink extends {}, TNode extends {}>(
     }
   }, [])
 
-  const frameIdRef = React.useRef<number>()
-  React.useEffect(() => {
-    function animate() {
-      requestRender()
-      frameIdRef.current = requestAnimationFrame(animate)
-    }
-    frameIdRef.current = requestAnimationFrame(animate)
-    return () => {
-      if (frameIdRef.current) {
-        cancelAnimationFrame(frameIdRef.current)
-      }
-    }
-  }, [])
+  useEngine(state)
 
   useInitialize({
     state,

@@ -50,6 +50,8 @@ export type State = {
   isDragging: boolean
   hoveredData: HoveredData
   particleProgress: number
+  // set true when something has been changed on the graph.
+  isGraphChanged: boolean
 
   //-----------------SETTINGS-------------------
   settings: Settings
@@ -92,6 +94,8 @@ const INITIAL_STATE = {
   settings: INITIAL_SETTINGS,
 
   colors: COLORS,
+
+  isGraphChanged: true,
 } as State
 
 export type RefState = React.RefObject<State>

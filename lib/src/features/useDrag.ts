@@ -5,13 +5,13 @@ import { RefState } from '../state'
 
 export type UseDragParameters = {
   state: RefState
+  setIsGraphChange: (isChanged: boolean) => void
   getPointerCoords: (clientX: number, clientY: number) => [number, number]
-  updateCache: () => void
 }
 
 export function useDrag({
   state,
-  updateCache,
+  setIsGraphChange,
   getPointerCoords,
 }: UseDragParameters) {
   React.useEffect(() => {
@@ -55,18 +55,16 @@ export function useDrag({
       })
       .on('end', (event) => {
         if (!event.active) state.current!.simulationEngine?.alphaTarget(0)
+        state.current!.isDragging = false
+        setIsGraphChange(true)
         if (
           state.current!.settings.isFixed ||
           state.current!.settings.isFixedNodeAfterDrag
         ) {
-          state.current!.isDragging = false
-          updateCache()
           return
         }
         event.subject.fx = null
         event.subject.fy = null
-        state.current!.isDragging = false
-        updateCache()
       })
 
     select(canvas).call(dragFn)

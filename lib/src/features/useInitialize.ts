@@ -7,10 +7,10 @@ import { LinkType, NodeType, Settings } from '../typings'
 export type UseInitializeParameters = {
   state: RefState
   isFixed?: boolean
-  updateCache: () => void
   nodes: NodeType
   links: LinkType
   settings?: Partial<Settings>
+  setIsGraphChange: (isChanged: boolean) => void
 }
 
 export function useInitialize({
@@ -19,8 +19,7 @@ export function useInitialize({
   state,
   isFixed,
   settings,
-  // draw,
-  updateCache,
+  setIsGraphChange,
 }: UseInitializeParameters) {
   /** INITIALIZE */
   React.useEffect(() => {
@@ -49,7 +48,7 @@ export function useInitialize({
       .on('tick', () => {
         tickCounter++
         if (tickCounter % 6 === 0) {
-          updateCache()
+          setIsGraphChange(true)
         }
       })
       .on('end', () => {
@@ -59,7 +58,7 @@ export function useInitialize({
             node.fy = node.fy ?? node.y
           })
         }
-        updateCache()
+        setIsGraphChange(true)
       })
 
     return () => {

@@ -1,5 +1,4 @@
 import React from 'react'
-import { quadtree } from 'd3'
 
 import {
   Colors,
@@ -15,13 +14,7 @@ import {
   OnSelectedNodesFn,
   DrawNodeFn,
 } from './typings'
-import {
-  assignCurves,
-  buildLinkGrid,
-  centerAt,
-  zoom,
-  zoomToFit,
-} from './helpers'
+import { assignCurves, centerAt, zoom, zoomToFit } from './helpers'
 import { useRefManager } from './state'
 
 import { useDrag } from './features/useDrag'
@@ -91,26 +84,6 @@ function GraphComponent<TLink extends {}, TNode extends {}>(
     return state.current.transform.invert([x, y])
   }
 
-  const updateLinkGrid = React.useCallback(function updateLinkGrid() {
-    const grid = buildLinkGrid(state.current.links)
-    state.current.linksGrid = grid
-  }, [])
-
-  const updateNodesCache = React.useCallback(function updateNodesCache() {
-    state.current.nodesCache = quadtree<NodeType>()
-      .x((d) => d.x!)
-      .y((d) => d.y!)
-      .addAll(state.current.nodes)
-  }, [])
-
-  const updateCache = React.useCallback(
-    function updateCache() {
-      updateNodesCache()
-      updateLinkGrid()
-    },
-    [updateNodesCache, updateLinkGrid],
-  )
-
   /** SIZES */
   React.useEffect(() => {
     if (state.current.canvas?.parentElement) {
@@ -134,6 +107,10 @@ function GraphComponent<TLink extends {}, TNode extends {}>(
     }
   }, [])
 
+  function setIsGraphChange(isChanged: boolean) {
+    state.current.isGraphChanged = isChanged
+  }
+
   useHandleGraphApi(state, props)
 
   useEngine(state)
@@ -141,7 +118,7 @@ function GraphComponent<TLink extends {}, TNode extends {}>(
   useInitialize({
     state,
     isFixed: props.isFixed,
-    updateCache,
+    setIsGraphChange,
     nodes: props.nodes as any,
     links: props.links as any,
     settings: props.settings,
@@ -149,7 +126,7 @@ function GraphComponent<TLink extends {}, TNode extends {}>(
 
   useDrag({
     state,
-    updateCache,
+    setIsGraphChange,
     getPointerCoords,
   })
 

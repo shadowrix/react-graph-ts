@@ -1,8 +1,34 @@
 import React from 'react'
+import { quadtree } from 'd3'
+
 import { RefState } from '../state'
+import { NodeType } from '../typings'
+import { buildLinkGrid } from '../helpers'
 import { drawAllLinks, drawAllNodes, drawLasso, drawLinkTooltip } from './draw'
 
 export function useEngine(state: RefState) {
+  const frameIdRef = React.useRef<number>()
+
+  const updateLinkGrid = React.useCallback(function updateLinkGrid() {
+    const grid = buildLinkGrid(state.current!.links)
+    state.current!.linksGrid = grid
+  }, [])
+
+  const updateNodesCache = React.useCallback(function updateNodesCache() {
+    state.current!.nodesCache = quadtree<NodeType>()
+      .x((d) => d.x!)
+      .y((d) => d.y!)
+      .addAll(state.current!.nodes)
+  }, [])
+
+  const updateCache = React.useCallback(
+    function updateCache() {
+      updateNodesCache()
+      updateLinkGrid()
+    },
+    [updateNodesCache, updateLinkGrid],
+  )
+
   const clearCanvas = React.useCallback(function clearCanvas(
     context: CanvasRenderingContext2D,
   ) {
@@ -12,8 +38,6 @@ export function useEngine(state: RefState) {
     context.fillRect(0, 0, state.current!.width, state.current!.height)
     context.restore()
   }, [])
-
-  const frameIdRef = React.useRef<number>()
 
   const draw = React.useCallback(
     function draw() {
@@ -61,6 +85,10 @@ export function useEngine(state: RefState) {
 
   React.useEffect(() => {
     function animate() {
+      if (state.current?.isGraphChanged) {
+        state.current.isGraphChanged = false
+        updateCache()
+      }
       requestRender()
       frameIdRef.current = requestAnimationFrame(animate)
     }
@@ -70,5 +98,5 @@ export function useEngine(state: RefState) {
         cancelAnimationFrame(frameIdRef.current)
       }
     }
-  }, [])
+  }, [updateCache])
 }

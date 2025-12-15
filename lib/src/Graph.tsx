@@ -30,6 +30,7 @@ import { useLasso } from './features/useLasso'
 import { useEngine } from './features/useEngine'
 import { useHandlers } from './features/useHandlers'
 import { useInitialize } from './features/useInitialize'
+import { useHandleGraphApi } from './features/useHandleGraphApi'
 
 export type GraphProps<TLink extends {}, TNode extends {}> = {
   id?: string
@@ -48,9 +49,6 @@ export type GraphProps<TLink extends {}, TNode extends {}> = {
   onSelectedNode?: OnSelectedNodesFn<TNode>
   drawNode?: DrawNodeFn<TNode>
 }
-
-const ALPHA_DECAY = 0.05
-const FIXED_ALPHA_DECAY = 0.6
 
 function GraphComponent<TLink extends {}, TNode extends {}>(
   props: GraphProps<TLink, TNode>,
@@ -73,96 +71,6 @@ function GraphComponent<TLink extends {}, TNode extends {}>(
       centerAt(state, x, y, duration)
     },
   }))
-
-  React.useEffect(() => {
-    if (state.current.settings.isFixed !== props.isFixed && !props.isFixed) {
-      state.current.nodes?.forEach((node) => {
-        node.fx = undefined
-        node.fy = undefined
-      })
-    }
-    state.current.settings.isFixed = props.isFixed ?? false
-    state.current.settings.alphaDecay = props.isFixed
-      ? FIXED_ALPHA_DECAY
-      : ALPHA_DECAY
-  }, [props.isFixed])
-
-  React.useEffect(() => {
-    state.current.colors = {
-      ...state.current.colors,
-      ...(props.colors ?? {}),
-    }
-  }, [props.colors])
-
-  React.useEffect(() => {
-    state.current.settings = {
-      ...state.current.settings,
-      ...(props.settings ?? {}),
-    }
-  }, [props.settings])
-
-  /** SET FUNCTIONS */
-  React.useEffect(() => {
-    if (props.nodeLabel) {
-      state.current!.nodeLabel = props.nodeLabel as NodeLabelFn
-      return
-    }
-    state.current!.nodeLabel = (...params: Parameters<NodeLabelFn>) => {
-      const [node] = params
-      return node?.id
-    }
-  }, [props.nodeLabel])
-  React.useEffect(() => {
-    if (props.nodeColor) {
-      state.current!.nodeColor = props.nodeColor as DetectNodeColorFn
-      return
-    }
-    state.current!.nodeColor = (...params: Parameters<DetectNodeColorFn>) => {
-      const [_, isHover] = params
-      if (isHover) {
-        return state.current.colors.nodeHover
-      }
-      return state.current.colors.node
-    }
-  }, [props.nodeColor])
-  React.useEffect(() => {
-    if (props.onSelectedNode) {
-      state.current!.onSelectedNode = props.onSelectedNode as OnSelectedNodesFn
-    }
-  }, [props.onSelectedNode])
-  React.useEffect(() => {
-    if (props.onClick) {
-      state.current!.onClick = props.onClick as OnClickFn
-    }
-  }, [props.onClick])
-  React.useEffect(() => {
-    if (props.drawNode) {
-      state.current!.drawNode = props.drawNode as DrawNodeFn
-    }
-  }, [props.drawNode])
-  React.useEffect(() => {
-    if (props.linkColor) {
-      state.current!.linkColor = props.linkColor as LinkColorFn
-      return
-    }
-    state.current!.linkColor = (...params: Parameters<LinkColorFn>) => {
-      const [link, isHover] = params
-      if (isHover) {
-        return state.current.colors.linkHover
-      }
-      return link.settings?.color ?? state.current.colors.link
-    }
-  }, [props.linkColor])
-  React.useEffect(() => {
-    if (props.linkLabel) {
-      state.current!.linkLabel = props.linkLabel as LinkLabelFn
-      return
-    }
-    state.current!.linkLabel = (...params: Parameters<LinkLabelFn>) => {
-      const [link] = params
-      return link?.id
-    }
-  }, [props.linkLabel])
 
   /** SET NODES AND LINKS */
   React.useEffect(() => {
@@ -225,6 +133,8 @@ function GraphComponent<TLink extends {}, TNode extends {}>(
       }
     }
   }, [])
+
+  useHandleGraphApi(state, props)
 
   useEngine(state)
 

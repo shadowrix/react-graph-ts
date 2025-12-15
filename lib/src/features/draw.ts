@@ -1,5 +1,5 @@
 import { RefState } from '../state'
-import { computeControlPoint } from './handlers'
+import { computeControlPoint } from '../helpers'
 import { LinkType, NodeType } from '../typings'
 
 function drawArrow(

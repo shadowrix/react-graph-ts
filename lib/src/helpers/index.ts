@@ -1,7 +1,9 @@
 import { select, zoomIdentity, ZoomTransform } from 'd3'
-import { computeControlPoint } from '../features/handlers'
+import { computeControlPoint } from './links'
 import { RefState } from '../state'
 import { LinkType, NodeType } from '../typings'
+
+export { computeControlPoint }
 
 export function buildLinkGrid(links: LinkType[]) {
   //link cellSize = link length * 0.6

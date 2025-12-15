@@ -1,6 +1,6 @@
 import React from 'react'
-
 import { quadtree } from 'd3'
+
 import {
   Colors,
   LinkColorFn,
@@ -15,11 +15,6 @@ import {
   OnSelectedNodesFn,
   DrawNodeFn,
 } from './typings'
-import { useDrag } from './features/drag'
-import { useZoom } from './features/zoom'
-import { useHandlers } from './features/handlers'
-import { useRefManager } from './state'
-import { useInitialize } from './features/initialize'
 import {
   assignCurves,
   buildLinkGrid,
@@ -27,8 +22,14 @@ import {
   zoom,
   zoomToFit,
 } from './helpers'
-import { useLasso } from './features/lasso'
+import { useRefManager } from './state'
+
+import { useDrag } from './features/useDrag'
+import { useZoom } from './features/useZoom'
+import { useLasso } from './features/useLasso'
 import { useEngine } from './features/useEngine'
+import { useHandlers } from './features/useHandlers'
+import { useInitialize } from './features/useInitialize'
 
 export type GraphProps<TLink extends {}, TNode extends {}> = {
   id?: string

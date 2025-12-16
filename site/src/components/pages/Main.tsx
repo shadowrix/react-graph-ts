@@ -1,12 +1,13 @@
 import React from 'react'
 
 import { Graph } from 'react-graph-ts'
-import type { LinkType, NodeType } from 'react-graph-ts'
+import type { GraphRef, LinkType, NodeType } from 'react-graph-ts'
 import { Field } from '../custom-ui/Field'
 import { Checkbox } from '../ui/checkbox'
 import { Label } from '../ui/label'
 import { Separator } from '../ui/separator'
 import { Block } from '../custom-ui/Block'
+import { Select } from '../custom-ui/Select'
 
 function createRandomGraph(
   nodeCount: number,
@@ -52,7 +53,9 @@ function createRandomGraph(
 }
 
 export function Main() {
+  const graphRef = React.useRef<GraphRef>(null)
   const [nodeCount, setNodeCount] = React.useState(1000)
+  const [currentNode, setCurrentNode] = React.useState<string>()
   const [linkCount, setLinkCount] = React.useState(3000)
   const [isFixed, setIsFixed] = React.useState(false)
 
@@ -96,7 +99,6 @@ export function Main() {
     // linkWidth: 1.5,
     // linkDistance: 80,
     // repulsion: -50,
-    // showLabels: false,
     // directed: false,
   })
 
@@ -106,9 +108,16 @@ export function Main() {
     return { nodes, links }
   }, [nodeCount, linkCount])
 
+  React.useEffect(() => {
+    if (!currentNode) return
+    const node = nodes.find((node) => node.id === String(currentNode))
+    if (!node?.x || !node?.y) return
+    graphRef.current?.centerAt(node.x, node.y, 4, 800)
+  }, [currentNode])
+
   return (
     <div className="w-full h-full flex gap-4 bg-black">
-      <Block className="w-[250px]" label="Graph Controls">
+      <Block className="w-[250px] h-full overflow-auto" label="Graph Controls">
         <div className="flex flex-col gap-1">
           <Field label="Nodes">
             <input
@@ -145,6 +154,23 @@ export function Main() {
               className="w-full mb-3"
             />
           </Field>
+          <div className="flex flex-col gap-3 mt-3">
+            <div className="flex flex-col gap-1">
+              <div className="text-xl font-bold text-[#bbbfca]">Ref</div>
+              <Separator orientation="horizontal" />
+            </div>
+            <Field label="Zoom to">
+              <Select
+                value={currentNode}
+                items={
+                  nodes
+                    .slice(nodes.length / 2, nodes.length / 2 + 20)
+                    .map((node) => ({ label: node.id, value: node.id })) ?? []
+                }
+                onChange={(value) => setCurrentNode(value)}
+              />
+            </Field>
+          </div>
           <div className="flex flex-col gap-3 mt-3">
             <div className="flex flex-col gap-1">
               <div className="text-xl font-bold text-[#bbbfca]">Colors</div>
@@ -235,6 +261,7 @@ export function Main() {
       <Block>
         <div className="w-full h-full rounded-lg overflow-hidden">
           <Graph
+            ref={graphRef}
             nodes={nodes}
             links={links}
             isFixed={isFixed}

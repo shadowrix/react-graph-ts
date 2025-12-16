@@ -104,5 +104,10 @@ export type NodeLabelFn<TNode extends {} = {}> = (
 export type GraphRef = {
   getPointerCoords: (x: number, y: number) => [number, number]
   zoom: (scale: number, duration?: number) => void
-  centerAt: (x: number, y: number, duration?: number) => void
+  centerAt: (
+    x: number,
+    y: number,
+    transform?: number,
+    duration?: number,
+  ) => void
 }

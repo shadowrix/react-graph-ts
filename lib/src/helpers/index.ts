@@ -177,14 +177,20 @@ function animateTo(state: RefState, transform: ZoomTransform, duration = 0) {
   }
 }
 
-export function centerAt(state: RefState, x: number, y: number, duration = 0) {
-  const t = state.current!.transform
+export function centerAt(
+  state: RefState,
+  x: number,
+  y: number,
+  transform?: number,
+  duration = 0,
+) {
+  const t = transform ?? state.current!.transform.k
   const width = state.current!.canvas!.width
   const height = state.current!.canvas!.height
 
   const newTransform = zoomIdentity
-    .translate(width / 2 - t.k * x, height / 2 - t.k * y)
-    .scale(t.k)
+    .translate(width / 2 - t * x, height / 2 - t * y)
+    .scale(t)
 
   animateTo(state, newTransform, duration)
 }

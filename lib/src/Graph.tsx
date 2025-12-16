@@ -60,8 +60,8 @@ function GraphComponent<TLink extends {}, TNode extends {}>(
     zoom: (scale: number, duration?: number) => {
       zoom(state, scale, duration)
     },
-    centerAt: (x: number, y: number, duration?: number) => {
-      centerAt(state, x, y, duration)
+    centerAt: (x: number, y: number, transform?: number, duration?: number) => {
+      centerAt(state, x, y, transform, duration)
     },
   }))
 

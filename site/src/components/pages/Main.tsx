@@ -21,14 +21,17 @@ function createRandomGraph(
     nodes.push({ id: `N${i}` })
   }
 
-  let linkId = 1
+  let linkIndex = 1
+
+  const maxNodesLinks = maxLinksPerPair * nodeCount
+
+  const maxLinksCount =
+    maxNodesLinks < desiredLinks ? maxNodesLinks : desiredLinks
 
   // --- generate links until we reach the target count ---
-  while (links.length < desiredLinks) {
+  while (links.length < maxLinksCount) {
     const i = Math.floor(Math.random() * nodeCount)
     const j = Math.floor(Math.random() * nodeCount)
-
-    if (i === j) continue // skip self-links
 
     const source = nodes[i].id
     const target = nodes[j].id
@@ -38,7 +41,7 @@ function createRandomGraph(
 
     for (let k = 0; k < count && links.length < desiredLinks; k++) {
       links.push({
-        id: `${linkId++}`,
+        id: `${linkIndex++}`,
         source,
         target,
       })
@@ -98,6 +101,7 @@ export function Main() {
   })
 
   const { nodes, links } = React.useMemo(() => {
+    if (!nodeCount) return { nodes: [], links: [] }
     const { nodes, links } = createRandomGraph(nodeCount, linkCount)
     return { nodes, links }
   }, [nodeCount, linkCount])

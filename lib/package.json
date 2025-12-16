@@ -1,10 +1,11 @@
 {
   "name": "react-graph-ts",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "private": false,
+  "readme": "README.md",
+  "license": "MIT",
   "description": "Graph stand on d3",
   "author": "shadowrix164@gmail.com",
-  "license": "MIT",
   "homepage": "https://shadowrix.github.io/react-graph-ts/",
   "repository": {
     "type": "git",

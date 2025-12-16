@@ -132,7 +132,7 @@ export function drawLink(state: RefState, link: LinkType) {
   )
     return
 
-  //TODO: Mb execute only when positions change of nodes ot links
+  //TODO: Mb execute only when positions has been changed of nodes or links
   updateViewCoords(link, source, target, state.current!.settings.nodeRadius)
 
   if (
@@ -274,21 +274,15 @@ function drawCurvedLinkParticle(
   controlX: number,
   controlY: number,
 ) {
-  const source = link.source as unknown as NodeType
-  const target = link.target as unknown as NodeType
-
-  const sx = source.x!
-  const sy = source.y!
-  const tx = target.x!
-  const ty = target.y!
+  if (!link._viewSettings?.start || !link._viewSettings.end) return
 
   const p = getPointOnQuadraticCurve(
-    sx,
-    sy,
+    link._viewSettings.start.x,
+    link._viewSettings.start.y,
     controlX,
     controlY,
-    tx,
-    ty,
+    link._viewSettings.end.x,
+    link._viewSettings.end.y,
     state.current!.particleProgress,
   )
 

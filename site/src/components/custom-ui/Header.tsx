@@ -3,7 +3,7 @@ import { NavLink } from 'react-router'
 
 import { Separator } from '../ui/separator'
 import { Block } from './Block'
-import { Switch } from './Switch'
+// import { Switch } from './Switch'
 import { cn } from '@/lib/utils'
 import { PREFIX_ROUTE } from '@/constants'
 
@@ -45,7 +45,8 @@ export function Header() {
           )
         })}
       </div>
-      <Switch label="Night Mode" />
+      <div></div>
+      {/* <Switch label="Night Mode" /> */}
     </Block>
   )
 }

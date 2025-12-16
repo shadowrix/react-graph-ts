@@ -59,6 +59,47 @@ function normalize(vector: { x: number; y: number }) {
   return { x: vector.x / l, y: vector.y / l }
 }
 
+function updateViewCoords(
+  link: LinkType,
+  source: NodeType,
+  target: NodeType,
+  nodeRadius: number,
+) {
+  if (!source?.x || !target?.x || !source?.y || !target?.y) return
+
+  const sx = source.x,
+    sy = source.y,
+    tx = target.x,
+    ty = target.y
+
+  link.control = computeControlPoint(source, target, link.curveIndex ?? 0)
+
+  const tStart = normalize(
+    bezierTangent(sx, sy, link.control.x, link.control.y, tx, ty, 0),
+  )
+  const tEnd = normalize(
+    bezierTangent(sx, sy, link.control.x, link.control.y, tx, ty, 1),
+  )
+
+  const start = {
+    x: sx + tStart.x * nodeRadius,
+    y: sy + tStart.y * nodeRadius,
+  }
+  const end = {
+    x: tx - tEnd.x * nodeRadius,
+    y: ty - tEnd.y * nodeRadius,
+  }
+
+  if (!link._viewSettings) {
+    link._viewSettings = {}
+  }
+
+  link._viewSettings.tStart = tStart
+  link._viewSettings.tEnd = tEnd
+  link._viewSettings.start = start
+  link._viewSettings.end = end
+}
+
 //TODO: Add all settings for links and mb custom links
 export function drawLink(state: RefState, link: LinkType) {
   const source = link.source as unknown as NodeType
@@ -91,52 +132,27 @@ export function drawLink(state: RefState, link: LinkType) {
   )
     return
 
-  const sx = source.x,
-    sy = source.y,
-    tx = target.x,
-    ty = target.y
+  //TODO: Mb execute only when positions change of nodes ot links
+  updateViewCoords(link, source, target, state.current!.settings.nodeRadius)
 
-  link.control = computeControlPoint(source, target, link.curveIndex ?? 0)
-
-  const tStart = normalize(
-    bezierTangent(
-      source.x,
-      source.y,
-      link.control.x,
-      link.control.y,
-      target.x,
-      target.y,
-      0,
-    ),
+  if (
+    !link?._viewSettings?.start ||
+    !link.control ||
+    !link?._viewSettings?.end ||
+    !link._viewSettings.tEnd
   )
-  const tEnd = normalize(
-    bezierTangent(
-      source.x,
-      source.y,
-      link.control.x,
-      link.control.y,
-      target.x,
-      target.y,
-      1,
-    ),
-  )
-
-  const start = {
-    x: sx + tStart.x * state.current!.settings.nodeRadius,
-    y: sy + tStart.y * state.current!.settings.nodeRadius,
-  }
-  const end = {
-    x: tx - tEnd.x * state.current!.settings.nodeRadius,
-    y: ty - tEnd.y * state.current!.settings.nodeRadius,
-  }
+    return
 
   state.current!.context.beginPath()
-  state.current!.context.moveTo(start.x, start.y)
+  state.current!.context.moveTo(
+    link._viewSettings.start.x,
+    link._viewSettings.start.y,
+  )
   state.current!.context.quadraticCurveTo(
     link.control.x,
     link.control.y,
-    end.x,
-    end.y,
+    link._viewSettings.end.x,
+    link._viewSettings.end.y,
   )
 
   state.current!.context!.setLineDash([])
@@ -153,11 +169,14 @@ export function drawLink(state: RefState, link: LinkType) {
   state.current!.context.stroke()
 
   if (withArrow) {
-    const angle = Math.atan2(tEnd.y, tEnd.x)
+    const angle = Math.atan2(
+      link._viewSettings.tEnd.y,
+      link._viewSettings.tEnd.x,
+    )
     drawArrow(
       state.current!.context,
-      end.x,
-      end.y,
+      link._viewSettings.end.x,
+      link._viewSettings.end.y,
       angle,
       14,
       0.36,

@@ -14,6 +14,13 @@ export type LinkSettings = {
   width?: number
 }
 
+export type LinkViewSettings = {
+  start?: { x: number; y: number }
+  end?: { x: number; y: number }
+  tStart?: { x: number; y: number }
+  tEnd?: { x: number; y: number }
+}
+
 export type LinkType<T extends {} = {}> = {
   id: string
   source: string | NodeType
@@ -25,6 +32,8 @@ export type LinkType<T extends {} = {}> = {
   curveGroupSize?: number
   //settings
   settings?: LinkSettings
+  //view data
+  _viewSettings?: LinkViewSettings
 } & T
 
 export type HoveredData<TNode extends {} = {}, TLink extends {} = {}> = {

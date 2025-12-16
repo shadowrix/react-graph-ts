@@ -4,7 +4,6 @@ import { select } from 'd3'
 
 import { RefState } from '../state'
 import { ClickType, LinkType, NodeType } from '../typings'
-import { computeControlPoint } from '../helpers'
 
 export type UseHandlersParameters = {
   state: RefState
@@ -51,15 +50,8 @@ export function useHandlers({
 
           for (let i = sortedCandidates.length - 1; i >= 0; i--) {
             const link = sortedCandidates[i]
-            // compute control (use cached)
-            const source = link.source as unknown as NodeType
-            const target = link.target as unknown as NodeType
-            link.control = computeControlPoint(
-              source,
-              target,
-              link.curveIndex || 0,
-            )
 
+            if (!link._viewSettings?.start || !link._viewSettings?.end) return
             const cp = link.control!
             // tolerance in graph (no zoom here) is hoverPx
             const hoverPx = 2 // screen pixels tolerance (how 'thick' hover area is)
@@ -67,12 +59,12 @@ export function useHandlers({
               hitTestQuadratic(
                 x,
                 y,
-                source.x!,
-                source.y!,
+                link._viewSettings.start.x,
+                link._viewSettings.start.y,
                 cp.x,
                 cp.y,
-                target.x!,
-                target.y!,
+                link._viewSettings.end.x!,
+                link._viewSettings.end.y!,
                 hoverPx,
               )
             ) {
@@ -246,11 +238,8 @@ function findLink(state: RefState, pointerX: number, pointerY: number) {
 
   for (let i = sortedCandidates.length - 1; i >= 0; i--) {
     const link = sortedCandidates[i]
-    // compute control (use cached)
-    const source = link.source as unknown as NodeType
-    const target = link.target as unknown as NodeType
-    link.control = computeControlPoint(source, target, link.curveIndex || 0)
 
+    if (!link._viewSettings?.start || !link._viewSettings?.end) return
     const cp = link.control!
     // tolerance in graph (no zoom here) is hoverPx
     const hoverPx = 2 // screen pixels tolerance (how 'thick' hover area is)
@@ -258,12 +247,12 @@ function findLink(state: RefState, pointerX: number, pointerY: number) {
       hitTestQuadratic(
         pointerX,
         pointerY,
-        source.x!,
-        source.y!,
+        link._viewSettings.start.x,
+        link._viewSettings.start.y,
         cp.x,
         cp.y,
-        target.x!,
-        target.y!,
+        link._viewSettings.end.x,
+        link._viewSettings.end.y,
         hoverPx,
       )
     ) {

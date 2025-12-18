@@ -1,6 +1,12 @@
 import React from 'react'
 
-import { forceCenter, forceLink, forceManyBody, forceSimulation } from 'd3'
+import {
+  forceCenter,
+  forceCollide,
+  forceLink,
+  forceManyBody,
+  forceSimulation,
+} from 'd3'
 import { RefState } from '../state'
 import { LinkType, NodeType, Settings } from '../typings'
 
@@ -9,6 +15,7 @@ export type UseInitializeParameters = {
   isFixed?: boolean
   nodes: NodeType
   links: LinkType
+  sizes: { width: number; height: number }
   settings?: Partial<Settings>
   setIsGraphChange: (isChanged: boolean) => void
 }
@@ -17,6 +24,7 @@ export function useInitialize({
   nodes,
   links,
   state,
+  sizes,
   isFixed,
   settings,
   setIsGraphChange,
@@ -44,6 +52,10 @@ export function useInitialize({
         'center',
         forceCenter(state.current!.width / 2, state.current!.height / 2),
       )
+      .force(
+        'collision',
+        forceCollide(() => Number(state.current?.settings.nodeRadius) + 4),
+      )
       .alphaDecay(state.current!.settings.alphaDecay)
       .on('tick', () => {
         tickCounter++
@@ -64,5 +76,5 @@ export function useInitialize({
     return () => {
       state.current!.simulationEngine?.stop()
     }
-  }, [isFixed, nodes, links])
+  }, [isFixed, nodes, links, sizes])
 }

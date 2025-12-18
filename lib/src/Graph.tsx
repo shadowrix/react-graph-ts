@@ -65,25 +65,6 @@ function GraphComponent<TLink extends {}, TNode extends {}>(
     },
   }))
 
-  /** SET NODES AND LINKS */
-  React.useEffect(() => {
-    state.current.nodes = props.nodes
-    const links = assignCurves(props.links)
-    state.current.links = links
-    //TODO: It's not good solution
-    setTimeout(() => {
-      zoomToFit(state)
-    }, 80)
-  }, [props.nodes, props.links])
-
-  function getPointerCoords(clientX: number, clientY: number) {
-    const rect = state.current.canvas!.getBoundingClientRect()
-    const x = clientX - rect.left
-    const y = clientY - rect.top
-
-    return state.current.transform.invert([x, y])
-  }
-
   /** SIZES */
   React.useEffect(() => {
     if (state.current.canvas?.parentElement) {
@@ -107,13 +88,30 @@ function GraphComponent<TLink extends {}, TNode extends {}>(
     }
   }, [])
 
+  /** SET NODES AND LINKS */
+  React.useEffect(() => {
+    state.current.nodes = props.nodes
+    const links = assignCurves(props.links)
+    state.current.links = links
+    //TODO: It's not good solution
+    setTimeout(() => {
+      zoomToFit(state)
+    }, 80)
+  }, [props.nodes, props.links])
+
+  function getPointerCoords(clientX: number, clientY: number) {
+    const rect = state.current.canvas!.getBoundingClientRect()
+    const x = clientX - rect.left
+    const y = clientY - rect.top
+
+    return state.current.transform.invert([x, y])
+  }
+
   function setIsGraphChange(isChanged: boolean) {
     state.current.isGraphChanged = isChanged
   }
 
   useHandleGraphApi(state, props)
-
-  useEngine(state)
 
   useInitialize({
     state,
@@ -122,7 +120,10 @@ function GraphComponent<TLink extends {}, TNode extends {}>(
     nodes: props.nodes as any,
     links: props.links as any,
     settings: props.settings,
+    sizes,
   })
+
+  useEngine(state)
 
   useDrag({
     state,
@@ -130,19 +131,11 @@ function GraphComponent<TLink extends {}, TNode extends {}>(
     getPointerCoords,
   })
 
-  useZoom({
-    state,
-  })
+  useZoom({ state })
 
-  useHandlers({
-    state,
-    getPointerCoords,
-  })
+  useHandlers({ state, getPointerCoords })
 
-  useLasso({
-    state,
-    getPointerCoords,
-  })
+  useLasso({ state, getPointerCoords })
 
   return (
     <canvas

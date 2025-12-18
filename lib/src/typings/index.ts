@@ -19,6 +19,8 @@ export type LinkViewSettings = {
   end?: { x: number; y: number }
   tStart?: { x: number; y: number }
   tEnd?: { x: number; y: number }
+  curveIndex?: number
+  curveGroupSize?: number
 }
 
 export type LinkType<T extends {} = {}> = {
@@ -28,8 +30,6 @@ export type LinkType<T extends {} = {}> = {
   // curve
   control?: { x: number; y: number }
   drawIndex?: number
-  curveIndex?: number
-  curveGroupSize?: number
   //settings
   settings?: LinkSettings
   //view data

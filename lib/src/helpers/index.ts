@@ -20,7 +20,11 @@ export function buildLinkGrid(links: LinkType[]) {
 
     if (source.x && source.y && target.x && target.y) {
       // 1. Compute control point (your existing function)
-      const control = computeControlPoint(source, target, link.curveIndex ?? 1)
+      const control = computeControlPoint(
+        source,
+        target,
+        link._viewSettings?.curveIndex ?? 1,
+      )
 
       // 2. Compute bezier bounding box
       const bb = quadraticBezierBBox(
@@ -88,12 +92,24 @@ function quadraticBezierBBox(
 
 export function assignCurves(links: LinkType[]): LinkType[] {
   const groups = new Map<string, LinkType[]>()
+  const selfGroups = new Map<string, LinkType[]>()
 
   for (const link of links) {
     const sourceId =
       typeof link.source === 'string' ? link.source : link.source.id
     const targetId =
       typeof link.target === 'string' ? link.target : link.target.id
+
+    if (sourceId === targetId) {
+      const key = JSON.stringify([sourceId])
+      const group = selfGroups.get(key)
+      if (group) {
+        group.push(link)
+        continue
+      }
+      selfGroups.set(key, [link])
+      continue
+    }
 
     const normalized =
       sourceId.localeCompare(targetId) <= 0
@@ -112,11 +128,20 @@ export function assignCurves(links: LinkType[]): LinkType[] {
 
     for (let i = 0; i < n; i++) {
       const link = group[i]
-      link.curveIndex = i + 1 - center // -1, 0, +1, ...
-      link.curveGroupSize = n
+      if (!link._viewSettings) link._viewSettings = {}
+      link._viewSettings.curveIndex = i + 1 - center // -1, 0, +1, ...
+      link._viewSettings.curveGroupSize = n
     }
   }
-
+  for (const group of selfGroups.values()) {
+    for (let i = 0; i < group.length; i++) {
+      const link = group[i]
+      if (!link._viewSettings) link._viewSettings = {}
+      link._viewSettings.curveIndex = i + 1
+      link._viewSettings.curveGroupSize = group.length
+    }
+  }
+  console.log(links)
   return links
 }
 

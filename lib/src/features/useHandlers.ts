@@ -4,6 +4,7 @@ import { select } from 'd3'
 
 import { RefState } from '../state'
 import { ClickType, LinkType, NodeType } from '../typings'
+import { cubicBezierBBox } from '../helpers'
 
 export type UseHandlersParameters = {
   state: RefState
@@ -53,23 +54,45 @@ export function useHandlers({
 
             if (!link._viewSettings?.start || !link._viewSettings?.end) return
             const cp = link.control!
-            // tolerance in graph (no zoom here) is hoverPx
+            const cp2 = link.control2!
+
             const hoverPx = 2 // screen pixels tolerance (how 'thick' hover area is)
-            if (
-              hitTestQuadratic(
-                x,
-                y,
-                link._viewSettings.start.x,
-                link._viewSettings.start.y,
-                cp.x,
-                cp.y,
-                link._viewSettings.end.x!,
-                link._viewSettings.end.y!,
-                hoverPx,
-              )
-            ) {
-              hoveredLink = link
-              break
+            if (link._viewSettings.isSelf) {
+              if (
+                hitTestCubic(
+                  x,
+                  y,
+                  link._viewSettings.start.x,
+                  link._viewSettings.start.y,
+                  cp.x,
+                  cp.y,
+                  cp2.x,
+                  cp2.y,
+                  link._viewSettings.end.x!,
+                  link._viewSettings.end.y!,
+                  hoverPx,
+                )
+              ) {
+                hoveredLink = link
+                break
+              }
+            } else {
+              if (
+                hitTestQuadratic(
+                  x,
+                  y,
+                  link._viewSettings.start.x,
+                  link._viewSettings.start.y,
+                  cp.x,
+                  cp.y,
+                  link._viewSettings.end.x!,
+                  link._viewSettings.end.y!,
+                  hoverPx,
+                )
+              ) {
+                hoveredLink = link
+                break
+              }
             }
           }
 
@@ -219,6 +242,72 @@ function hitTestQuadratic(
       dy = py - y
     if (dx * dx + dy * dy <= tol2) return true
   }
+  return false
+}
+
+function hitTestCubic(
+  px: number,
+  py: number,
+  x0: number,
+  y0: number,
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number,
+  x3: number,
+  y3: number,
+  tol: number,
+) {
+  // --- 1. Quick bbox reject (with tolerance)
+  const bb = cubicBezierBBox(x0, y0, x1, y1, x2, y2, x3, y3)
+
+  if (
+    px < bb.minX - tol ||
+    px > bb.maxX + tol ||
+    py < bb.minY - tol ||
+    py > bb.maxY + tol
+  ) {
+    return false
+  }
+
+  // --- 2. Approximate curve length (control polygon)
+  const chord = Math.hypot(x3 - x0, y3 - y0)
+  const contLen =
+    Math.hypot(x1 - x0, y1 - y0) +
+    Math.hypot(x2 - x1, y2 - y1) +
+    Math.hypot(x3 - x2, y3 - y2)
+
+  const approxLen = (chord + contLen) / 2
+
+  // --- 3. Adaptive sampling
+  const steps = Math.max(24, Math.ceil(approxLen / 1))
+
+  const tol2 = tol * tol
+
+  for (let i = 0; i <= steps; i++) {
+    const t = i / steps
+    const mt = 1 - t
+
+    const x =
+      mt * mt * mt * x0 +
+      3 * mt * mt * t * x1 +
+      3 * mt * t * t * x2 +
+      t * t * t * x3
+
+    const y =
+      mt * mt * mt * y0 +
+      3 * mt * mt * t * y1 +
+      3 * mt * t * t * y2 +
+      t * t * t * y3
+
+    const dx = px - x
+    const dy = py - y
+
+    if (dx * dx + dy * dy <= tol2) {
+      return true
+    }
+  }
+
   return false
 }
 

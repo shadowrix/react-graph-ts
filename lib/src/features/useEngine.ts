@@ -10,7 +10,15 @@ export function useEngine(state: RefState) {
   const frameIdRef = React.useRef<number>()
 
   const updateLinkGrid = React.useCallback(function updateLinkGrid() {
-    const grid = buildLinkGrid(state.current!.links)
+    if (!state.current?.settings.nodeRadius)
+      console.error(
+        'The nodeRadius field is missing or set to zero in the configuration.',
+      )
+
+    const grid = buildLinkGrid(
+      state.current!.links,
+      state.current?.settings.nodeRadius ?? 8,
+    )
     state.current!.linksGrid = grid
   }, [])
 

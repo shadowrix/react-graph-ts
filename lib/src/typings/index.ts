@@ -21,6 +21,7 @@ export type LinkViewSettings = {
   tEnd?: { x: number; y: number }
   curveIndex?: number
   curveGroupSize?: number
+  isSelf?: boolean
 }
 
 export type LinkType<T extends {} = {}> = {
@@ -29,6 +30,7 @@ export type LinkType<T extends {} = {}> = {
   target: string | NodeType
   // curve
   control?: { x: number; y: number }
+  control2?: { x: number; y: number }
   drawIndex?: number
   //settings
   settings?: LinkSettings

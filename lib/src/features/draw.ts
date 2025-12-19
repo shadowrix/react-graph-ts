@@ -1,52 +1,54 @@
 import { RefState } from '../state'
-import { computeControlPoint } from '../helpers'
+import { computeQuadraticControlPoint } from '../helpers'
 import { LinkType, NodeType } from '../typings'
-
-function pointOnCircle(cx: number, cy: number, radius: number, angle: number) {
-  return {
-    x: cx + Math.cos(angle) * radius,
-    y: cy + Math.sin(angle) * radius,
-  }
-}
+import { computeCubicControlCoords } from '../helpers'
 
 function drawSelfLink(
   context: CanvasRenderingContext2D,
+  link: LinkType,
   nodeX: number,
   nodeY: number,
   withArrow: boolean | undefined,
   radius: number,
-  index: number,
-  total: number,
   color: string,
+  width: number,
+  isHovered: boolean,
 ) {
-  // Spread loops evenly
-  const spread = Math.PI / 1.5
-  const baseAngle = -Math.PI / 3 // top
-  const offset = index * 0.2
+  const { start, control, control2, end } = computeCubicControlCoords(
+    nodeX,
+    nodeY,
+    radius,
+    link._viewSettings?.curveIndex!,
+    link._viewSettings?.curveGroupSize!,
+  )
+  if (!link._viewSettings) link._viewSettings = {}
 
-  const a1 = baseAngle - spread / 2 - offset
-  const a2 = baseAngle - spread / 2 + offset
-
-  const start = pointOnCircle(nodeX, nodeY, radius, a1)
-  const end = pointOnCircle(nodeX, nodeY, radius, a2)
-
-  const outer = radius * 10
-  const inner = radius * 20
-  const t = total > 1 ? index / (total - 1) : 0
-  const loopRadius = outer + (inner - outer) * t
-
-  const cp1 = pointOnCircle(nodeX, nodeY, loopRadius, a1)
-  const cp2 = pointOnCircle(nodeX, nodeY, loopRadius, a2)
+  link._viewSettings.start = start
+  link.control = control
+  link.control2 = control2
+  link._viewSettings.end = end
 
   // Curve
   context.beginPath()
+  context.strokeStyle = color
+  context.lineWidth = width
+  if (isHovered) {
+    context.lineWidth = width + 1
+  }
   context.moveTo(start.x, start.y)
-  context.bezierCurveTo(cp1.x, cp1.y, cp2.x, cp2.y, end.x, end.y)
+  context.bezierCurveTo(
+    control.x,
+    control.y,
+    control2.x,
+    control2.y,
+    end.x,
+    end.y,
+  )
   context.stroke()
 
   if (withArrow) {
-    const dx = end.x - cp2.x
-    const dy = end.y - cp2.y
+    const dx = end.x - control2.x
+    const dy = end.y - control2.y
     const angle = Math.atan2(dy, dx)
     drawArrow(context, end.x, end.y, angle, 14, 0.36, color)
   }
@@ -122,7 +124,7 @@ function updateViewCoords(
     tx = target.x,
     ty = target.y
 
-  link.control = computeControlPoint(
+  link.control = computeQuadraticControlPoint(
     source,
     target,
     link._viewSettings?.curveIndex ?? 0,
@@ -190,13 +192,14 @@ export function drawLink(state: RefState, link: LinkType) {
     if (!link._viewSettings) link._viewSettings = {}
     return drawSelfLink(
       state.current!.context,
+      link,
       source.x,
       source.y,
       withArrow,
       state.current!.settings.nodeRadius,
-      link._viewSettings.curveIndex!,
-      link._viewSettings.curveGroupSize!,
-      state.current!.colors.arrow ?? color,
+      color,
+      width,
+      isHovered,
     )
   }
 
@@ -231,7 +234,6 @@ export function drawLink(state: RefState, link: LinkType) {
   state.current!.context!.lineWidth = width
   if (isHovered) {
     state.current!.context!.lineWidth = 2
-    state.current!.context!.strokeStyle = color
   }
 
   state.current!.context.stroke()

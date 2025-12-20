@@ -1,10 +1,18 @@
 import React from 'react'
+import { toast } from 'sonner'
 
 import { Graph } from 'react-graph-ts'
-import type { GraphRef, LinkType, NodeType } from 'react-graph-ts'
+import type {
+  ClickArea,
+  ClickedButton,
+  GraphRef,
+  LinkType,
+  NodeType,
+} from 'react-graph-ts'
+
+import { Label } from '../ui/label'
 import { Field } from '../custom-ui/Field'
 import { Checkbox } from '../ui/checkbox'
-import { Label } from '../ui/label'
 import { Separator } from '../ui/separator'
 import { Block } from '../custom-ui/Block'
 import { Select } from '../custom-ui/Select'
@@ -114,6 +122,22 @@ export function Main() {
     if (!node?.x || !node?.y) return
     graphRef.current?.centerAt(node.x, node.y, 4, 800)
   }, [currentNode])
+
+  function handleClick(
+    target: NodeType | LinkType | null,
+    clickArea: ClickArea,
+    clickedButton: ClickedButton,
+  ) {
+    toast(
+      <div className="text-amber-100">
+        Click on {clickArea} and button: {clickedButton}
+      </div>,
+      {
+        position: 'top-right',
+        style: { background: '#000' },
+      },
+    )
+  }
 
   return (
     <div className="w-full h-full flex gap-4 bg-black">
@@ -266,6 +290,7 @@ export function Main() {
             links={links}
             isFixed={isFixed}
             colors={colors}
+            onClick={handleClick}
             settings={settings}
             // onSelectedNode={handleSelectedNode}
           />

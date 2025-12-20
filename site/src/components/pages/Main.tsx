@@ -129,8 +129,15 @@ export function Main() {
     clickedButton: ClickedButton,
   ) {
     toast(
-      <div className="text-amber-100">
-        Click on {clickArea} and button: {clickedButton}
+      <div className="flex flex-col gap-2 text-[#bbbfca]">
+        {target && (
+          <span className="text-sm">
+            {clickArea === 'link' ? 'Link' : 'Node'} id: {target?.id}
+          </span>
+        )}
+        <span className="text-lg">
+          Click area on {clickArea} and button: {clickedButton}
+        </span>
       </div>,
       {
         position: 'top-right',

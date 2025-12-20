@@ -3,7 +3,7 @@ import React from 'react'
 import { select } from 'd3'
 
 import { RefState } from '../state'
-import { ClickType, LinkType, NodeType } from '../typings'
+import { ClickedButton, LinkType } from '../typings'
 import { cubicBezierBBox } from '../helpers'
 
 export type UseHandlersParameters = {
@@ -135,7 +135,7 @@ export function useHandlers({
 
       if (state.current!.isDragging) return
 
-      function handleTarget(type: ClickType) {
+      function handleTarget(type: ClickedButton) {
         if (state.current!.hoveredData.link)
           return state.current?.onClick?.(
             state.current!.hoveredData.link,

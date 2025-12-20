@@ -64,14 +64,14 @@ export type Colors = {
   arrow?: string
 }
 
-export type ClickType = 'right' | 'left' | 'ctrl-left' | 'ctrl-right'
+export type ClickedButton = 'right' | 'left' | 'ctrl-left' | 'ctrl-right'
 
-export type TargetType = 'background' | 'node' | 'link'
+export type ClickArea = 'background' | 'node' | 'link'
 
 export type OnClickFn<TNode extends {} = {}, TLink extends {} = {}> = (
   target: NodeType<TNode> | LinkType<TLink> | null,
-  targetType: TargetType,
-  clickType: ClickType,
+  clickArea: ClickArea,
+  clickedButton: ClickedButton,
   event: MouseEvent,
 ) => void
 

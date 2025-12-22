@@ -25,16 +25,17 @@ import { useHandlers } from './features/useHandlers'
 import { useInitialize } from './features/useInitialize'
 import { useHandleGraphApi } from './features/useHandleGraphApi'
 
-export type GraphProps<TLink extends {}, TNode extends {}> = {
+export type GraphProps<TNode extends {}, TLink extends {}> = {
   id?: string
   isFixed?: boolean
   settings?: Partial<Settings>
   onClick?: OnClickFn<TNode, TLink>
+
   //LINKS
-  links: LinkType<TLink>[]
+  links: LinkType<TLink, TNode>[]
   colors?: Partial<Colors>
-  linkColor?: LinkColorFn<TLink>
-  linkLabel?: LinkLabelFn<TLink>
+  linkColor?: LinkColorFn<TLink, TNode>
+  linkLabel?: LinkLabelFn<TLink, TNode>
   //NODES
   nodes: NodeType<TNode>[]
   nodeLabel?: NodeLabelFn<TNode>
@@ -43,8 +44,8 @@ export type GraphProps<TLink extends {}, TNode extends {}> = {
   drawNode?: DrawNodeFn<TNode>
 }
 
-function GraphComponent<TLink extends {}, TNode extends {}>(
-  props: GraphProps<TLink, TNode>,
+function GraphComponent<TNode extends {}, TLink extends {}>(
+  props: GraphProps<TNode, TLink>,
   ref: React.ForwardedRef<GraphRef>,
 ) {
   const { refs: state, register } = useRefManager()
@@ -148,8 +149,8 @@ function GraphComponent<TLink extends {}, TNode extends {}>(
 }
 
 export const Graph = React.forwardRef(GraphComponent) as <
-  TLink extends {},
-  TNode extends {},
+  TNode extends {} = {},
+  TLink extends {} = {},
 >(
   props: GraphProps<TNode, TLink> & {
     ref?: React.ForwardedRef<GraphRef>

@@ -1,4 +1,6 @@
-import { select, zoomIdentity, ZoomTransform } from 'd3'
+import { select } from 'd3-selection'
+import { zoomIdentity, ZoomTransform } from 'd3-zoom'
+
 import {
   computeQuadraticControlPoint,
   computeCubicControlCoords,

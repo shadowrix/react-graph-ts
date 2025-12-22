@@ -6,7 +6,8 @@ import {
   forceLink,
   forceManyBody,
   forceSimulation,
-} from 'd3'
+} from 'd3-force'
+
 import { RefState } from '../state'
 import { LinkType, NodeType, Settings } from '../typings'
 

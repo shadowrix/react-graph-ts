@@ -1,5 +1,6 @@
 import React from 'react'
-import { quadtree } from 'd3'
+
+import { quadtree } from 'd3-quadtree'
 
 import { RefState } from '../state'
 import { NodeType } from '../typings'

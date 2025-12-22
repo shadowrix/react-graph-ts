@@ -1,12 +1,8 @@
 import React from 'react'
 
-import {
-  Quadtree,
-  Simulation,
-  ZoomBehavior,
-  zoomIdentity,
-  ZoomTransform,
-} from 'd3'
+import { Quadtree } from 'd3-quadtree'
+import { Simulation } from 'd3-force'
+import { ZoomBehavior, zoomIdentity, ZoomTransform } from 'd3-zoom'
 
 import {
   Colors,

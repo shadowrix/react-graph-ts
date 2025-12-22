@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { select } from 'd3'
+import { select } from 'd3-selection'
 
 import { RefState } from '../state'
 import { ClickedButton, LinkType } from '../typings'

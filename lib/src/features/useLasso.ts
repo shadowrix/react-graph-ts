@@ -1,6 +1,8 @@
 import React from 'react'
+
+import { polygonContains } from 'd3-polygon'
+
 import { RefState } from '../state'
-import { polygonContains } from 'd3'
 
 export type UseLassoParameters = {
   state: RefState

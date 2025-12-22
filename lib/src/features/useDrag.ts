@@ -1,6 +1,8 @@
 import React from 'react'
 
-import { drag, select } from 'd3'
+import { drag } from 'd3-drag'
+import { select } from 'd3-selection'
+
 import { RefState } from '../state'
 
 export type UseDragParameters = {

@@ -320,6 +320,7 @@ export function drawNode(state: RefState, node: NodeType) {
     context.textBaseline = 'bottom'
     context.textAlign = 'center'
     context.fillText(label, x, y - radius - 6)
+    context.stroke()
   }
 
   if (state.current?.drawNode) {

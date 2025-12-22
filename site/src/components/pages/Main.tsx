@@ -148,7 +148,7 @@ export function Main() {
 
   return (
     <div className="w-full h-full flex gap-4 bg-black">
-      <Block className="w-[250px] h-full overflow-auto" label="Graph Controls">
+      <Block className="w-62.5 h-full overflow-auto" label="Graph Controls">
         <div className="flex flex-col gap-1">
           <Field label="Nodes">
             <input
@@ -293,8 +293,8 @@ export function Main() {
         <div className="w-full h-full rounded-lg overflow-hidden">
           <Graph
             ref={graphRef}
-            nodes={nodes}
-            links={links}
+            nodes={nodes as NodeType[]}
+            links={links as LinkType[]}
             isFixed={isFixed}
             colors={colors}
             onClick={handleClick}

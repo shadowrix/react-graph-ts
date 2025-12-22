@@ -309,7 +309,6 @@ export function drawNode(state: RefState, node: NodeType) {
       context.stroke()
     }
     context.fill()
-
     const label = state.current!.nodeLabel?.(node)
     if (state.current!.transform.k < 0.6 || !label) return
 
@@ -320,7 +319,6 @@ export function drawNode(state: RefState, node: NodeType) {
     context.textBaseline = 'bottom'
     context.textAlign = 'center'
     context.fillText(label, x, y - radius - 6)
-    context.stroke()
   }
 
   if (state.current?.drawNode) {

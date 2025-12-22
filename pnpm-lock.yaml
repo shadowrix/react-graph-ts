@@ -20,32 +20,26 @@ importers:
 
   lib:
     dependencies:
-      '@types/d3-quadtree':
-        specifier: ^3.0.6
-        version: 3.0.6
-      '@types/d3-transition':
-        specifier: ^3.0.9
-        version: 3.0.9
       d3-drag:
-        specifier: ^3.0.0
+        specifier: 3.0.0
         version: 3.0.0
       d3-force:
-        specifier: ^3.0.0
+        specifier: 3.0.0
         version: 3.0.0
       d3-polygon:
-        specifier: ^3.0.1
+        specifier: 3.0.1
         version: 3.0.1
       d3-quadtree:
-        specifier: ^3.0.1
+        specifier: 3.0.1
         version: 3.0.1
       d3-selection:
-        specifier: ^3.0.0
+        specifier: 3.0.0
         version: 3.0.0
       d3-transition:
-        specifier: ^3.0.1
+        specifier: 3.0.1
         version: 3.0.1(d3-selection@3.0.0)
       d3-zoom:
-        specifier: ^3.0.0
+        specifier: 3.0.0
         version: 3.0.0
       react:
         specifier: ^18.3.1
@@ -55,19 +49,25 @@ importers:
         version: 18.3.1(react@18.3.1)
     devDependencies:
       '@types/d3-drag':
-        specifier: ^3.0.7
+        specifier: 3.0.7
         version: 3.0.7
       '@types/d3-force':
-        specifier: ^3.0.10
+        specifier: 3.0.10
         version: 3.0.10
       '@types/d3-polygon':
-        specifier: ^3.0.2
+        specifier: 3.0.2
         version: 3.0.2
+      '@types/d3-quadtree':
+        specifier: 3.0.6
+        version: 3.0.6
       '@types/d3-selection':
-        specifier: ^3.0.11
+        specifier: 3.0.11
         version: 3.0.11
+      '@types/d3-transition':
+        specifier: 3.0.9
+        version: 3.0.9
       '@types/d3-zoom':
-        specifier: ^3.0.8
+        specifier: 3.0.8
         version: 3.0.8
       '@types/node':
         specifier: 24.10.0
@@ -2399,16 +2399,17 @@ packages:
 
   /@types/d3-quadtree@3.0.6:
     resolution: {integrity: sha512-oUzyO1/Zm6rsxKRHA1vH0NEDG58HrT5icx/azi9MF1TWdtttWl0UIUsjEQBBh+SIkrpd21ZjEv7ptxWys1ncsg==}
-    dev: false
+    dev: true
 
   /@types/d3-selection@3.0.11:
     resolution: {integrity: sha512-bhAXu23DJWsrI45xafYpkQ4NtcKMwWnAC/vKrd2l+nxMFuvOT3XMYTIj2opv8vq8AO5Yh7Qac/nSeP/3zjTK0w==}
+    dev: true
 
   /@types/d3-transition@3.0.9:
     resolution: {integrity: sha512-uZS5shfxzO3rGlu0cC3bjmMFKsXv+SmZZcgp0KD22ts4uGXp5EVYGzu/0YdwZeKmddhcAccYtREJKkPfXkZuCg==}
     dependencies:
       '@types/d3-selection': 3.0.11
-    dev: false
+    dev: true
 
   /@types/d3-zoom@3.0.8:
     resolution: {integrity: sha512-iqMC4/YlFCSlO8+2Ii1GGGliCAY4XdeG748w5vQUbevlbDu0zSjH/+jojorQVBK/se0j6DUFNPBGSqD3YWYnDw==}

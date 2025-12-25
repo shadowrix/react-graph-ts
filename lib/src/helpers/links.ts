@@ -22,7 +22,7 @@ export function computeQuadraticControlPoint(
   const ny = dx * invLen
 
   const sign = curveIndex % 2 === 0 ? 1 : -1
-  const multiplier = curveIndex * Math.sign(curveIndex)
+  const multiplier = curveIndex * Math.sign(sign)
   const numericOffset = treatAsFraction
     ? baseOffsetFraction * len * multiplier
     : baseOffsetFraction * multiplier

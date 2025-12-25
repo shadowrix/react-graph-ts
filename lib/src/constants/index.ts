@@ -4,6 +4,9 @@ export const INITIAL_SETTINGS = {
   linkDistance: 100,
   linkStrength: 0.7,
 
+  linkWidth: 1,
+  arrowSize: 14,
+
   nodeRadius: 8,
   hoveredBorder: 4,
 

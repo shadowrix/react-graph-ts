@@ -13,6 +13,7 @@ function drawSelfLink(
   color: string,
   width: number,
   isHovered: boolean,
+  arrowSize: number,
 ) {
   const { start, control, control2, end } = computeCubicControlCoords(
     nodeX,
@@ -50,7 +51,7 @@ function drawSelfLink(
     const dx = end.x - control2.x
     const dy = end.y - control2.y
     const angle = Math.atan2(dy, dx)
-    drawArrow(context, end.x, end.y, angle, 14, 0.36, color)
+    drawArrow(context, end.x, end.y, angle, arrowSize, 0.36, color)
   }
 }
 
@@ -177,7 +178,10 @@ export function drawLink(state: RefState, link: LinkType) {
   const withArrow =
     link.settings?.withArrow ?? state.current?.settings.withLinksArrows
 
-  const width = link.settings?.width ?? 1
+  const width = link.settings?.width ?? state.current?.settings.linkWidth ?? 1
+
+  const arrowSize =
+    (state.current?.settings.arrowSize ?? 14) * (width > 2 ? width * 0.5 : 1)
 
   if (
     !source?.x ||
@@ -200,6 +204,7 @@ export function drawLink(state: RefState, link: LinkType) {
       color,
       width,
       isHovered,
+      arrowSize,
     )
   }
 
@@ -233,7 +238,7 @@ export function drawLink(state: RefState, link: LinkType) {
   state.current!.context!.strokeStyle = color
   state.current!.context!.lineWidth = width
   if (isHovered) {
-    state.current!.context!.lineWidth = 2
+    state.current!.context!.lineWidth = width + 1
   }
 
   state.current!.context.stroke()
@@ -248,7 +253,7 @@ export function drawLink(state: RefState, link: LinkType) {
       link._viewSettings.end.x,
       link._viewSettings.end.y,
       angle,
-      14,
+      arrowSize,
       0.36,
       state.current!.colors.arrow ?? color,
     )

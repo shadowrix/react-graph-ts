@@ -87,6 +87,7 @@ export function Main() {
   const [settings, setSettings] = React.useState({
     linkDistance: 100,
     linkStrength: 0.7,
+    linkWidth: 1,
 
     nodeRadius: 8,
     hoveredBorder: 4,
@@ -145,7 +146,7 @@ export function Main() {
       },
     )
   }
-
+  console.log(nodes, links)
   return (
     <div className="w-full h-full flex gap-4 bg-black">
       <Block className="w-62.5 h-full overflow-auto" label="Graph Controls">
@@ -180,6 +181,21 @@ export function Main() {
                 setSettings({
                   ...settings,
                   nodeRadius: Number(e.target.value),
+                })
+              }
+              className="w-full mb-3"
+            />
+          </Field>
+          <Field label={`Link width (${settings.linkWidth})`}>
+            <input
+              type="range"
+              min={1}
+              max={10}
+              value={settings.linkWidth}
+              onChange={(e) =>
+                setSettings({
+                  ...settings,
+                  linkWidth: Number(e.target.value),
                 })
               }
               className="w-full mb-3"

@@ -105,10 +105,6 @@ export function Main() {
     isDashed: false,
     withNodeLabels: false,
     withLinksArrows: false,
-    // linkWidth: 1.5,
-    // linkDistance: 80,
-    // repulsion: -50,
-    // directed: false,
   })
 
   const { nodes, links } = React.useMemo(() => {
@@ -146,7 +142,7 @@ export function Main() {
       },
     )
   }
-  console.log(nodes, links)
+
   return (
     <div className="w-full h-full flex gap-4 bg-black">
       <Block className="w-62.5 h-full overflow-auto" label="Graph Controls">

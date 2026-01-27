@@ -44,6 +44,17 @@ export const COLORS = {
   arrow: undefined,
 }
 
+export const HANDLERS = {
+  onClick: undefined,
+
+  nodeLabel: undefined,
+  nodeColor: undefined,
+  onSelectedNode: undefined,
+  linkColor: undefined,
+  linkLabel: undefined,
+  drawNode: undefined,
+}
+
 export const INITIAL_STATE = {
   //GRAPH SIZES
   //
@@ -75,7 +86,7 @@ export const INITIAL_STATE = {
     links: [],
     settings: INITIAL_SETTINGS,
     colors: COLORS,
-    handlers: {},
+    handlers: HANDLERS,
   },
 
   frameId: null,
@@ -98,6 +109,10 @@ export function getState<TNode extends object, TLink extends object>(
       colors: {
         ...(initialState?.colors ?? {}),
         ...INITIAL_STATE.externalState.colors,
+      },
+      handlers: {
+        ...(initialState?.handlers ?? {}),
+        ...INITIAL_STATE.externalState.handlers,
       },
     },
   }

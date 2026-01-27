@@ -1,4 +1,4 @@
-import { getState } from '../state'
+import { getState, INITIAL_STATE } from '../state'
 import { ExternalState } from '../typings/state'
 
 import { DeepKey, DeepValue } from '../typings/utils'
@@ -58,6 +58,20 @@ export function createGraph<TNode extends object, TLink extends object>(
     })
   }
 
+  function _initializeExternalHandlers() {
+    Object.entries({
+      ...state.externalState.handlers,
+      ...INITIAL_STATE.externalState.handlers,
+    }).forEach(([key, value]) => {
+      updateExternalParam(
+        state,
+        `handlers.${key as keyof typeof state.externalState.handlers}`,
+        value,
+        _startHandlers,
+      )
+    })
+  }
+
   function updater<K extends DeepKey<ExternalState>>(
     key: K,
     value: DeepValue<ExternalState, K>,
@@ -79,6 +93,8 @@ export function createGraph<TNode extends object, TLink extends object>(
     const context = canvas.getContext('2d')
     state.canvas = canvas
     state.context = context
+
+    _initializeExternalHandlers()
     _startHandlers()
   }
 

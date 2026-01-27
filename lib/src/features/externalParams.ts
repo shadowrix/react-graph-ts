@@ -53,7 +53,7 @@ export function updateExternalParam<K extends DeepKey<ExternalState>>(
       return
     /** SET FUNCTIONS */
     case 'handlers.nodeLabel':
-      if (typeof value !== 'function' || typeof value !== 'undefined')
+      if (typeof value !== 'function' && typeof value !== 'undefined')
         return console.error(
           "nodeLabel doesn't match the function or undefined type.",
         )
@@ -69,12 +69,12 @@ export function updateExternalParam<K extends DeepKey<ExternalState>>(
       }
       return
     case 'handlers.nodeColor':
-      if (typeof value !== 'function' || typeof value !== 'undefined')
+      if (typeof value !== 'function' && typeof value !== 'undefined')
         return console.error(
           "nodeColor doesn't match the function or undefined type.",
         )
       if (value) {
-        state.externalState!.handlers.nodeColor = value
+        state.externalState!.handlers.nodeColor = value as DetectNodeColorFn
       } else {
         state.externalState!.handlers.nodeColor = (
           ...params: Parameters<DetectNodeColorFn>
@@ -94,12 +94,12 @@ export function updateExternalParam<K extends DeepKey<ExternalState>>(
       }
       return
     case 'handlers.linkColor':
-      if (typeof value !== 'function' || typeof value !== 'undefined')
+      if (typeof value !== 'function' && typeof value !== 'undefined')
         return console.error(
           "linkColor doesn't match the function or undefined type.",
         )
       if (value) {
-        state.externalState!.handlers.linkColor = value
+        state.externalState!.handlers.linkColor = value as LinkColorFn
         return
       }
       state.externalState.handlers.linkColor = (
@@ -120,12 +120,12 @@ export function updateExternalParam<K extends DeepKey<ExternalState>>(
       }
       return
     case 'handlers.linkLabel':
-      if (typeof value !== 'function' || typeof value !== 'undefined')
+      if (typeof value !== 'function' && typeof value !== 'undefined')
         return console.error(
           "linkLabel doesn't match the function or undefined type.",
         )
       if (value) {
-        state.externalState!.handlers.linkLabel = value
+        state.externalState!.handlers.linkLabel = value as LinkLabelFn
         return
       }
       state.externalState.handlers.linkLabel = (
@@ -138,7 +138,7 @@ export function updateExternalParam<K extends DeepKey<ExternalState>>(
     case 'handlers.onSelectedNode':
     case 'handlers.onClick':
     case 'handlers.drawNode':
-      if (typeof value !== 'function' || typeof value !== 'undefined')
+      if (typeof value !== 'function' && typeof value !== 'undefined')
         return console.error(
           `${key} doesn't match the function or undefined type.`,
         )

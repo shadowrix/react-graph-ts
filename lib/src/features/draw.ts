@@ -287,7 +287,7 @@ export function drawAllLinks(state: State) {
     link.drawIndex = index
   }
 }
-let foo = 1
+
 //TODO: Add all settings for node and custom nodes
 export function drawNode(state: State, node: NodeType) {
   function draw() {
@@ -324,10 +324,6 @@ export function drawNode(state: State, node: NodeType) {
     const label = state.externalState.handlers.nodeLabel?.(node)
     if (state.transform.k < 0.6 || !label) return
 
-    if (foo < 10) {
-      console.log(state.externalState.settings.withNodeLabels)
-      foo++
-    }
     if (!state.externalState.settings.withNodeLabels) return
     // label
     context.font = '12px sans-serif'

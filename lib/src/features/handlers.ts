@@ -1,37 +1,37 @@
-import React from 'react'
-
 import { select } from 'd3-selection'
 
-import { RefState } from '../state'
+import { INITIAL_STATE } from '../state'
 import { ClickedButton, LinkType } from '../typings'
 import { cubicBezierBBox } from '../helpers'
+import { State } from '../typings/state'
 
-export type UseHandlersParameters = {
-  state: RefState
+export type HandleHandlersParams = {
+  state: State
   getPointerCoords: (clientX: number, clientY: number) => [number, number]
 }
 
-export function useHandlers({
+export function handleHandlers({
   state,
   getPointerCoords,
-}: UseHandlersParameters) {
+}: HandleHandlersParams) {
+  state.unSubscribeFeatures.handleHandlers?.()
+
   function findHoveredNode(gx: number, gy: number, radius: number) {
-    return state.current!.nodesCache?.find(gx, gy, radius) || null
+    return state.nodesCache?.find(gx, gy, radius) || null
   }
 
   /** HANDLE HOVER */
-  React.useEffect(() => {
-    const canvas = state.current!.canvas!
-
+  function handleHover() {
     function handleMove(event: PointerEvent) {
-      if (state.current!.isDragging) return
+      if (state!.isDragging) return
 
       const [x, y] = getPointerCoords(event.clientX, event.clientY)
 
       const hoveredNode = findHoveredNode(
         x,
         y,
-        state.current!.settings.nodeRadius,
+        state!.externalState?.settings?.nodeRadius ??
+          INITIAL_STATE.externalState.settings.nodeRadius!,
       )
 
       let hoveredLink: LinkType | null = null
@@ -43,7 +43,7 @@ export function useHandlers({
         const cy = Math.floor(y / cellSize)
 
         const key = `${cx},${cy}`
-        const candidates = state.current!.linksGrid.get(key)
+        const candidates = state!.linksGrid.get(key)
         if (candidates) {
           const sortedCandidates = candidates
             .slice()
@@ -97,8 +97,8 @@ export function useHandlers({
           }
 
           if (
-            !state.current!.hoveredData.node &&
-            !state.current!.hoveredData.link &&
+            !state!.hoveredData.node &&
+            !state!.hoveredData.link &&
             !hoveredLink
           )
             return
@@ -106,26 +106,24 @@ export function useHandlers({
       }
 
       if (
-        (hoveredNode?.id &&
-          state.current!.hoveredData.node?.id === hoveredNode?.id) ||
-        (hoveredLink?.id &&
-          state.current!.hoveredData.link?.id === hoveredLink?.id)
+        (hoveredNode?.id && state!.hoveredData.node?.id === hoveredNode?.id) ||
+        (hoveredLink?.id && state!.hoveredData.link?.id === hoveredLink?.id)
       )
         return
 
-      state.current!.hoveredData.link = hoveredLink
-      state.current!.hoveredData.node = hoveredNode
-      state.current!.hoveredData.pointer = { x, y }
+      state!.hoveredData.link = hoveredLink
+      state!.hoveredData.node = hoveredNode
+      state!.hoveredData.pointer = { x, y }
     }
 
-    canvas.addEventListener('pointermove', handleMove)
+    state.canvas?.addEventListener('pointermove', handleMove)
 
-    return () => canvas?.removeEventListener?.('pointermove', handleMove)
-  }, [])
+    return () => state.canvas?.removeEventListener?.('pointermove', handleMove)
+  }
 
   /** HANDLE CLICKS */
-  React.useEffect(() => {
-    const canvas = select(state.current!.canvas!)
+  function handleClicks() {
+    const canvas = select(state!.canvas!)
 
     canvas.on('contextmenu', (event) => {
       event.preventDefault()
@@ -133,19 +131,19 @@ export function useHandlers({
     canvas.on('pointerup', (event: MouseEvent) => {
       const { button, ctrlKey } = event
 
-      if (state.current!.isDragging) return
+      if (state!.isDragging) return
 
       function handleTarget(type: ClickedButton) {
-        if (state.current!.hoveredData.link)
-          return state.current?.onClick?.(
-            state.current!.hoveredData.link,
+        if (state!.hoveredData.link)
+          return state?.externalState.handlers?.onClick?.(
+            state!.hoveredData.link,
             'link',
             type,
             event,
           )
-        if (state.current!.hoveredData.node)
-          return state.current?.onClick?.(
-            state.current!.hoveredData.node,
+        if (state!.hoveredData.node)
+          return state?.externalState.handlers?.onClick?.(
+            state!.hoveredData.node,
             'node',
             type,
             event,
@@ -156,18 +154,34 @@ export function useHandlers({
         const clickedNode = findHoveredNode(
           x,
           y,
-          state.current!.settings.nodeRadius,
+          state!.externalState?.settings?.nodeRadius ??
+            INITIAL_STATE.externalState.settings.nodeRadius!,
         )
 
         if (clickedNode)
-          return state.current?.onClick?.(clickedNode, 'node', type, event)
+          return state?.externalState.handlers?.onClick?.(
+            clickedNode,
+            'node',
+            type,
+            event,
+          )
 
         const clickedLink = findLink(state, x, y)
 
         if (clickedLink)
-          return state.current?.onClick?.(clickedLink, 'link', type, event)
+          return state?.externalState.handlers?.onClick?.(
+            clickedLink,
+            'link',
+            type,
+            event,
+          )
 
-        return state.current?.onClick?.(null, 'background', type, event)
+        return state?.externalState.handlers?.onClick?.(
+          null,
+          'background',
+          type,
+          event,
+        )
       }
 
       switch (true) {
@@ -185,7 +199,15 @@ export function useHandlers({
       canvas?.on?.('mouseup', null)
       canvas?.on?.('contextmenu', null)
     }
-  }, [])
+  }
+
+  const unSubscribeHandleHover = handleHover()
+  const unSubscribeHandleClicks = handleClicks()
+
+  return () => {
+    unSubscribeHandleHover()
+    unSubscribeHandleClicks()
+  }
 }
 
 // conservative bezier bbox (control + endpoints)
@@ -311,14 +333,14 @@ function hitTestCubic(
   return false
 }
 
-function findLink(state: RefState, pointerX: number, pointerY: number) {
+function findLink(state: State, pointerX: number, pointerY: number) {
   const cellSize = 150
 
   const cx = Math.floor(pointerX / cellSize)
   const cy = Math.floor(pointerY / cellSize)
 
   const key = `${cx},${cy}`
-  const candidates = state.current!.linksGrid.get(key)
+  const candidates = state.linksGrid.get(key)
   if (!candidates) return null
 
   const sortedCandidates = candidates

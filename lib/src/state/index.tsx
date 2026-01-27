@@ -1,77 +1,56 @@
-import React from 'react'
+import { zoomIdentity } from 'd3-zoom'
+import { ExternalState, State } from '../typings/state'
 
-import { Quadtree } from 'd3-quadtree'
-import { Simulation } from 'd3-force'
-import { ZoomBehavior, zoomIdentity, ZoomTransform } from 'd3-zoom'
+export const INITIAL_SETTINGS = {
+  linkDistance: 100,
+  linkStrength: 0.7,
 
-import {
-  Colors,
-  DetectNodeColorFn,
-  DrawNodeFn,
-  NodeLabelFn,
-  HoveredData,
-  LinkColorFn,
-  LinkLabelFn,
-  LinkType,
-  NodeType,
-  OnClickFn,
-  OnSelectedNodesFn,
-  Settings,
-} from '../typings'
-import { COLORS, INITIAL_SETTINGS } from '../constants'
+  linkWidth: 1,
+  arrowSize: 14,
 
-export type State = {
-  //GRAPH SIZES
-  width: number
-  height: number
-  //
-  canvas: HTMLCanvasElement | null
-  context: CanvasRenderingContext2D | null
-  nodes: NodeType[]
-  links: LinkType[]
-  isRequestRendering: boolean
-  simulationEngine: Simulation<NodeType, undefined> | null
-  transform: ZoomTransform
-  zoomBehavior: ZoomBehavior<HTMLCanvasElement, unknown> | null
+  nodeRadius: 8,
+  hoveredBorder: 4,
 
-  onClick?: OnClickFn
-  //-----------------LASSO-------------------
-  lassoPath: [number, number][]
-  isLassoing: boolean
-  //-----------------CACHE-------------------
-  nodesCache: Quadtree<NodeType> | null
-  linksGrid: Map<string, LinkType[]>
-  //-----------------STATES-------------------
-  //drag and zoom, mb rename like isProcess
-  isDragging: boolean
-  hoveredData: HoveredData
-  particleProgress: number
-  // set true when something has been changed on the graph.
-  isGraphChanged: boolean
+  alphaDecay: 0.05,
 
-  //-----------------SETTINGS-------------------
-  settings: Settings
+  isFixed: false,
+  isFixedNodeAfterDrag: true,
 
-  colors: Colors
-  //-----------------Functions-------------------
-  nodeLabel?: NodeLabelFn
-  nodeColor?: DetectNodeColorFn
-  onSelectedNode?: OnSelectedNodesFn
-  linkColor?: LinkColorFn
-  linkLabel?: LinkLabelFn
-  drawNode?: DrawNodeFn
+  //Particles of link
+  particlesSpeed: 0.015,
+  particlesSize: 3,
+  withParticles: true,
+
+  isDashed: false,
+  withNodeLabels: true,
+  withLinksArrows: true,
 }
 
-const INITIAL_STATE = {
+export const COLORS = {
+  background: '#2d313a',
+
+  node: '#4b5bbe',
+  nodeHover: '#ec69b3',
+  nodeActive: '#DDB67D',
+
+  link: '#5F74C2',
+  linkHover: '#ec69b3',
+  linkActive: '#DDB67D',
+
+  nodeLabel: '#D9DBE0',
+
+  particles: '#ff1974',
+
+  arrow: undefined,
+}
+
+export const INITIAL_STATE = {
   //GRAPH SIZES
-  width: 0,
-  height: 0,
   //
   canvas: null,
   context: null,
-  nodes: [],
+
   nodesCache: null,
-  links: [],
   linksGrid: new Map(),
   isRequestRendering: false,
   simulationEngine: null,
@@ -87,23 +66,41 @@ const INITIAL_STATE = {
   },
   particleProgress: 0,
 
-  settings: INITIAL_SETTINGS,
-
-  colors: COLORS,
-
   isGraphChanged: true,
+
+  externalState: {
+    width: 0,
+    height: 0,
+    nodes: [],
+    links: [],
+    settings: INITIAL_SETTINGS,
+    colors: COLORS,
+    handlers: {},
+  },
+
+  frameId: null,
+
+  unSubscribeFeatures: {},
 } as State
 
-export type RefState = React.RefObject<State>
+export function getState<TNode extends object, TLink extends object>(
+  initialState?: Partial<ExternalState<TNode, TLink>>,
+) {
+  const state = {
+    ...INITIAL_STATE,
+    externalState: {
+      ...INITIAL_STATE.externalState,
+      ...(initialState ?? {}),
+      settings: {
+        ...(initialState?.settings ?? {}),
+        ...INITIAL_STATE.externalState.settings,
+      },
+      colors: {
+        ...(initialState?.colors ?? {}),
+        ...INITIAL_STATE.externalState.colors,
+      },
+    },
+  }
 
-export function useRefManager() {
-  const refs = React.useRef<State>(INITIAL_STATE)
-
-  const register =
-    <T extends keyof State>(name: T) =>
-    (element: State[T]) => {
-      refs.current[name] = element
-    }
-
-  return { refs, register }
+  return JSON.parse(JSON.stringify(state)) as State
 }

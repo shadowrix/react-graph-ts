@@ -5,8 +5,8 @@ import {
   computeQuadraticControlPoint,
   computeCubicControlCoords,
 } from './links'
-import { RefState } from '../state'
 import { LinkType, NodeType } from '../typings'
+import { State } from '../typings/state'
 
 export { computeQuadraticControlPoint, computeCubicControlCoords }
 
@@ -259,10 +259,10 @@ export function assignCurves(links: LinkType[]): LinkType[] {
   return links
 }
 
-export function zoomToFit(state: RefState) {
-  if (!state.current?.nodes?.length) return
+export function zoomToFit(state: State) {
+  if (!state.externalState?.nodes?.length) return
 
-  const { width, height } = state.current.canvas!
+  const { width, height } = state.canvas!
 
   // 1. compute graph bounding box
   let minX = Infinity,
@@ -270,7 +270,7 @@ export function zoomToFit(state: RefState) {
     minY = Infinity,
     maxY = -Infinity
 
-  for (const n of state.current!.nodes) {
+  for (const n of state.externalState!.nodes) {
     if (n.x! < minX) minX = n.x!
     if (n.x! > maxX) maxX = n.x!
     if (n.y! < minY) minY = n.y!
@@ -297,35 +297,35 @@ export function zoomToFit(state: RefState) {
     .scale(scale)
 
   // 5. apply with animation
-  select(state.current!.canvas!)
+  select(state.canvas!)
     .transition()
     .duration(450)
-    .call(state.current!.zoomBehavior!.transform!, nextTransform)
+    .call(state.zoomBehavior!.transform!, nextTransform)
 }
 
-function animateTo(state: RefState, transform: ZoomTransform, duration = 0) {
-  const selection = select(state.current!.canvas)
+function animateTo(state: State, transform: ZoomTransform, duration = 0) {
+  const selection = select(state.canvas)
 
   if (duration === 0) {
-    selection.call(state.current!.zoomBehavior!.transform! as any, transform)
+    selection.call(state.zoomBehavior!.transform! as any, transform)
   } else {
     selection
       .transition()
       .duration(duration)
-      .call(state.current!.zoomBehavior!.transform! as any, transform)
+      .call(state.zoomBehavior!.transform! as any, transform)
   }
 }
 
 export function centerAt(
-  state: RefState,
+  state: State,
   x: number,
   y: number,
   transform?: number,
   duration = 0,
 ) {
-  const t = transform ?? state.current!.transform.k
-  const width = state.current!.canvas!.width
-  const height = state.current!.canvas!.height
+  const t = transform ?? state.transform.k
+  const width = state.canvas!.width
+  const height = state.canvas!.height
 
   const newTransform = zoomIdentity
     .translate(width / 2 - t * x, height / 2 - t * y)
@@ -334,10 +334,10 @@ export function centerAt(
   animateTo(state, newTransform, duration)
 }
 
-export function zoom(state: RefState, scale: number, duration = 0) {
-  const t = state.current!.transform
-  const width = state.current!.canvas!.width
-  const height = state.current!.canvas!.height
+export function zoom(state: State, scale: number, duration = 0) {
+  const t = state.transform
+  const width = state.canvas!.width
+  const height = state.canvas!.height
 
   const newTransform = zoomIdentity
     .translate(

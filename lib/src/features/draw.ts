@@ -1,7 +1,8 @@
-import { RefState } from '../state'
 import { computeQuadraticControlPoint } from '../helpers'
 import { LinkType, NodeType } from '../typings'
 import { computeCubicControlCoords } from '../helpers'
+import { State } from '../typings/state'
+import { INITIAL_STATE } from '../state'
 
 function drawSelfLink(
   context: CanvasRenderingContext2D,
@@ -158,49 +159,51 @@ function updateViewCoords(
 }
 
 //TODO: Add all settings for links and mb custom links
-export function drawLink(state: RefState, link: LinkType) {
+export function drawLink(state: State, link: LinkType) {
   const source = link.source as unknown as NodeType
   const target = link.target as unknown as NodeType
 
   const isHovered =
-    state.current!.hoveredData.link?.id === link.id ||
-    state.current!.hoveredData.node?.id === source.id ||
-    state.current!.hoveredData.node?.id === target.id
+    state.hoveredData.link?.id === link.id ||
+    state.hoveredData.node?.id === source.id ||
+    state.hoveredData.node?.id === target.id
 
-  const isDashed = link.settings?.isDashed ?? state.current!.settings.isDashed
+  const isDashed =
+    link.settings?.isDashed ?? state.externalState.settings.isDashed
   const withParticles =
-    link.settings?.withParticles ?? state.current!.settings.withParticles
+    link.settings?.withParticles ?? state.externalState.settings.withParticles
   const color =
-    state.current!.linkColor?.(link, isHovered) ??
+    state.externalState.handlers.linkColor?.(link, isHovered) ??
     link.settings?.color ??
-    state.current!.colors.link
+    state.externalState.colors.link ??
+    INITIAL_STATE.externalState.colors.link!
+
+  const nodeRadius =
+    state.externalState.settings.nodeRadius ??
+    INITIAL_STATE.externalState.settings.nodeRadius!
 
   const withArrow =
-    link.settings?.withArrow ?? state.current?.settings.withLinksArrows
+    link.settings?.withArrow ?? state.externalState?.settings.withLinksArrows
 
-  const width = link.settings?.width ?? state.current?.settings.linkWidth ?? 1
+  const width =
+    link.settings?.width ?? state.externalState?.settings.linkWidth ?? 1
 
   const arrowSize =
-    (state.current?.settings.arrowSize ?? 14) * (width > 2 ? width * 0.5 : 1)
+    (state.externalState.settings.arrowSize ?? 14) *
+    (width > 2 ? width * 0.5 : 1)
 
-  if (
-    !source?.x ||
-    !target?.x ||
-    !source?.y ||
-    !target?.y ||
-    !state.current!.context
-  )
+  if (!source?.x || !target?.x || !source?.y || !target?.y || !state.context)
     return
 
   if (source.id === target.id) {
     if (!link._viewSettings) link._viewSettings = {}
     return drawSelfLink(
-      state.current!.context,
+      state.context,
       link,
       source.x,
       source.y,
       withArrow,
-      state.current!.settings.nodeRadius,
+      nodeRadius,
       color,
       width,
       isHovered,
@@ -209,7 +212,7 @@ export function drawLink(state: RefState, link: LinkType) {
   }
 
   //TODO: Mb execute only when positions has been changed of nodes or links
-  updateViewCoords(link, source, target, state.current!.settings.nodeRadius)
+  updateViewCoords(link, source, target, nodeRadius)
 
   if (
     !link?._viewSettings?.start ||
@@ -219,29 +222,26 @@ export function drawLink(state: RefState, link: LinkType) {
   )
     return
 
-  state.current!.context.beginPath()
-  state.current!.context.moveTo(
-    link._viewSettings.start.x,
-    link._viewSettings.start.y,
-  )
-  state.current!.context.quadraticCurveTo(
+  state.context.beginPath()
+  state.context.moveTo(link._viewSettings.start.x, link._viewSettings.start.y)
+  state.context.quadraticCurveTo(
     link.control.x,
     link.control.y,
     link._viewSettings.end.x,
     link._viewSettings.end.y,
   )
 
-  state.current!.context!.setLineDash([])
+  state.context!.setLineDash([])
   if (isDashed) {
-    state.current!.context!.setLineDash([10, 5])
+    state.context!.setLineDash([10, 5])
   }
-  state.current!.context!.strokeStyle = color
-  state.current!.context!.lineWidth = width
+  state.context!.strokeStyle = color
+  state.context!.lineWidth = width
   if (isHovered) {
-    state.current!.context!.lineWidth = width + 1
+    state.context!.lineWidth = width + 1
   }
 
-  state.current!.context.stroke()
+  state.context.stroke()
 
   if (withArrow) {
     const angle = Math.atan2(
@@ -249,13 +249,13 @@ export function drawLink(state: RefState, link: LinkType) {
       link._viewSettings.tEnd.x,
     )
     drawArrow(
-      state.current!.context,
+      state.context,
       link._viewSettings.end.x,
       link._viewSettings.end.y,
       angle,
       arrowSize,
       0.36,
-      state.current!.colors.arrow ?? color,
+      state.externalState.colors.arrow ?? color,
     )
   }
 
@@ -266,84 +266,97 @@ export function drawLink(state: RefState, link: LinkType) {
   }
 }
 
-export function drawAllLinks(state: RefState) {
-  if (state.current!.hoveredData.link || state.current!.hoveredData.node) {
-    state.current!.particleProgress =
-      state.current!.particleProgress + state.current!.settings.particlesSpeed
+export function drawAllLinks(state: State) {
+  if (state.hoveredData.link || state.hoveredData.node) {
+    const particlesSpeed =
+      state.externalState.settings.particlesSpeed ??
+      INITIAL_STATE.externalState.settings.particlesSpeed!
+    state.particleProgress = state.particleProgress + particlesSpeed
 
-    if (state.current!.particleProgress > 1) {
-      state.current!.particleProgress = 0
+    if (state.particleProgress > 1) {
+      state.particleProgress = 0
     }
   } else {
-    state.current!.particleProgress = 0
+    state.particleProgress = 0
   }
-  for (let index = 0; index < state.current!.links.length; index++) {
-    const link = state.current!.links[index]
+  for (let index = 0; index < state.externalState.links.length; index++) {
+    const link = state.externalState.links[index]
 
     drawLink(state, link)
 
     link.drawIndex = index
   }
 }
-
+let foo = 1
 //TODO: Add all settings for node and custom nodes
-export function drawNode(state: RefState, node: NodeType) {
+export function drawNode(state: State, node: NodeType) {
   function draw() {
     const x = node.x
     const y = node.y
-    const context = state.current?.context
+    const context = state.context
 
     if (!context || !x || !y) return
-    const radius = state.current!.settings.nodeRadius
+    const radius =
+      state.externalState.settings.nodeRadius ??
+      INITIAL_STATE.externalState.settings.nodeRadius!
 
     const isHovered =
-      state.current!.hoveredData.node?.id === node.id ||
-      (state.current!.hoveredData.link?.source as unknown as NodeType)?.id ===
-        node.id ||
-      (state.current!.hoveredData.link?.target as unknown as NodeType)?.id ===
-        node.id
+      state.hoveredData.node?.id === node.id ||
+      (state.hoveredData.link?.source as unknown as NodeType)?.id === node.id ||
+      (state.hoveredData.link?.target as unknown as NodeType)?.id === node.id
 
     context.beginPath()
-    context.fillStyle = state.current!.nodeColor
-      ? state.current!.nodeColor(node, false)
-      : state.current!.colors.node
+    context.fillStyle = state.externalState.handlers.nodeColor
+      ? state.externalState.handlers.nodeColor(node, false)
+      : (state.externalState.colors.node ??
+        INITIAL_STATE.externalState.colors.node!)
     context.arc(x, y, radius, 0, Math.PI * 2)
     if (isHovered) {
-      context.strokeStyle = state.current!.colors.nodeHover
-      context.lineWidth = state.current!.settings.hoveredBorder
+      context.strokeStyle =
+        state.externalState!.colors.nodeHover ??
+        INITIAL_STATE.externalState.colors.nodeHover!
+      context.lineWidth =
+        state.externalState!.settings.hoveredBorder ??
+        INITIAL_STATE.externalState.settings.hoveredBorder!
       context.stroke()
     }
     context.fill()
-    const label = state.current!.nodeLabel?.(node)
-    if (state.current!.transform.k < 0.6 || !label) return
+    const label = state.externalState.handlers.nodeLabel?.(node)
+    if (state.transform.k < 0.6 || !label) return
 
-    if (!state.current!.settings.withNodeLabels) return
+    if (foo < 10) {
+      console.log(state.externalState.settings.withNodeLabels)
+      foo++
+    }
+    if (!state.externalState.settings.withNodeLabels) return
     // label
     context.font = '12px sans-serif'
-    context.fillStyle = state.current!.colors.nodeLabel
+    context.fillStyle =
+      state.externalState.colors.nodeLabel ??
+      INITIAL_STATE.externalState.colors.nodeLabel!
     context.textBaseline = 'bottom'
     context.textAlign = 'center'
     context.fillText(label, x, y - radius - 6)
   }
 
-  if (state.current?.drawNode) {
-    state.current?.drawNode(state.current!.context!, node, draw)
+  if (state.externalState.handlers?.drawNode) {
+    state.externalState.handlers.drawNode(state.context!, node, draw)
     return
   }
 
   draw()
 }
 
-export function drawAllNodes(state: RefState) {
-  if (!state.current!.context) return
-
-  for (const node of state.current!.nodes) {
+export function drawAllNodes(state: State) {
+  if (!state.context) return
+  // console.log('nodes', state.externalState.nodes)
+  for (const node of state.externalState.nodes) {
     drawNode(state, node)
   }
 }
 
 function drawCurvedLinkParticle(
-  state: RefState,
+  state: State,
   link: LinkType,
   controlX: number,
   controlY: number,
@@ -357,19 +370,22 @@ function drawCurvedLinkParticle(
     controlY,
     link._viewSettings.end.x,
     link._viewSettings.end.y,
-    state.current!.particleProgress,
+    state.particleProgress,
   )
 
-  state.current!.context!.beginPath()
-  state.current!.context!.arc(
+  state.context!.beginPath()
+  state.context!.arc(
     p.x,
     p.y,
-    state.current!.settings.particlesSize,
+    state.externalState.settings.particlesSize ??
+      INITIAL_STATE.externalState.settings.particlesSize!,
     0,
     Math.PI * 2,
   )
-  state.current!.context!.fillStyle = state.current!.colors.particles
-  state.current!.context!.fill()
+  state.context!.fillStyle =
+    state.externalState.colors.particles ??
+    INITIAL_STATE.externalState.colors.particles!
+  state.context!.fill()
 }
 
 function getPointOnQuadraticCurve(
@@ -412,22 +428,22 @@ function drawRoundedRect(
 }
 
 export function drawLinkTooltip(
-  state: RefState,
+  state: State,
   pointerX: number,
   pointerY: number,
 ) {
-  if (!state.current?.hoveredData.link) return
+  if (!state.hoveredData.link) return
 
-  const text = state.current?.linkLabel?.(state.current.hoveredData.link)
+  const text = state.externalState.handlers?.linkLabel?.(state.hoveredData.link)
   const padX = 6 // horizontal padding
   const padY = 4 // vertical padding
   const fontSize = 12
 
-  state.current.context!.font = `${fontSize}px sans-serif`
-  state.current.context!.textBaseline = 'top'
-  state.current.context!.textAlign = 'center' // << center text horizontally
+  state.context!.font = `${fontSize}px sans-serif`
+  state.context!.textBaseline = 'top'
+  state.context!.textAlign = 'center' // << center text horizontally
 
-  const textWidth = state.current.context!.measureText(text ?? '').width
+  const textWidth = state.context!.measureText(text ?? '').width
   const tooltipWidth = textWidth + padX * 2
   const tooltipHeight = fontSize + padY * 2
 
@@ -435,37 +451,37 @@ export function drawLinkTooltip(
   const y = pointerY + 4
 
   // Draw background (rounded rect)
-  state.current.context!.fillStyle = 'rgba(0,0,0,0.70)'
-  state.current.context!.strokeStyle = 'rgba(0,0,0,0)'
-  state.current.context!.lineWidth = 0
-  drawRoundedRect(state.current.context!, x, y, tooltipWidth, tooltipHeight, 6)
-  state.current.context!.fill()
+  state.context!.fillStyle = 'rgba(0,0,0,0.70)'
+  state.context!.strokeStyle = 'rgba(0,0,0,0)'
+  state.context!.lineWidth = 0
+  drawRoundedRect(state.context!, x, y, tooltipWidth, tooltipHeight, 6)
+  state.context!.fill()
 
   // Draw text centered inside
-  state.current.context!.fillStyle = 'white'
-  state.current.context!.fillText(
+  state.context!.fillStyle = 'white'
+  state.context!.fillText(
     text ?? '',
     x + tooltipWidth / 2, // centered horizontally
     y + padY, // top padding
   )
-  state.current.context!.stroke()
+  state.context!.stroke()
 }
 
-export function drawLasso(state: RefState) {
-  const lassoPath = state.current?.lassoPath
+export function drawLasso(state: State) {
+  const lassoPath = state.lassoPath
   if (lassoPath && lassoPath?.length > 0) {
-    state.current!.context!.beginPath()
-    state.current!.context!.moveTo(lassoPath[0][0], lassoPath[0][1])
+    state.context!.beginPath()
+    state.context!.moveTo(lassoPath[0][0], lassoPath[0][1])
     for (let i = 1; i < lassoPath.length; i++) {
-      state.current!.context!.lineTo(lassoPath[i][0], lassoPath[i][1])
+      state.context!.lineTo(lassoPath[i][0], lassoPath[i][1])
     }
-    state.current!.context!.setLineDash([4, 8])
-    state.current!.context!.closePath()
-    state.current!.context!.lineWidth = 1
-    state.current!.context!.fillStyle = 'rgba(0,0,0,.1)'
-    state.current!.context!.fill('evenodd')
-    state.current!.context!.strokeStyle = '#363740'
-    state.current!.context!.stroke()
-    state.current!.context!.setLineDash([])
+    state.context!.setLineDash([4, 8])
+    state.context!.closePath()
+    state.context!.lineWidth = 1
+    state.context!.fillStyle = 'rgba(0,0,0,.1)'
+    state.context!.fill('evenodd')
+    state.context!.strokeStyle = '#363740'
+    state.context!.stroke()
+    state.context!.setLineDash([])
   }
 }

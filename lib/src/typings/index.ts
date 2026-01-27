@@ -1,4 +1,5 @@
-import { INITIAL_SETTINGS } from '../constants'
+import { ExternalState } from './state'
+import { DeepKey, DeepValue } from './utils'
 
 export type NodeType<T extends object = object> = {
   id: string
@@ -55,26 +56,6 @@ export type HoveredData<
   pointer?: { x?: number; y?: number } | null
 }
 
-export type Settings = typeof INITIAL_SETTINGS
-
-export type Colors = {
-  background: string
-
-  node: string
-  nodeHover: string
-  nodeActive: string
-
-  link: string
-  linkHover: string
-  linkActive: string
-
-  nodeLabel: string
-
-  particles: string
-
-  arrow?: string
-}
-
 export type ClickedButton = 'right' | 'left' | 'ctrl-left' | 'ctrl-right'
 
 export type ClickArea = 'background' | 'node' | 'link'
@@ -117,6 +98,11 @@ export type DrawNodeFn<TNode extends object = object> = (
 export type NodeLabelFn<TNode extends object = object> = (
   target: NodeType<TNode>,
 ) => string
+
+export type UpdaterFn = <K extends DeepKey<ExternalState>>(
+  key: K,
+  value: DeepValue<ExternalState, K>,
+) => void
 
 export type GraphRef = {
   getPointerCoords: (x: number, y: number) => [number, number]

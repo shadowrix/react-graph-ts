@@ -304,6 +304,7 @@ export function Main() {
       <Block>
         <div className="w-full h-full rounded-lg overflow-hidden">
           <Graph
+            id='test-graph'
             ref={graphRef}
             nodes={nodes as NodeType[]}
             links={links as LinkType[]}
